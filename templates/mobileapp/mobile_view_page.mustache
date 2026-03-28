@@ -1,0 +1,118 @@
+{{!
+    @template mod_videotracker/mobileapp/mobile_view_page
+
+    Mobile view for the Video Tracker activity.
+
+    Example context (json):
+    {
+        "name": "Video Tracker",
+        "useactivitywebview": 1,
+        "viewurl": "https://example.invalid/mod/videotracker/view.php?id=10",
+        "hasvideo": false,
+        "ishtml5": false,
+        "isembed": false,
+        "posterurl": "",
+        "videourl": "",
+        "mime": "video/mp4",
+        "embedratio": "16 / 9",
+        "provider": "youtube",
+        "externalid": "abc123",
+        "embedurl": "https://www.youtube.com/embed/abc123"
+    }
+}}
+{{=<% %>=}}
+<div class="mod-videotracker-mobile">
+    <%#name%>
+        <h3 class="ion-padding-start ion-padding-end"><% name %></h3>
+    <%/name%>
+    <%^name%>
+        <h3 class="ion-padding-start ion-padding-end">{{ 'plugin.mod_videotracker.modulename' | translate }}</h3>
+    <%/name%>
+
+    <%#useactivitywebview%>
+        <ion-card>
+            <ion-card-content>
+                <p>{{ 'plugin.mod_videotracker.mobileopenactivitydesc' | translate }}</p>
+                <ion-button id="vt-mobile-open-activity" expand="block" href="<% viewurl %>" core-link inApp="true" autoLogin="yes">
+                    {{ 'plugin.mod_videotracker.mobileopenactivity' | translate }}
+                </ion-button>
+            </ion-card-content>
+        </ion-card>
+    <%/useactivitywebview%>
+
+    <%^useactivitywebview%>
+    <%#hasvideo%>
+        <ion-button class="vt-mobile-track-trigger"
+                    style="display:none"
+                    core-site-plugins-call-ws
+                    name="mod_videotracker_update_progress"
+                    [params]="{
+                        cmid: CONTENT_OTHERDATA.cmid,
+                        videotrackerid: CONTENT_OTHERDATA.instanceid,
+                        duration: CONTENT_OTHERDATA.duration,
+                        currenttime: CONTENT_OTHERDATA.currenttime,
+                        rate: CONTENT_OTHERDATA.rate,
+                        state: CONTENT_OTHERDATA.state,
+                        seq: CONTENT_OTHERDATA.seq,
+                        clientts: CONTENT_OTHERDATA.clientts
+                    }"
+                    [preSets]="{getFromCache: 0, saveToCache: 0}"
+                    [showError]="false"
+                    (onSuccess)="vtTrackCallSuccess($event)"
+                    (onError)="vtTrackCallError($event)">
+        </ion-button>
+
+        <%#ishtml5%>
+            <div class="vt-mobile-player-wrap" style="margin:0 12px 12px;">
+                <video class="vt-mobile-player"
+                       id="vt-mobile-video"
+                       controls
+                       preload="metadata"
+                       playsinline
+                       style="width:100%;height:auto;display:block;border-radius:8px;background:#000;"
+                       (loadedmetadata)="vtHtml5LoadedMetadata($event)"
+                       (play)="vtHtml5Play($event)"
+                       (timeupdate)="vtHtml5TimeUpdate($event)"
+                       (pause)="vtHtml5Pause($event)"
+                       (ended)="vtHtml5Ended($event)"
+                       component="mod_videotracker"
+                       componentId="<% cmid %>"
+                       <%#posterurl%>poster="<% posterurl %>"<%/posterurl%>>
+                    <source src="<% videourl %>" <%#mime%>type="<% mime %>"<%/mime%> core-external-content>
+                </video>
+            </div>
+        <%/ishtml5%>
+
+        <%#isembed%>
+            <div class="vt-mobile-embed-wrap"
+                 style="position:relative;width:calc(100% - 24px);margin:0 12px 12px;background:#000;border-radius:8px;overflow:hidden;aspect-ratio:<% embedratio %>;">
+                <iframe class="vt-mobile-embed"
+                        id="vt-mobile-embed-player"
+                        data-provider="<% provider %>"
+                        data-videoid="<% externalid %>"
+                        src="<% embedurl %>"
+                        title="<% name %>"
+                        style="position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;border:0;display:block;"
+                        frameborder="0"
+                        loading="lazy"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen
+                        core-external-content>
+                </iframe>
+            </div>
+        <%/isembed%>
+    <%/hasvideo%>
+
+    <%^hasvideo%>
+        <ion-card>
+            <ion-card-content>
+                <p>{{ 'plugin.mod_videotracker.mobileerrornovideo' | translate }}</p>
+                <ion-button expand="block" href="<% viewurl %>" core-link inApp="true" autoLogin="yes">
+                    {{ 'plugin.mod_videotracker.mobileopenactivity' | translate }}
+                </ion-button>
+            </ion-card-content>
+        </ion-card>
+    <%/hasvideo%>
+    <%/useactivitywebview%>
+</div>

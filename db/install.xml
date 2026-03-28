@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/videotracker/db" VERSION="2026030906" COMMENT="Video Tracker tables"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
+
+  <TABLES>
+
+    <TABLE NAME="videotracker" COMMENT="Video Tracker activity instances">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="intro" TYPE="text" NOTNULL="false"/>
+        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0"/>
+
+        <!-- Video source: upload, youtube, vimeo, external -->
+        <FIELD NAME="videosource" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="upload"/>
+        <FIELD NAME="externalurl" TYPE="text" NOTNULL="false"/>
+        <FIELD NAME="embedratio" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="16:9"/>
+
+        <!-- Completion rule: 0 disabled, 1..100 enabled -->
+        <FIELD NAME="completionminpercent" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0"/>
+
+        <!-- Playback control: 1 allow, 0 restrict fast-forward -->
+        <FIELD NAME="allowfastforward" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1"/>
+
+        <!-- Video control policies -->
+        <FIELD NAME="controlslistnodownload" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="disablepip" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="maxplaybackrate" TYPE="number" LENGTH="10" DECIMALS="2" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="disablecontextmenu" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+
+        <!-- Learning objectives (optional, up to 3). -->
+        <FIELD NAME="objective1" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="objective2" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="objective3" TYPE="char" LENGTH="255" NOTNULL="true"/>
+
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="coursefk" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="courseidx" UNIQUE="false" FIELDS="course"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="videotracker_progress" COMMENT="Per-user progress for Video Tracker">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="videotrackerid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+
+        <FIELD NAME="duration" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="watched" TYPE="number" LENGTH="10" DECIMALS="2" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="percent" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="completed" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="lastpos" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+
+        <FIELD NAME="obj1" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="obj2" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="obj3" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+
+        <FIELD NAME="lastct" TYPE="number" LENGTH="10" DECIMALS="2" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="lastseq" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="lastserverts" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="vtfk" TYPE="foreign" FIELDS="videotrackerid" REFTABLE="videotracker" REFFIELDS="id"/>
+        <KEY NAME="cmfk" TYPE="foreign" FIELDS="cmid" REFTABLE="course_modules" REFFIELDS="id"/>
+        <KEY NAME="userfk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="cm_user_idx" UNIQUE="true" FIELDS="cmid, userid"/>
+        <INDEX NAME="cm_idx" UNIQUE="false" FIELDS="cmid"/>
+        <INDEX NAME="vt_idx" UNIQUE="false" FIELDS="videotrackerid"/>
+        <INDEX NAME="user_idx" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="videotracker_license_log" COMMENT="Remote license API call log">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="action" TYPE="char" LENGTH="20" NOTNULL="true"/>
+        <FIELD NAME="endpoint" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        <FIELD NAME="success" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="httpcode" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="50" NOTNULL="true"/>
+        <FIELD NAME="message" TYPE="text" NOTNULL="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="action_idx" UNIQUE="false" FIELDS="action"/>
+        <INDEX NAME="timecreated_idx" UNIQUE="false" FIELDS="timecreated"/>
+      </INDEXES>
+    </TABLE>
+
+  </TABLES>
+</XMLDB>

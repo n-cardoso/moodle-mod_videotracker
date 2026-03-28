@@ -1,0 +1,668 @@
+/* ==========================================================================
+LearnPlug Video Tracker — Moodle-native UI
+Goal: match core Moodle/Bootstrap look (boxed, subtle, theme-safe).
+========================================================================== */
+
+.mod_videotracker {
+    width: 100%;
+}
+
+.vt-license-panel {
+    max-width: 980px;
+    width: 100%;
+    margin: 0 0 1rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: .75rem;
+    background: var(--bs-body-bg, #fff);
+}
+
+.vt-license-panel-premium {
+    border-color: rgba(25, 135, 84, .24);
+    background: linear-gradient(180deg, rgba(25, 135, 84, .06) 0%, #fff 100%);
+}
+
+.vt-license-panel-grace {
+    border-color: rgba(255, 193, 7, .35);
+    background: linear-gradient(180deg, rgba(255, 193, 7, .08) 0%, #fff 100%);
+}
+
+.vt-license-panel-restricted_demo {
+    border-color: rgba(108, 117, 125, .28);
+    background: linear-gradient(180deg, rgba(108, 117, 125, .07) 0%, #fff 100%);
+}
+
+.vt-license-badge {
+    margin-bottom: .75rem;
+}
+
+.vt-license-heading {
+    margin: 0 0 .35rem;
+    font-size: 1.1rem;
+}
+
+.vt-license-message {
+    margin: 0 0 .9rem;
+    color: var(--bs-secondary-color, #6c757d);
+}
+
+.vt-license-columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    gap: .9rem;
+}
+
+.vt-license-column {
+    padding: .8rem .9rem;
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: .65rem;
+    background: rgba(255, 255, 255, .72);
+}
+
+.vt-license-column strong {
+    display: block;
+    margin-bottom: .45rem;
+}
+
+.vt-license-list {
+    margin: 0;
+    padding-left: 1.1rem;
+}
+
+.vt-license-list li {
+    margin: 0 0 .3rem;
+}
+
+.vt-license-actions {
+    display: flex;
+    gap: .6rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: .95rem;
+}
+
+.vt-license-contact {
+    color: var(--bs-secondary-color, #6c757d);
+    font-size: .9rem;
+}
+
+.vt-license-inline-notice {
+    margin: .75rem 0 1rem;
+}
+
+/* External embed wrapper (YouTube/Vimeo) */
+.mod_videotracker .vt-embed {
+    position: relative;
+    width: 100%;
+    max-width: 980px; /* align with video max width */
+    background: #000;
+    padding-top: 56.25%; /* 16:9 fallback */
+}
+
+@supports (aspect-ratio: 16 / 9) {
+    .mod_videotracker .vt-embed {
+        padding-top: 0;
+        aspect-ratio: var(--vt-aspect, 16 / 9);
+    }
+}
+
+.mod_videotracker .vt-embed-inner,
+.mod_videotracker .vt-embed iframe {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Panel below video: looks like Moodle card/boxed section */
+.mod_videotracker .vt-panel {
+    max-width: 980px; /* must match video max-width in view.php */
+    width: 100%;
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: .375rem; /* Bootstrap default */
+    background: var(--bs-body-bg, #fff);
+    padding: .75rem .75rem .65rem;
+    transition: box-shadow .24s ease, border-color .24s ease, transform .24s ease;
+}
+
+/* Title row: left label + right status */
+.mod_videotracker .vt-panel-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: .5rem;
+}
+
+.mod_videotracker .vt-panel-title {
+    font-weight: 600;
+    font-size: .95rem;
+    line-height: 1.2;
+    color: var(--bs-body-color, #212529);
+}
+
+.mod_videotracker .vt-panel-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .5rem;
+    min-width: 240px;
+    text-align: right;
+}
+
+/* Percent: discreet */
+.mod_videotracker .vt-percent {
+    font-weight: 600;
+    font-size: .9rem;
+    color: var(--bs-body-color, #212529);
+}
+
+/* Status text: subtle (Moodle-ish) */
+.mod_videotracker .vt-status-text {
+    font-size: .875rem;
+    color: var(--bs-secondary-color, #6c757d);
+    white-space: nowrap;
+}
+
+/* Completed badge: Moodle class already on element, we just ensure alignment */
+.mod_videotracker .vt-panel-right .badge {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+}
+
+/* Progress wrapper */
+.mod_videotracker .vt-progresswrap {
+    position: relative;
+}
+
+/* Fast-forward hint */
+.mod_videotracker .vt-ff-hint {
+    max-width: 980px;
+    width: 100%;
+    margin: 0 0 .55rem;
+    font-size: .85rem;
+    color: var(--bs-warning-text-emphasis, #664d03);
+    background: var(--bs-warning-bg-subtle, #fff3cd);
+    border: 1px solid var(--bs-warning-border-subtle, #ffecb5);
+    border-radius: .25rem;
+    padding: .35rem .5rem;
+    display: none;
+}
+
+.mod_videotracker .vt-ff-hint.is-visible {
+    display: block;
+}
+
+/* ==========================================================================
+Learning objectives
+========================================================================== */
+
+.mod_videotracker .vt-objectives {
+    max-width: 980px;
+    width: 100%;
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: .375rem;
+    background: var(--bs-body-bg, #fff);
+    padding: .75rem;
+    margin-top: 12px;
+}
+
+.mod_videotracker .vt-objectives-title {
+    font-weight: 600;
+    font-size: .95rem;
+    margin-bottom: .25rem;
+}
+
+.mod_videotracker .vt-objectives-hint {
+    font-size: .825rem;
+    color: var(--bs-secondary-color, #6c757d);
+    margin-bottom: .5rem;
+}
+
+.mod_videotracker .vt-objectives-list {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.mod_videotracker .vt-objective {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin: 0;
+}
+
+.mod_videotracker .vt-objective-text {
+    font-size: .95rem;
+}
+
+.mod_videotracker .vt-objectives[data-objectives-disabled="1"] {
+    opacity: .7;
+}
+
+/* Boxed progress bar, aligned with Moodle/Bootstrap feel */
+.mod_videotracker .vt-progress.progress {
+    height: 12px;
+    border-radius: .25rem;
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    background: var(--bs-tertiary-bg, #f1f3f5);
+    overflow: hidden;
+    margin: 0;
+}
+
+/* Progress fill uses Bootstrap primary (Moodle blue) */
+.mod_videotracker .vt-progress .progress-bar {
+    background: var(--bs-primary, #0f6cbf);
+    transition: width .18s linear, box-shadow .24s ease, filter .24s ease;
+}
+
+/* Turn progress green as soon as required percentage is reached. */
+.mod_videotracker.vt-goal-reached .vt-progress .progress-bar {
+    background: var(--bs-success, #198754);
+}
+
+/* When completed, bar can turn success (optional but clean) */
+.mod_videotracker .vt-progress .progress-bar.bg-success {
+    background: var(--bs-success, #198754);
+}
+
+/* ==========================================================================
+Goal marker (completion threshold)
+========================================================================== */
+
+.mod_videotracker .vt-goal-wrap {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+/* A subtle vertical marker line */
+.mod_videotracker .vt-goal-line {
+    position: absolute;
+    left: 50%;
+    top: -8px;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 28px;
+    border-radius: 1px;
+    background: rgba(0, 0, 0, .22);
+    opacity: .55;
+}
+
+/* Goal dot: visible but not loud */
+.mod_videotracker .vt-goal-dot {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px;     /* 👈 size here */
+    height: 14px;    /* 👈 size here */
+    border-radius: 999px;
+    background: var(--bs-body-bg, #fff);
+    border: 2px solid rgba(0, 0, 0, .28);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .10);
+    pointer-events: auto; /* tooltip hover */
+}
+
+/* When goal reached: fill success green + check mark */
+.mod_videotracker.vt-goal-reached .vt-goal-dot {
+    background: var(--bs-success, #198754);
+    border-color: var(--bs-success, #198754);
+}
+
+.mod_videotracker.vt-goal-reached .vt-goal-dot::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 7px;
+    height: 4px;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: translate(-50%, -60%) rotate(-45deg);
+}
+
+/* Subtle pulse when reaching goal */
+.mod_videotracker.vt-goal-pulse .vt-goal-dot {
+    animation: vtPulse .8s ease-out 1;
+}
+
+/* Stronger one-time celebration exactly when the goal is first reached. */
+.mod_videotracker.vt-goal-celebrating .vt-panel {
+    border-color: rgba(25, 135, 84, .35);
+    box-shadow: 0 0 0 3px rgba(25, 135, 84, .12), 0 10px 24px rgba(25, 135, 84, .12);
+    animation: vtGoalPanelFlash 1.8s ease-out 1;
+}
+
+.mod_videotracker.vt-goal-celebrating .vt-progress .progress-bar {
+    box-shadow: 0 0 14px rgba(25, 135, 84, .32);
+    filter: saturate(1.08);
+}
+
+.mod_videotracker.vt-goal-celebrating .vt-goal-dot {
+    animation: vtPulse .8s ease-out 1, vtGoalDotCelebrate 1.2s ease-out 1;
+}
+
+.mod_videotracker.vt-goal-celebrating .vt-percent {
+    color: var(--bs-success, #198754);
+}
+
+.mod_videotracker.vt-goal-celebrating .vt-panel-title::after {
+    content: " \2713";
+    color: var(--bs-success, #198754);
+    font-weight: 700;
+    margin-left: .35rem;
+}
+
+@keyframes vtPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, .28), 0 1px 2px rgba(0, 0, 0, .10);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(25, 135, 84, 0), 0 1px 2px rgba(0, 0, 0, .10);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0), 0 1px 2px rgba(0, 0, 0, .10);
+    }
+}
+
+@keyframes vtGoalPanelFlash {
+    0% {
+        transform: scale(1);
+    }
+    25% {
+        transform: scale(1.006);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes vtGoalDotCelebrate {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    35% {
+        transform: translate(-50%, -50%) scale(1.22);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mod_videotracker .vt-panel,
+    .mod_videotracker .vt-progress .progress-bar {
+        transition: none;
+    }
+
+    .mod_videotracker.vt-goal-pulse .vt-goal-dot,
+    .mod_videotracker.vt-goal-celebrating .vt-panel,
+    .mod_videotracker.vt-goal-celebrating .vt-goal-dot {
+        animation: none;
+    }
+}
+
+/* ==========================================================================
+Tooltip (simple + readable, not loud)
+Note: your tooltip AMD can control show/hide, this is safe.
+========================================================================== */
+
+.mod_videotracker .vt-tooltip {
+    position: absolute;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, .82);
+    color: #fff;
+    font-size: .75rem;
+    padding: .25rem .45rem;
+    border-radius: .25rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .12s ease-in-out, transform .12s ease-in-out;
+}
+
+/* If your tooltip module sets aria-hidden=false, show it */
+.mod_videotracker .vt-tooltip[aria-hidden="false"] {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-2px);
+}
+
+/* ==========================================================================
+Mobile tweaks
+========================================================================== */
+
+@media (max-width: 576px) {
+    .vt-license-columns {
+        grid-template-columns: 1fr;
+    }
+
+    .mod_videotracker .vt-panel-right {
+        min-width: 0;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+}
+
+/* ==========================================================================
+License settings admin UI
+========================================================================== */
+
+.vt-license-admin-summary {
+    border-radius: .9rem;
+    padding: 1.25rem;
+}
+
+.vt-license-admin-grid {
+    margin-bottom: 1rem;
+}
+
+.vt-license-admin-card {
+    border-radius: .8rem;
+    padding: 1rem;
+    background: var(--bs-body-bg, #fff);
+}
+
+.vt-license-admin-label {
+    margin-bottom: .55rem;
+    color: var(--bs-secondary-color, #6c757d);
+    font-size: .825rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.vt-license-admin-value {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    min-height: 2rem;
+    flex-wrap: wrap;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.vt-license-admin-card .badge {
+    padding: .38rem .58rem;
+    font-size: .8rem;
+    font-weight: 700;
+    line-height: 1.15;
+}
+
+.vt-license-admin-helper {
+    color: var(--bs-secondary-color, #6c757d);
+    font-size: .92rem;
+    line-height: 1.5;
+}
+
+.vt-license-admin-details {
+    margin-top: 1rem;
+    padding: 1.15rem 1.25rem;
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: .8rem;
+    background: var(--bs-body-bg, #fff);
+}
+
+.vt-license-admin-detail-row {
+    display: grid;
+    grid-template-columns: minmax(180px, 230px) minmax(0, 1fr);
+    gap: 1rem;
+    padding: .6rem 0;
+    border-top: 1px solid var(--bs-border-color, #dee2e6);
+}
+
+.vt-license-admin-detail-row:first-of-type {
+    padding-top: 0;
+    border-top: 0;
+}
+
+.vt-license-admin-detail-row:last-of-type {
+    padding-bottom: 0;
+}
+
+.vt-license-admin-detail-label {
+    font-weight: 600;
+    color: var(--bs-emphasis-color, #212529);
+}
+
+.vt-license-admin-detail-value {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.vt-license-action-panel {
+    max-width: 760px;
+}
+
+.vt-license-action-copy {
+    padding: 1rem 1.25rem;
+    border-radius: .8rem;
+}
+
+.vt-license-action-fields {
+    max-width: 760px;
+}
+
+.vt-license-field-full {
+    width: 100%;
+}
+
+.vt-license-inline-details {
+    margin-bottom: 1rem;
+    padding: .95rem 1rem;
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: .8rem;
+    background: var(--bs-tertiary-bg, #f8f9fa);
+}
+
+.vt-license-inline-summary {
+    cursor: pointer;
+    color: var(--bs-primary, #0f6cbf);
+    font-weight: 600;
+    list-style: none;
+}
+
+.vt-license-inline-details > summary::-webkit-details-marker {
+    display: none;
+}
+
+.vt-license-inline-details[open] .vt-license-inline-summary {
+    margin-bottom: .25rem;
+}
+
+.vt-license-action-buttons {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.vt-license-advanced-shell {
+    margin-bottom: .5rem;
+}
+
+.vt-license-advanced-intro {
+    padding: 1rem 1.25rem;
+    border-radius: .8rem;
+    margin-bottom: .85rem;
+}
+
+.vt-license-advanced-toggle {
+    margin-bottom: .5rem;
+}
+
+body.vt-license-advanced-ready .vt-license-advanced-setting {
+    display: none;
+}
+
+body.vt-license-advanced-ready.vt-license-advanced-open .vt-license-advanced-setting {
+    display: block;
+}
+
+.vt-license-diagnostics-panel > summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--bs-emphasis-color, #212529);
+}
+
+.vt-license-diagnostics-block {
+    margin-bottom: 1rem;
+    padding: .95rem 1rem;
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: .8rem;
+    background: var(--bs-body-bg, #fff);
+}
+
+.vt-license-diagnostics-block > summary {
+    cursor: pointer;
+    color: var(--bs-primary, #0f6cbf);
+    font-weight: 600;
+}
+
+.vt-license-diagnostics-block .generaltable {
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .vt-license-admin-summary,
+    .vt-license-admin-details,
+    .vt-license-action-copy,
+    .vt-license-advanced-intro,
+    .vt-license-inline-details,
+    .vt-license-diagnostics-block {
+        padding: 1rem;
+    }
+
+    .vt-license-admin-detail-row {
+        grid-template-columns: 1fr;
+        gap: .35rem;
+    }
+}
+/* This file is part of Moodle - http://moodle.org/
+*
+* Moodle is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* Moodle is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/**
+* Styles for the Video Tracker activity.
+*
+* @package     mod_videotracker
+* @copyright   2026 LearnPlug
+* @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+*/

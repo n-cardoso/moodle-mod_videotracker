@@ -1,2 +1,13 @@
-# LearnPlug-Video-Tracker
-Designed for training providers, schools, academies, and organizations that need stronger control and reporting around video-based learning. Instead of simply embedding a video and hoping it was watched, Video Tracker turns video into a measurable learning activity connected to Moodle completion and gradebook workflows.
+# VideoTracker (mod_videotracker)
+
+VideoTracker is a Moodle activity module that uploads a video file and marks the activity complete when a learner watches at least the configured percentage.
+
+Requires Moodle 4.5+.
+
+## Install
+1. Copy this folder to `moodle/mod/videotracker`
+2. Go to `Site administration -> Notifications`
+3. Purge caches
+
+## Notes
+Screenshots are included in the `screenshots/` folder.

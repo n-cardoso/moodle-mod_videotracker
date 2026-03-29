@@ -36,20 +36,17 @@ $string['completiondetail:completionminpercent_with_objectives'] = 'To view at l
 
 $string['completionminpercent'] = 'Required percentage';
 
-$string['completionminpercent_help'] = 'Minimum percentage of the video that must be watched '
-    . 'for the activity to be marked as complete. Use 0 to disable.';
+$string['completionminpercent_help'] = 'Minimum percentage of the video that must be watched for the activity to be marked as complete. Use 0 to disable.';
 
 $string['completionrequired'] = 'Completion % required';
 
 $string['controlslistnodownload'] = 'Disable download button';
 
-$string['controlslistnodownload_help'] = 'Adds the "nodownload" hint to the browser controls '
-    . '(may be ignored by some browsers and does not fully prevent downloads).';
+$string['controlslistnodownload_help'] = 'Adds the "nodownload" hint to the browser controls (may be ignored by some browsers and does not fully prevent downloads).';
 
 $string['disablecontextmenu'] = 'Disable right-click menu';
 
-$string['disablecontextmenu_help'] = 'Blocks the context menu on the video element, which may '
-    . 'deter casual downloads but does not fully prevent them.';
+$string['disablecontextmenu_help'] = 'Blocks the context menu on the video element, which may deter casual downloads but does not fully prevent them.';
 
 $string['disablepip'] = 'Disable picture-in-picture';
 
@@ -81,9 +78,7 @@ $string['error:novideo'] = 'No video has been configured for this activity.';
 
 $string['eventcoursemoduleviewed'] = 'Video Tracker activity viewed';
 
-$string['externallimits'] = 'Important: External players (YouTube/Vimeo) have limited control '
-    . 'features. Fast-forward restrictions and playback-rate caps are best-effort only, '
-    . 'and download/PiP controls cannot be enforced.';
+$string['externallimits'] = 'Important: External players (YouTube/Vimeo) have limited control features. Fast-forward restrictions and playback-rate caps are best-effort only, and download/PiP controls cannot be enforced.';
 
 $string['externalurl'] = 'External video URL';
 
@@ -103,11 +98,9 @@ $string['gradeheader'] = 'Grade';
 
 $string['grademaxinfo'] = 'Grade out of {$a}';
 
-$string['gradepass'] = 'Set the minimum percentage required to complete this activity (0–100). '
-    . 'This value is used by Completion conditions when you choose “Passing grade”.';
+$string['gradepass'] = 'Set the minimum percentage required to complete this activity (0–100). This value is used by Completion conditions when you choose “Passing grade”.';
 
-$string['gradepass_help'] = 'Set the minimum percentage required to complete this activity '
-    . '(0–100). This value is used by Completion conditions when you choose “Passing grade”.';
+$string['gradepass_help'] = 'Set the minimum percentage required to complete this activity (0–100). This value is used by Completion conditions when you choose “Passing grade”.';
 
 $string['gradepasslabel'] = 'Grade to pass';
 
@@ -125,8 +118,7 @@ $string['licenseactionnoteactive'] = 'This site already has an active license. U
 
 $string['licenseactions'] = 'Activation';
 
-$string['licenseactionsaveconnectionfirst'] = 'If you changed the server URL or shared secret '
-    . 'below, save the page before using Activate or Validate.';
+$string['licenseactionsaveconnectionfirst'] = 'If you changed the server URL or shared secret below, save the page before using Activate or Validate.';
 
 $string['licenseactivate'] = 'Activate License';
 
@@ -152,16 +144,13 @@ $string['licenseadmincheckintervalhours_desc'] = 'Minimum wait time between auto
 
 $string['licenseadvancedsettingshelp'] = 'Only use these settings if support asks you to.';
 
-$string['licenseadvancedsettingsitem1'] = 'Use the server URL only if your Moodle licensing '
-    . 'site is different from the default value.';
+$string['licenseadvancedsettingsitem1'] = 'Use the server URL only if your Moodle licensing site is different from the default value.';
 
 $string['licenseadvancedsettingsitem2'] = 'Use the shared secret only if signed requests are enabled by the provider server.';
 
-$string['licenseadvancedsettingsitem3'] = 'Use the site URL override or instance ID only when '
-    . 'support asks you to troubleshoot a specific setup.';
+$string['licenseadvancedsettingsitem3'] = 'Use the site URL override or instance ID only when support asks you to troubleshoot a specific setup.';
 
-$string['licenseadvancedsettingsitem4'] = 'The offline grace period is defined by the WordPress '
-    . 'license server and is no longer edited in Moodle.';
+$string['licenseadvancedsettingsitem4'] = 'The offline grace period is defined by the WordPress license server and is no longer edited in Moodle.';
 
 $string['licenseadvancedtogglehide'] = 'Hide advanced settings';
 
@@ -169,15 +158,13 @@ $string['licenseadvancedtoggleshow'] = 'Show advanced settings';
 
 $string['licenseapisecret'] = 'WordPress API key / shared secret';
 
-$string['licenseapisecret_desc'] = 'Only needed when signed requests are enabled in WordPress. '
-    . 'Paste the WordPress API key here. Do not use the customer license key in this field.';
+$string['licenseapisecret_desc'] = 'Only needed when signed requests are enabled in WordPress. Paste the WordPress API key here. Do not use the customer license key in this field.';
 
 $string['licensebacktoactivity'] = 'Back to activity';
 
 $string['licenseclientemail'] = 'Billing email';
 
-$string['licenseclientemail_desc'] = 'Email used when the license was purchased. Required by the '
-    . 'WordPress license server for activation, validation, deactivation, and update checks.';
+$string['licenseclientemail_desc'] = 'Email used when the license was purchased. Required by the WordPress license server for activation, validation, deactivation, and update checks.';
 
 $string['licenseconnectionsettings'] = 'Advanced troubleshooting';
 
@@ -187,14 +174,11 @@ $string['licensecurrentstatus'] = 'Current status';
 
 $string['licensedeactivate'] = 'Deactivate License';
 
-$string['licensedemoreportbody'] = 'Reports, CSV export, and reset actions are premium '
-    . 'features. Activate a paid or trial license to unlock the full report for this activity.';
+$string['licensedemoreportbody'] = 'Reports, CSV export, and reset actions are premium features. Activate a paid or trial license to unlock the full report for this activity.';
 
 $string['licensedemoreporttitle'] = 'Premium report locked';
 
-$string['licensedemoviewnotice'] = 'Restricted demo mode is active. Video playback remains '
-    . 'available, but premium tracking, reports, objectives, and playback enforcement require '
-    . 'an active paid or trial license.';
+$string['licensedemoviewnotice'] = 'Restricted demo mode is active. Video playback remains available, but premium tracking, reports, objectives, and playback enforcement require an active paid or trial license.';
 
 $string['licensediagnostics'] = 'Diagnostics';
 
@@ -260,21 +244,13 @@ $string['licensefeaturetracking'] = 'Saved learner tracking and resume state';
 
 $string['licensefeaturevideoaccess'] = 'Video playback and activity access';
 
-$string['licenseformcompletionlocked'] = 'Trusted progress-based completion is premium. Activate '
-    . 'a paid or trial license to configure completion thresholds and pass rules tied to '
-    . 'video tracking.';
+$string['licenseformcompletionlocked'] = 'Trusted progress-based completion is premium. Activate a paid or trial license to configure completion thresholds and pass rules tied to video tracking.';
 
-$string['licenseformgeneralrestricted'] = 'Restricted demo mode is active. Teachers can still '
-    . 'create the activity and learners can still watch the video, but premium tracking, '
-    . 'reports, objectives, and playback enforcement remain locked until a paid or trial '
-    . 'license is activated.';
+$string['licenseformgeneralrestricted'] = 'Restricted demo mode is active. Teachers can still create the activity and learners can still watch the video, but premium tracking, reports, objectives, and playback enforcement remain locked until a paid or trial license is activated.';
 
-$string['licenseformobjectiveslocked'] = 'Learning objectives are premium. Activate a paid or '
-    . 'trial license to configure and save objective tracking for this activity.';
+$string['licenseformobjectiveslocked'] = 'Learning objectives are premium. Activate a paid or trial license to configure and save objective tracking for this activity.';
 
-$string['licenseformplaybacklocked'] = 'Playback enforcement options are premium. Activate a '
-    . 'paid or trial license to edit anti-skip, playback rate, download, PiP, and context '
-    . 'menu controls.';
+$string['licenseformplaybacklocked'] = 'Playback enforcement options are premium. Activate a paid or trial license to edit anti-skip, playback rate, download, PiP, and context menu controls.';
 
 $string['licensegetstartedbutton'] = 'Get a 14-day trial or buy a license';
 
@@ -290,13 +266,9 @@ $string['licensegraceactive'] = 'Remote validation is currently offline. Premium
 
 $string['licensegracedays'] = 'Offline grace period (days)';
 
-$string['licensegracedays_desc'] = 'This value is controlled by the WordPress license server. If '
-    . 'the server becomes temporarily unavailable after a successful validation, premium '
-    . 'features may continue to work for this period. It does not keep expired, suspended, or '
-    . 'invalid licenses active.';
+$string['licensegracedays_desc'] = 'This value is controlled by the WordPress license server. If the server becomes temporarily unavailable after a successful validation, premium features may continue to work for this period. It does not keep expired, suspended, or invalid licenses active.';
 
-$string['licensegraceexpired'] = 'The remote validation grace period expired at {$a}. Premium '
-    . 'features are now restricted until validation succeeds again.';
+$string['licensegraceexpired'] = 'The remote validation grace period expired at {$a}. Premium features are now restricted until validation succeeds again.';
 
 $string['licensegracepolicydisplay'] = '{$a} days, managed by the license server.';
 
@@ -306,8 +278,7 @@ $string['licenseinstalledversion'] = 'Installed version';
 
 $string['licenseinstanceid'] = 'Instance ID';
 
-$string['licenseinstanceid_desc'] = 'Technical identifier for this Moodle site. Leave the '
-    . 'generated value unless support asked you to change it.';
+$string['licenseinstanceid_desc'] = 'Technical identifier for this Moodle site. Leave the generated value unless support asked you to change it.';
 
 $string['licensekeysetting'] = 'License key';
 
@@ -349,14 +320,11 @@ $string['licensepanelpremiumheadline'] = 'Premium features are enabled for this 
 
 $string['licensepremiumdisabled'] = 'Premium learner tracking is temporarily disabled because the site license is not valid.';
 
-$string['licensepremiumsettingslocked'] = 'Premium settings are locked in restricted demo mode. '
-    . 'Activate a paid or trial license to edit playback controls, objectives, reports, and '
-    . 'completion tracking options.';
+$string['licensepremiumsettingslocked'] = 'Premium settings are locked in restricted demo mode. Activate a paid or trial license to edit playback controls, objectives, reports, and completion tracking options.';
 
 $string['licenseproductslug'] = 'Product slug (optional)';
 
-$string['licenseproductslug_desc'] = 'Optional product code from the seller. Leave this empty '
-    . 'unless your purchase email or support told you to use it.';
+$string['licenseproductslug_desc'] = 'Optional product code from the seller. Leave this empty unless your purchase email or support told you to use it.';
 
 $string['licenseproductslugtoggle'] = 'I have a product code from my purchase email';
 
@@ -374,16 +342,13 @@ $string['licenseruntimestate'] = 'Runtime state';
 
 $string['licenseserverurl'] = 'License server URL';
 
-$string['licenseserverurl_desc'] = 'Address of the WordPress licensing website. Most sites can '
-    . 'keep the default value. If you paste a full /wp-json/license-server/v1 URL, the plugin '
-    . 'will normalize it automatically.';
+$string['licenseserverurl_desc'] = 'Address of the WordPress licensing website. Most sites can keep the default value. If you paste a full /wp-json/license-server/v1 URL, the plugin will normalize it automatically.';
 
 $string['licensesettings'] = 'Video Tracker License';
 
 $string['licensesiteurl'] = 'Site URL override';
 
-$string['licensesiteurl_desc'] = 'Only change this if the site address sent to the license '
-    . 'server must be different from this Moodle site URL.';
+$string['licensesiteurl_desc'] = 'Only change this if the site address sent to the license server must be different from this Moodle site URL.';
 
 $string['licensesuccessgeneric'] = 'License request completed successfully.';
 
@@ -391,8 +356,7 @@ $string['licensesummaryhelp'] = 'This section shows the current activation state
 
 $string['licensesummarytitle'] = 'License status';
 
-$string['licensetrialexpirednotice'] = 'Trial period ended. Premium features are now restricted. '
-    . 'Upgrade to a paid license to continue.';
+$string['licensetrialexpirednotice'] = 'Trial period ended. Premium features are now restricted. Upgrade to a paid license to continue.';
 
 $string['licensetype'] = 'License type';
 
@@ -418,8 +382,7 @@ $string['licensevalidate'] = 'Validate Now';
 
 $string['licensevalidateonadminaccess'] = 'Validate on admin access';
 
-$string['licensevalidateonadminaccess_desc'] = 'When enabled, opening this page can refresh the '
-    . 'saved license status automatically when needed.';
+$string['licensevalidateonadminaccess_desc'] = 'When enabled, opening this page can refresh the saved license status automatically when needed.';
 
 $string['maxplaybackrate'] = 'Maximum playback rate';
 
@@ -533,8 +496,7 @@ $string['reporttitle'] = 'Video engagement report';
 
 $string['requiredpercentage'] = 'Required percentage';
 
-$string['requiredpercentage_help'] = 'Minimum percentage of the video to be watched. If “Grade '
-    . 'to pass” is empty, it will default to this value.';
+$string['requiredpercentage_help'] = 'Minimum percentage of the video to be watched. If “Grade to pass” is empty, it will default to this value.';
 
 $string['resetprogress'] = 'Reset progress';
 
@@ -568,8 +530,7 @@ $string['tasklicensecheck'] = 'Video Tracker license validation';
 
 $string['timespent'] = 'Time watched';
 
-$string['uninstallwarning'] = 'Uninstalling Video Tracker will permanently delete all activities, '
-    . 'videos, and user progress. This action cannot be undone.';
+$string['uninstallwarning'] = 'Uninstalling Video Tracker will permanently delete all activities, videos, and user progress. This action cannot be undone.';
 
 $string['videoduration'] = 'Total video time';
 

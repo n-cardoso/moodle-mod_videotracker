@@ -90,6 +90,27 @@ Goal: match core Moodle/Bootstrap look (boxed, subtle, theme-safe).
     margin: .75rem 0 1rem;
 }
 
+.vt-license-inline-notice .vt-license-inline-notice-link,
+.vt-license-inline-notice .vt-license-inline-notice-link:visited {
+    color: #fff;
+    background-color: #0f6cbf;
+    border-color: #0f6cbf;
+    text-decoration: none;
+}
+
+.vt-license-inline-notice .vt-license-inline-notice-link:hover,
+.vt-license-inline-notice .vt-license-inline-notice-link:focus,
+.vt-license-inline-notice .vt-license-inline-notice-link:active {
+    color: #fff;
+    background-color: #0b5aa2;
+    border-color: #0b5aa2;
+    text-decoration: none;
+}
+
+.vt-license-inline-notice .vt-license-inline-notice-link:focus {
+    box-shadow: 0 0 0 .2rem rgba(11, 90, 162, .25);
+}
+
 /* External embed wrapper (YouTube/Vimeo) */
 .mod_videotracker .vt-embed {
     position: relative;

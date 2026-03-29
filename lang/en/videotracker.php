@@ -475,6 +475,20 @@ $string['posterimage'] = 'Preview image';
 
 $string['posterimage_help'] = 'Optional image shown before the video starts (poster).';
 
+$string['privacy:metadata:learnpluglicenseserver'] = 'In order to activate, validate, deactivate, and check commercial licenses, some data is sent to the external LearnPlug license server.';
+
+$string['privacy:metadata:learnpluglicenseserver:customeremail'] = 'The billing email used to identify the license owner.';
+
+$string['privacy:metadata:learnpluglicenseserver:installedversion'] = 'The installed plugin version reported during license checks.';
+
+$string['privacy:metadata:learnpluglicenseserver:instanceid'] = 'The technical instance identifier for this Moodle site.';
+
+$string['privacy:metadata:learnpluglicenseserver:licensekey'] = 'The commercial license key used for license validation.';
+
+$string['privacy:metadata:learnpluglicenseserver:productslug'] = 'The optional product slug sent with the license request.';
+
+$string['privacy:metadata:learnpluglicenseserver:siteurl'] = 'The Moodle site URL/domain reported to the external license server.';
+
 $string['privacy:metadata:videotracker_progress'] = 'Video progress and completion data for each user.';
 
 $string['privacy:metadata:videotracker_progress:cmid'] = 'The course module id.';
@@ -567,6 +581,8 @@ $string['videoheader'] = 'Video';
 
 $string['videoprogress'] = 'Video progress';
 
+$string['videotracker:addinstance'] = 'Add a new Video Tracker activity';
+
 $string['videosource'] = 'Video source';
 
 $string['videosource_external'] = 'External URL (direct video file)';
@@ -580,5 +596,3 @@ $string['videosource_upload'] = 'Upload file';
 $string['videosource_vimeo'] = 'Vimeo';
 
 $string['videosource_youtube'] = 'YouTube';
-
-$string['videotracker:addinstance'] = 'Add a new Video Tracker activity';

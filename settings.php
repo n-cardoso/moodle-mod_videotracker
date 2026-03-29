@@ -59,44 +59,7 @@ if ($hassiteconfig) {
         }
 
         $snapshot = \mod_videotracker\local\license_manager::get_status_snapshot();
-
-        $PAGE->requires->js_init_code(<<<'JS'
-document.addEventListener('DOMContentLoaded', function() {
-    var toggle = document.querySelector('[data-vt-license-toggle="advanced"]');
-    if (!toggle) {
-        return;
-    }
-
-    document.body.classList.add('vt-license-advanced-ready');
-
-    var advancedsettings = Array.prototype.slice.call(
-        document.querySelectorAll('.vt-license-advanced-setting')
-    );
-    var expanded = false;
-    var labelnode = toggle.querySelector('[data-vt-license-toggle-label]');
-    var showlabel = toggle.getAttribute('data-show-label') || '';
-    var hidelabel = toggle.getAttribute('data-hide-label') || '';
-
-    var sync = function() {
-        document.body.classList.toggle('vt-license-advanced-open', expanded);
-        toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-        if (labelnode) {
-            labelnode.textContent = expanded ? hidelabel : showlabel;
-        }
-        advancedsettings.forEach(function(node) {
-            node.setAttribute('aria-hidden', expanded ? 'false' : 'true');
-        });
-    };
-
-    toggle.addEventListener('click', function(e) {
-        e.preventDefault();
-        expanded = !expanded;
-        sync();
-    });
-
-    sync();
-});
-JS);
+        $PAGE->requires->js_call_amd('mod_videotracker/license_settings_toggle', 'init');
 
         if (!function_exists('videotracker_license_admin_inline_css')) {
             /**

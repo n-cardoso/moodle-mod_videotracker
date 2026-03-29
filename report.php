@@ -596,22 +596,21 @@ if (!empty($action) && $canreset) {
         }
 
         $now = time();
-        $DB->execute(
-            "UPDATE {videotracker_progress}
-                SET percent = 0,
-                    watched = 0,
-                    completed = 0,
-                    lastpos = 0,
-                    obj1 = 0,
-                    obj2 = 0,
-                    obj3 = 0,
-                    lastct = 0,
-                    lastseq = 0,
-                    lastserverts = 0,
-                    timemodified = :now
-              WHERE cmid = :cmid AND userid = :userid",
-            ['now' => $now, 'cmid' => $cm->id, 'userid' => $userid]
-        );
+        $progress = $DB->get_record('videotracker_progress', ['cmid' => $cm->id, 'userid' => $userid], 'id', IGNORE_MISSING);
+        if ($progress) {
+            $progress->percent = 0;
+            $progress->watched = 0;
+            $progress->completed = 0;
+            $progress->lastpos = 0;
+            $progress->obj1 = 0;
+            $progress->obj2 = 0;
+            $progress->obj3 = 0;
+            $progress->lastct = 0;
+            $progress->lastseq = 0;
+            $progress->lastserverts = 0;
+            $progress->timemodified = $now;
+            $DB->update_record('videotracker_progress', $progress);
+        }
 
         $grade = new stdClass();
         $grade->userid = $userid;

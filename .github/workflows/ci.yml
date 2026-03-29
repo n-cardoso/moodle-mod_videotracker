@@ -83,4 +83,21 @@ jobs:
         run: moodle-plugin-ci mustache
 
       - name: Grunt
+        id: grunt
+        continue-on-error: true
         run: moodle-plugin-ci grunt --max-lint-warnings 0
+
+      - name: Upload AMD build artifacts
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: mod_videotracker-amd-build
+          path: |
+            ci/moodle/mod/videotracker/amd/build/form_completion_toggle.min.js
+            ci/moodle/mod/videotracker/amd/build/form_completion_toggle.min.js.map
+            ci/moodle/mod/videotracker/amd/build/tooltip.min.js
+            ci/moodle/mod/videotracker/amd/build/tooltip.min.js.map
+            ci/moodle/mod/videotracker/amd/build/tracker.min.js
+            ci/moodle/mod/videotracker/amd/build/tracker.min.js.map
+          if-no-files-found: error
+

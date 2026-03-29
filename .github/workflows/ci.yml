@@ -1,0 +1,101 @@
+name: Moodle Plugin CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.1', '8.2', '8.3']
+        moodle-branch: ['MOODLE_405_STABLE']
+        database: ['pgsql', 'mariadb']
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_DB: moodle
+          POSTGRES_USER: moodle
+          POSTGRES_PASSWORD: moodle
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U moodle"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      mariadb:
+        image: mariadb:10
+        env:
+          MYSQL_DATABASE: moodle
+          MYSQL_USER: moodle
+          MYSQL_PASSWORD: moodle
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    name: PHP ${{ matrix.php }} • ${{ matrix.database }}
+
+    steps:
+      - name: Checkout plugin
+        uses: actions/checkout@v4
+        with:
+          path: plugin
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: intl, mbstring, xml, curl, soap, zip, gd, mysqli, pgsql
+          coverage: none
+          tools: composer
+
+      - name: Install moodle-plugin-ci
+        run: composer create-project -n --no-dev moodlehq/moodle-plugin-ci ci ^4
+
+      - name: Install Moodle and plugin
+        run: |
+          cd ci
+          php bin/moodle-plugin-ci install \
+            --plugin ./plugin \
+            --db-host=127.0.0.1 \
+            ${{ matrix.database == 'pgsql' && '--db-type=pgsql --db-user=moodle --db-pass=moodle --db-name=moodle' || '--db-type=mariadb --db-user=moodle --db-pass=moodle --db-name=moodle' }}
+        env:
+          MOODLE_BRANCH: ${{ matrix.moodle-branch }}
+
+      - name: PHP Lint
+        run: cd ci && php bin/moodle-plugin-ci phplint
+
+      - name: PHP Mess Detector
+        continue-on-error: true
+        run: cd ci && php bin/moodle-plugin-ci phpmd
+
+      - name: PHP CodeSniffer
+        run: cd ci && php bin/moodle-plugin-ci phpcs --max-warnings 0
+
+      - name: PHPDoc
+        run: cd ci && php bin/moodle-plugin-ci phpdoc --max-warnings 0
+
+      - name: Validate
+        run: cd ci && php bin/moodle-plugin-ci validate
+
+      - name: Savepoints
+        run: cd ci && php bin/moodle-plugin-ci savepoints
+
+      - name: Mustache
+        run: cd ci && php bin/moodle-plugin-ci mustache
+
+      - name: Grunt
+        run: cd ci && php bin/moodle-plugin-ci grunt --max-lint-warnings 0

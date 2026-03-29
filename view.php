@@ -303,7 +303,7 @@ if (($usehtml5 && empty($videourl)) || (!$usehtml5 && !$hasexternalsource)) {
     }
     $mediahtml = html_writer::tag(
         'video',
-        html_writer::empty_tag('source', $sourceattributes) . 'Your browser does not support the video tag.',
+        html_writer::empty_tag('source', $sourceattributes) . get_string('html5videonotsupported', 'videotracker'),
         $videoattributes
     );
 } else {

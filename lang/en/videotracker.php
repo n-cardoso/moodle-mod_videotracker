@@ -79,6 +79,8 @@ $string['err_requiredpercentage_range'] = 'Please enter a value between 0 and 10
 
 $string['error:novideo'] = 'No video has been configured for this activity.';
 
+$string['eventcoursemoduleviewed'] = 'Video Tracker activity viewed';
+
 $string['externallimits'] = 'Important: External players (YouTube/Vimeo) have limited control '
     . 'features. Fast-forward restrictions and playback-rate caps are best-effort only, '
     . 'and download/PiP controls cannot be enforced.';

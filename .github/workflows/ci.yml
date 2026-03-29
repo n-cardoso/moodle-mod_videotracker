@@ -50,7 +50,7 @@ jobs:
 
     steps:
       - name: Checkout plugin
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           path: plugin
 
@@ -69,7 +69,7 @@ jobs:
         run: |
           cd ci
           php bin/moodle-plugin-ci install \
-            --plugin ./plugin \
+            --plugin ../plugin \
             --db-host=127.0.0.1 \
             ${{ matrix.database == 'pgsql' && '--db-type=pgsql --db-user=moodle --db-pass=moodle --db-name=moodle' || '--db-type=mariadb --db-user=moodle --db-pass=moodle --db-name=moodle' }}
         env:

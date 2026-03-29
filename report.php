@@ -113,7 +113,6 @@ $PAGE->set_title(get_string('reporttitle', 'videotracker'));
 $PAGE->set_heading($course->fullname);
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('report');
-$PAGE->requires->css(new moodle_url('/mod/videotracker/styles.css'));
 
 $licensestate = \mod_videotracker\local\license_enforcer::get_runtime_state();
 $licenseuicontext = \mod_videotracker\local\license_enforcer::admin_ui_context();

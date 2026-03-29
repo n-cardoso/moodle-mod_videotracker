@@ -46,6 +46,15 @@ class provider implements
      * @return collection
      */
     public static function get_metadata(collection $collection): collection {
+        $collection->add_external_location_link('learnpluglicenseserver', [
+            'licensekey' => 'privacy:metadata:learnpluglicenseserver:licensekey',
+            'customeremail' => 'privacy:metadata:learnpluglicenseserver:customeremail',
+            'siteurl' => 'privacy:metadata:learnpluglicenseserver:siteurl',
+            'instanceid' => 'privacy:metadata:learnpluglicenseserver:instanceid',
+            'productslug' => 'privacy:metadata:learnpluglicenseserver:productslug',
+            'installedversion' => 'privacy:metadata:learnpluglicenseserver:installedversion',
+        ], 'privacy:metadata:learnpluglicenseserver');
+
         $collection->add_database_table('videotracker_progress', [
             'videotrackerid' => 'privacy:metadata:videotracker_progress:videotrackerid',
             'cmid' => 'privacy:metadata:videotracker_progress:cmid',

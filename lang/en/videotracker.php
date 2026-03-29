@@ -580,3 +580,6 @@ $string['videosource_upload'] = 'Upload file';
 $string['videosource_vimeo'] = 'Vimeo';
 
 $string['videosource_youtube'] = 'YouTube';
+
+$string['videotracker:addinstance'] = 'Add a new Video Tracker activity';
+

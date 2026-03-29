@@ -282,9 +282,9 @@ $string['licensegetstartedintro'] = 'No license is active for this Moodle site. 
 
 $string['licensegetstartedtitle'] = 'Need a license?';
 
-$string['licensegraceactive'] = 'Remote validation is currently offline. Premium features continue to work until {$a}.';
-
 $string['licensegetstartedwebsite'] = 'Website: {$a}';
+
+$string['licensegraceactive'] = 'Remote validation is currently offline. Premium features continue to work until {$a}.';
 
 $string['licensegracedays'] = 'Offline grace period (days)';
 

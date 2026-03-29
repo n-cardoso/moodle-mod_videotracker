@@ -1,4 +1,4 @@
-# VideoTracker (mod_videotracker)
+# VideoTracker (moodle-mod_videotracker)
 
 VideoTracker is a Moodle activity module that uploads a video file and marks the activity complete when a learner watches at least the configured percentage.
 

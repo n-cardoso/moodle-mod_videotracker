@@ -40,6 +40,19 @@ if ($hassiteconfig) {
         $currentsection = isset($section) ? (string) $section : '';
         $canautorefresh = $currentsection === 'modsettingvideotrackerlicense'
             && \mod_videotracker\local\license_manager::is_safe_admin_refresh_context();
+        $autorefreshrequested = optional_param('vtlicenseautorefresh', 0, PARAM_BOOL);
+        $requestmethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        $isgetrequest = strtoupper((string) $requestmethod) === 'GET';
+        $needsautorefresh = $canautorefresh
+            && \mod_videotracker\local\license_manager::should_refresh_on_admin_access();
+
+        if ($needsautorefresh && $isgetrequest && empty($autorefreshrequested)) {
+            redirect(new moodle_url('/admin/settings.php', [
+                'section' => 'modsettingvideotrackerlicense',
+                'vtlicenseautorefresh' => 1,
+                'sesskey' => sesskey(),
+            ]));
+        }
 
         if ($canautorefresh) {
             \mod_videotracker\local\license_manager::maybe_refresh_on_admin_access();

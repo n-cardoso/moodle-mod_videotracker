@@ -92,12 +92,6 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: mod_videotracker-amd-build
-          path: |
-            ci/moodle/mod/videotracker/amd/build/form_completion_toggle.min.js
-            ci/moodle/mod/videotracker/amd/build/form_completion_toggle.min.js.map
-            ci/moodle/mod/videotracker/amd/build/tooltip.min.js
-            ci/moodle/mod/videotracker/amd/build/tooltip.min.js.map
-            ci/moodle/mod/videotracker/amd/build/tracker.min.js
-            ci/moodle/mod/videotracker/amd/build/tracker.min.js.map
+          path: ci/moodle/mod/videotracker/amd/build/
           if-no-files-found: error
 

@@ -43,8 +43,7 @@ class mod_videotracker_mod_form extends moodleform_mod {
         $mform = $this->_form;
         $premiumsettingsenabled = \mod_videotracker\local\license_enforcer::premium_admin_settings_enabled();
 
-        // Load CSS + AMD helper for showing/hiding fields based on "Passing grade".
-        $PAGE->requires->css(new moodle_url('/mod/videotracker/styles.css'));
+        // Load AMD helper for showing/hiding fields based on "Passing grade".
         $PAGE->requires->js_call_amd('mod_videotracker/form_completion_toggle', 'init');
 
         // General.

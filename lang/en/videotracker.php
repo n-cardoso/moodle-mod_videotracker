@@ -104,6 +104,8 @@ $string['gradepass_help'] = 'Set the minimum percentage required to complete thi
 
 $string['gradepasslabel'] = 'Grade to pass';
 
+$string['html5videonotsupported'] = 'Your browser does not support the video tag.';
+
 $string['inprogress'] = 'In progress';
 
 $string['lastposition'] = 'Last position (sec)';

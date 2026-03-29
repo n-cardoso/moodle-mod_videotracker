@@ -327,7 +327,7 @@ class mod_videotracker_mod_form extends moodleform_mod {
             $settingsurl = new moodle_url('/admin/settings.php', ['section' => 'modsettingvideotrackerlicense']);
             $content .= html_writer::div(
                 html_writer::link($settingsurl, get_string('licenseopenlicensesettings', 'videotracker'), [
-                    'class' => 'btn btn-primary btn-sm',
+                    'class' => 'btn btn-primary btn-sm vt-license-inline-notice-link',
                 ]),
                 'mt-2'
             );

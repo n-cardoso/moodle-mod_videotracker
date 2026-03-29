@@ -52,9 +52,9 @@ if (!function_exists('videotracker_license_read_post_setting')) {
     }
 }
 
-$licensekey = optional_param('licensekey', null, PARAM_RAW_TRIMMED);
+$licensekey = optional_param('licensekey', null, PARAM_ALPHANUMEXT);
 if ($licensekey !== null) {
-    set_config('licensekey', $licensekey, 'mod_videotracker');
+    set_config('licensekey', trim((string) $licensekey), 'mod_videotracker');
 }
 
 $licenseclientemail = optional_param('licenseclientemail', null, PARAM_RAW_TRIMMED);
@@ -67,9 +67,9 @@ if ($licenseclientemail !== null) {
     }
 }
 
-$licenseproductslug = optional_param('licenseproductslug', null, PARAM_RAW_TRIMMED);
+$licenseproductslug = optional_param('licenseproductslug', null, PARAM_ALPHANUMEXT);
 if ($licenseproductslug !== null) {
-    $licenseproductslug = trim($licenseproductslug);
+    $licenseproductslug = trim((string) $licenseproductslug);
     if ($licenseproductslug === '') {
         set_config('licenseproductslug', '', 'mod_videotracker');
     } else {

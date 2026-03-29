@@ -44,7 +44,7 @@ $userid = optional_param('userid', 0, PARAM_INT);
 $confirm = optional_param('confirm', 0, PARAM_INT);
 $ack = optional_param('ack', 0, PARAM_INT);
 $status = optional_param('status', 'all', PARAM_ALPHA);
-$search = optional_param('search', '', PARAM_RAW_TRIMMED);
+$search = trim((string) optional_param('search', '', PARAM_TEXT));
 
 if (!empty($download)) {
     require_once($CFG->libdir . '/csvlib.class.php');

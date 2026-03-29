@@ -3,7 +3,7 @@
 - Release: `1.0.0`
 - Build: `2026032705`
 - Compatibility: Moodle `4.5+`
-- Component: `mod_videotracker`
+- Component: `moodle-mod_videotracker`
 
 ## Release scope
 

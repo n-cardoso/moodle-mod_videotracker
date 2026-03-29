@@ -91,18 +91,21 @@ jobs:
         if: always()
         run: |
           echo "=== amd/build contents ==="
-          ls -la ci/moodle/mod/videotracker/amd/build
+          ls -la plugin/amd/build
           echo
           echo "=== git status for amd/build ==="
-          cd ci/moodle/mod/videotracker
+          cd plugin
           git status --short amd/build
-
 
       - name: Upload AMD build artifacts
         if: always()
         uses: actions/upload-artifact@v5
         with:
           name: mod_videotracker-amd-build
-          path: ci/moodle/mod/videotracker/amd/build/
+          path: plugin/amd/build/
           if-no-files-found: error
 
+      - name: Fail if AMD build files changed
+        run: |
+          cd plugin
+          git diff --exit-code -- amd/build/

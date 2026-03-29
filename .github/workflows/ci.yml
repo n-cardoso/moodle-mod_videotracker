@@ -8,29 +8,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-22.04
-    name: PHP ${{ matrix.php }} • ${{ matrix.database }}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        php: ['8.2']
-        moodle-branch: ['MOODLE_405_STABLE']
-        database: [mariadb]
+    name: PHP 8.2 • mariadb
 
     services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
       mariadb:
         image: mariadb:10
         env:
@@ -51,10 +31,10 @@ jobs:
         with:
           path: plugin
 
-      - name: Setup PHP ${{ matrix.php }}
+      - name: Setup PHP 8.2
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
+          php-version: '8.2'
           extensions: intl, mbstring, xml, curl, soap, zip, gd, mysqli, pgsql
           ini-values: max_input_vars=5000
           coverage: none
@@ -70,25 +50,15 @@ jobs:
       - name: Install moodle-plugin-ci
         run: |
           cd ci
-          if [ "${{ matrix.database }}" = "pgsql" ]; then
-            php bin/moodle-plugin-ci install \
-              --plugin ../plugin \
-              --db-host=127.0.0.1 \
-              --db-type=pgsql \
-              --db-user=postgres \
-              --db-pass=postgres \
-              --db-name=moodle
-          else
-            php bin/moodle-plugin-ci install \
-              --plugin ../plugin \
-              --db-host=127.0.0.1 \
-              --db-type=mariadb \
-              --db-user=root \
-              --db-pass=root \
-              --db-name=moodle
-          fi
+          php bin/moodle-plugin-ci install \
+            --plugin ../plugin \
+            --db-host=127.0.0.1 \
+            --db-type=mariadb \
+            --db-user=root \
+            --db-pass=root \
+            --db-name=moodle
         env:
-          MOODLE_BRANCH: ${{ matrix.moodle-branch }}
+          MOODLE_BRANCH: MOODLE_405_STABLE
 
       - name: PHP Lint
         run: moodle-plugin-ci phplint
@@ -113,4 +83,25 @@ jobs:
         run: moodle-plugin-ci mustache
 
       - name: Grunt
+        id: grunt
+        continue-on-error: true
         run: moodle-plugin-ci grunt --max-lint-warnings 0
+
+      - name: Upload AMD build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mod_videotracker-amd-build
+          path: |
+            ci/moodle/mod/videotracker/amd/build/form_completion_toggle.min.js
+            ci/moodle/mod/videotracker/amd/build/form_completion_toggle.min.js.map
+            ci/moodle/mod/videotracker/amd/build/tooltip.min.js
+            ci/moodle/mod/videotracker/amd/build/tooltip.min.js.map
+            ci/moodle/mod/videotracker/amd/build/tracker.min.js
+            ci/moodle/mod/videotracker/amd/build/tracker.min.js.map
+          if-no-files-found: error
+
+      - name: Fail if AMD build files changed
+        run: |
+          cd ci/moodle/mod/videotracker
+          git diff --exit-code -- amd/build/

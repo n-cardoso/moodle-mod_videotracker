@@ -111,28 +111,45 @@ class license_manager {
     }
 
     /**
-     * Refresh license state when an admin opens the settings page, but only if stale.
+     * Decide whether admin-page access should trigger a refresh of saved license state.
      *
-     * @return void
+     * @return bool
      */
-    public static function maybe_refresh_on_admin_access(): void {
+    public static function should_refresh_on_admin_access(): bool {
         $settings = self::get_remote_settings();
         if (empty($settings['configured'])) {
-            return;
+            return false;
         }
 
         if (self::should_backfill_missing_license_type() || self::should_backfill_missing_site_activation_state()) {
-            self::run_scheduled_check();
-            return;
+            return true;
         }
 
         if (empty($settings['validateonadminaccess'])) {
-            return;
+            return false;
         }
 
         $interval = max(1, (int) $settings['admincheckintervalhours']) * HOURSECS;
         $lastcheckedat = (int) get_config(self::COMPONENT, 'licenselastcheckedat');
         if ($lastcheckedat > 0 && (time() - $lastcheckedat) < $interval) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Refresh license state when an admin opens the settings page, but only if stale.
+     *
+     * @return void
+     */
+    public static function maybe_refresh_on_admin_access(): void {
+        if (!self::should_refresh_on_admin_access()) {
+            return;
+        }
+
+        $refreshrequested = optional_param('vtlicenseautorefresh', 0, PARAM_BOOL);
+        if (empty($refreshrequested) || !confirm_sesskey()) {
             return;
         }
 

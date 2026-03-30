@@ -597,7 +597,7 @@ CSS;
                     $websiteurl,
                     get_string('licensegetstartedbutton', 'videotracker'),
                     [
-                        'class' => 'btn btn-primary',
+                        'class' => 'btn btn-primary vt-license-primary-action',
                         'target' => '_blank',
                         'rel' => 'noopener noreferrer',
                     ]

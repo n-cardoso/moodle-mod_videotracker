@@ -136,7 +136,10 @@ if (!\mod_videotracker\local\license_enforcer::reports_enabled()) {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('licensedemoreporttitle', 'videotracker'));
     echo html_writer::div(
-        html_writer::span(get_string('licensemodedemo', 'videotracker'), 'badge bg-secondary vt-license-badge') .
+        html_writer::span(
+            get_string('licensemodedemo', 'videotracker'),
+            'badge bg-secondary text-white vt-license-badge'
+        ) .
         html_writer::tag(
             'h4',
             get_string('licensepaneldemoheadline', 'videotracker'),
@@ -171,7 +174,7 @@ if (!\mod_videotracker\local\license_enforcer::reports_enabled()) {
                 ? ' ' . html_writer::link(
                     $settingsurl,
                     get_string('licenseopenlicensesettings', 'videotracker'),
-                    ['class' => 'btn btn-primary']
+                    ['class' => 'btn btn-primary vt-license-primary-action']
                 )
                 : ''),
             'vt-license-actions'

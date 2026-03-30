@@ -17,6 +17,17 @@ Goal: match core Moodle/Bootstrap look (boxed, subtle, theme-safe).
 
 .vt-license-badge {
     margin-bottom: .75rem;
+    font-weight: 600;
+}
+
+.vt-license-badge.bg-success,
+.vt-license-badge.bg-primary,
+.vt-license-badge.bg-secondary {
+    color: #fff;
+}
+
+.vt-license-badge.bg-warning {
+    color: var(--bs-body-color, #212529);
 }
 
 .vt-license-heading {
@@ -73,7 +84,9 @@ Goal: match core Moodle/Bootstrap look (boxed, subtle, theme-safe).
 }
 
 .vt-license-inline-notice .vt-license-inline-notice-link,
-.vt-license-inline-notice .vt-license-inline-notice-link:visited {
+.vt-license-inline-notice .vt-license-inline-notice-link:visited,
+.vt-license-primary-action,
+.vt-license-primary-action:visited {
     color: #fff;
     background-color: #0f6cbf;
     border-color: #0f6cbf;
@@ -89,8 +102,25 @@ Goal: match core Moodle/Bootstrap look (boxed, subtle, theme-safe).
     text-decoration: none;
 }
 
-.vt-license-inline-notice .vt-license-inline-notice-link:focus {
+.vt-license-primary-action:hover,
+.vt-license-primary-action:focus,
+.vt-license-primary-action:active {
+    color: #fff;
+    background-color: #0b5aa2;
+    border-color: #0b5aa2;
+    text-decoration: none;
+}
+
+.vt-license-inline-notice .vt-license-inline-notice-link:focus,
+.vt-license-primary-action:focus {
     box-shadow: 0 0 0 .2rem rgba(11, 90, 162, .25);
+}
+
+.vt-license-panel .btn-primary,
+.vt-license-panel .btn-primary:visited,
+.vt-license-get-started .btn-primary,
+.vt-license-get-started .btn-primary:visited {
+    color: #fff;
 }
 
 /* External embed wrapper (YouTube/Vimeo) */

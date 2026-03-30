@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 $plugin->component = 'mod_videotracker';
 
 // Moodle Plugins reviewer follow-up install build.
-$plugin->version   = 2026033001;
+$plugin->version   = 2026033004;
 
 // Moodle 4.5 (keep existing requirement baseline).
 $plugin->requires  = 2024042200;

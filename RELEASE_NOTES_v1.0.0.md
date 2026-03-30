@@ -1,7 +1,7 @@
 # LearnPlug Video Tracker - Release Notes v1.0.0
 
 - Release: `1.0.0`
-- Build: `2026033001`
+- Build: `2026033004`
 - Compatibility: Moodle `4.5+`
 - Component: `mod_videotracker`
 
@@ -11,6 +11,9 @@ This version marks the official start of the stable `v1.0` line for the Video Tr
 
 ## Reviewer follow-up in this build
 
+- YouTube activities now render a direct iframe player in deactivated/restricted mode so playback remains available when premium tracking is disabled.
+- Fixed low-contrast text in premium-status badges and primary license action buttons so alerts and actions remain readable on Boost/Moodle standard palettes.
+- License status panels on activity/report pages now use Moodle-standard alert styling instead of custom state gradients, improving consistency with Boost and core UI patterns.
 - Final reviewer-follow-up packaging build with accessibility, language, privacy, capability, event, DML, CSRF, boilerplate, and admin-AMD cleanup consolidated for resubmission.
 - Final Moodle Plugins reviewer cleanup for language-string ordering.
 - `tracker.js` return-path cleanup to remove remaining ESLint `consistent-return` warnings.

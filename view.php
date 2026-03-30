@@ -103,6 +103,7 @@ $externalurl = isset($videotracker->externalurl) ? trim((string) $videotracker->
 $externalprovider = '';
 $externalid = '';
 $vimeoembedurl = '';
+$youtubeembedurl = '';
 $embedratio = isset($videotracker->embedratio) ? (string) $videotracker->embedratio : '16:9';
 $allowedratios = ['16:9', '21:9', '4:3', '1:1'];
 if (!in_array($embedratio, $allowedratios, true)) {
@@ -122,6 +123,9 @@ if ($videosource === 'upload') {
 } else if ($videosource === 'youtube') {
     $externalprovider = 'youtube';
     $externalid = videotracker_extract_youtube_id($externalurl);
+    if ($externalid !== '') {
+        $youtubeembedurl = 'https://www.youtube-nocookie.com/embed/' . $externalid . '?rel=0&playsinline=1';
+    }
 } else if ($videosource === 'vimeo') {
     $externalprovider = 'vimeo';
     $externalid = videotracker_extract_vimeo_id($externalurl);
@@ -183,13 +187,13 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($videotracker->name));
 
 if ($showlicensepanel) {
-    $badgeclass = 'secondary';
+    $badgeclass = 'bg-secondary text-white';
     $alertclass = 'alert-secondary';
     if (($licenseuicontext['badgeclass'] ?? '') === 'success') {
-        $badgeclass = 'success';
+        $badgeclass = 'bg-success text-white';
         $alertclass = 'alert-success';
     } else if (($licenseuicontext['badgeclass'] ?? '') === 'warning') {
-        $badgeclass = 'warning text-dark';
+        $badgeclass = 'bg-warning text-dark';
         $alertclass = 'alert-warning';
     }
 
@@ -213,7 +217,7 @@ if ($showlicensepanel) {
         $actions .= ' ' . html_writer::link(
             $licensesettingsurl,
             get_string('licenseopenlicensesettings', 'videotracker'),
-            ['class' => 'btn btn-primary']
+            ['class' => 'btn btn-primary vt-license-primary-action']
         );
     } else if (!$canmanagelicense) {
         $actions .= html_writer::div(
@@ -238,7 +242,7 @@ if ($showlicensepanel) {
     echo html_writer::div(
         html_writer::span(
             s((string) ($licenseuicontext['badgelabel'] ?? '')),
-            'badge bg-' . $badgeclass . ' vt-license-badge'
+            'badge ' . $badgeclass . ' vt-license-badge'
         ) .
         html_writer::tag(
             'h4',
@@ -310,7 +314,19 @@ if (($usehtml5 && empty($videourl)) || (!$usehtml5 && !$hasexternalsource)) {
         $videoattributes
     );
 } else {
-    if ($externalprovider === 'vimeo' && !empty($vimeoembedurl)) {
+    if ($externalprovider === 'youtube' && !$trackingenabled && !empty($youtubeembedurl)) {
+        $embedinner = html_writer::tag('iframe', '', [
+            'id' => 'videotracker-video',
+            'class' => 'vt-embed-inner',
+            'src' => $youtubeembedurl,
+            'allow' => 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',
+            'allowfullscreen' => 'allowfullscreen',
+            'referrerpolicy' => 'strict-origin-when-cross-origin',
+            'title' => format_string($videotracker->name),
+            'data-provider' => $externalprovider,
+            'data-videoid' => $externalid,
+        ]);
+    } else if ($externalprovider === 'vimeo' && !empty($vimeoembedurl)) {
         $embedinner = html_writer::tag('iframe', '', [
             'id' => 'videotracker-video',
             'class' => 'vt-embed-inner',

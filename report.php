@@ -137,7 +137,11 @@ if (!\mod_videotracker\local\license_enforcer::reports_enabled()) {
     echo $OUTPUT->heading(get_string('licensedemoreporttitle', 'videotracker'));
     echo html_writer::div(
         html_writer::span(get_string('licensemodedemo', 'videotracker'), 'badge bg-secondary vt-license-badge') .
-        html_writer::tag('h4', get_string('licensepaneldemoheadline', 'videotracker'), ['class' => 'vt-license-heading']) .
+        html_writer::tag(
+            'h4',
+            get_string('licensepaneldemoheadline', 'videotracker'),
+            ['class' => 'alert-heading vt-license-heading']
+        ) .
         html_writer::tag(
             'p',
             (string) ($licensestate['message'] ?? get_string('licenseenforcementblocked', 'videotracker')),
@@ -172,7 +176,7 @@ if (!\mod_videotracker\local\license_enforcer::reports_enabled()) {
                 : ''),
             'vt-license-actions'
         ),
-        'vt-license-panel vt-license-panel-restricted_demo'
+        'vt-license-panel alert alert-secondary'
     );
     echo $OUTPUT->footer();
     exit;
@@ -774,9 +778,13 @@ echo $OUTPUT->heading(get_string('reporttitle', 'videotracker'));
 if (!empty($licensestate['graceactive'])) {
     echo html_writer::div(
         html_writer::span(get_string('licensemodegrace', 'videotracker'), 'badge bg-warning text-dark vt-license-badge') .
-        html_writer::tag('h4', get_string('licensepanelgraceheadline', 'videotracker'), ['class' => 'vt-license-heading']) .
+        html_writer::tag(
+            'h4',
+            get_string('licensepanelgraceheadline', 'videotracker'),
+            ['class' => 'alert-heading vt-license-heading']
+        ) .
         html_writer::tag('p', (string) ($licensestate['message'] ?? ''), ['class' => 'vt-license-message']),
-        'vt-license-panel vt-license-panel-grace'
+        'vt-license-panel alert alert-warning'
     );
 }
 

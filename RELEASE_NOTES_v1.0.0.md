@@ -1,9 +1,9 @@
 # LearnPlug Video Tracker - Release Notes v1.0.0
 
 - Release: `1.0.0`
-- Build: `2026032705`
+- Build: `2026033001`
 - Compatibility: Moodle `4.5+`
-- Component: `moodle-mod_videotracker`
+- Component: `mod_videotracker`
 
 ## Release scope
 
@@ -11,6 +11,7 @@ This version marks the official start of the stable `v1.0` line for the Video Tr
 
 ## Reviewer follow-up in this build
 
+- Final reviewer-follow-up packaging build with accessibility, language, privacy, capability, event, DML, CSRF, boilerplate, and admin-AMD cleanup consolidated for resubmission.
 - Final Moodle Plugins reviewer cleanup for language-string ordering.
 - `tracker.js` return-path cleanup to remove remaining ESLint `consistent-return` warnings.
 - `amd/build/*.min.js` refreshed to match the current `amd/src` sources.
@@ -24,6 +25,7 @@ This version marks the official start of the stable `v1.0` line for the Video Tr
 - Final language-string ordering adjustment for `licensegetstartedwebsite`.
 - Final PHPCS cleanup for reviewer-reported multiline `foreach` formatting and key ordering.
 - Restored the last known-good AMD build files to recover stable YouTube progress persistence in runtime usage.
+- AMD build artifacts regenerated into true minified Moodle AMD output with source maps, ready for controlled runtime retest.
 
 ## Functionalities included in v1.0.0
 

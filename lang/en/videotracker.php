@@ -546,14 +546,6 @@ $string['videoheader'] = 'Video';
 
 $string['videoprogress'] = 'Video progress';
 
-$string['videotracker:addinstance'] = 'Add a new Video Tracker activity';
-
-$string['videotracker:resetprogress'] = 'Reset learner video progress';
-
-$string['videotracker:view'] = 'View Video Tracker activity';
-
-$string['videotracker:viewreports'] = 'View Video Tracker reports';
-
 $string['videosource'] = 'Video source';
 
 $string['videosource_external'] = 'External URL (direct video file)';
@@ -567,3 +559,11 @@ $string['videosource_upload'] = 'Upload file';
 $string['videosource_vimeo'] = 'Vimeo';
 
 $string['videosource_youtube'] = 'YouTube';
+
+$string['videotracker:addinstance'] = 'Add a new Video Tracker activity';
+
+$string['videotracker:resetprogress'] = 'Reset learner video progress';
+
+$string['videotracker:view'] = 'View Video Tracker activity';
+
+$string['videotracker:viewreports'] = 'View Video Tracker reports';

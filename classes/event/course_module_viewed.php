@@ -24,8 +24,6 @@
 
 namespace mod_videotracker\event;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Event fired when the Video Tracker activity is viewed.
  */
@@ -56,7 +54,8 @@ class course_module_viewed extends \core\event\course_module_viewed {
      * @return string
      */
     public function get_description(): string {
-        return "The user with id '{$this->userid}' viewed the Video Tracker activity with course module id '{$this->contextinstanceid}'.";
+        return "The user with id '{$this->userid}' viewed the Video Tracker activity "
+            . "with course module id '{$this->contextinstanceid}'.";
     }
 
     /**

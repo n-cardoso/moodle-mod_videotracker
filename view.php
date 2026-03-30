@@ -184,10 +184,13 @@ echo $OUTPUT->heading(format_string($videotracker->name));
 
 if ($showlicensepanel) {
     $badgeclass = 'secondary';
+    $alertclass = 'alert-secondary';
     if (($licenseuicontext['badgeclass'] ?? '') === 'success') {
         $badgeclass = 'success';
+        $alertclass = 'alert-success';
     } else if (($licenseuicontext['badgeclass'] ?? '') === 'warning') {
         $badgeclass = 'warning text-dark';
+        $alertclass = 'alert-warning';
     }
 
     $availableitems = '';
@@ -240,7 +243,7 @@ if ($showlicensepanel) {
         html_writer::tag(
             'h4',
             s((string) ($licenseuicontext['headline'] ?? '')),
-            ['class' => 'vt-license-heading']
+            ['class' => 'alert-heading vt-license-heading']
         ) .
         html_writer::tag(
             'p',
@@ -249,7 +252,7 @@ if ($showlicensepanel) {
         ) .
         html_writer::div($featurecolumns, 'vt-license-columns') .
         html_writer::div($actions, 'vt-license-actions'),
-        'vt-license-panel vt-license-panel-' . s((string) ($licenseuicontext['mode'] ?? 'restricted_demo'))
+        'vt-license-panel alert ' . $alertclass
     );
 }
 

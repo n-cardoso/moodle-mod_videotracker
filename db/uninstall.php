@@ -34,6 +34,47 @@
 function xmldb_videotracker_uninstall(): bool {
     global $DB;
 
+    // Remove gradebook rows for this module before Moodle core runs its generic
+    // uninstall grade cleanup. At this stage activity instances may already be
+    // gone, so using the grade API can trigger "instance does not exist"
+    // debugging warnings while grade_item tries to resolve contexts.
+    $dbman = $DB->get_manager();
+    if ($dbman->table_exists('grade_items')) {
+        $gradeitems = $DB->get_records(
+            'grade_items',
+            [
+                'itemtype' => 'mod',
+                'itemmodule' => 'videotracker',
+            ],
+            '',
+            'id'
+        );
+
+        if ($gradeitems) {
+            $gradeitemids = array_map('intval', array_keys($gradeitems));
+
+            if ($dbman->table_exists('grade_grades')) {
+                $DB->delete_records_list('grade_grades', 'itemid', $gradeitemids);
+            }
+
+            if ($dbman->table_exists('grade_grades_history')) {
+                $DB->delete_records_list('grade_grades_history', 'itemid', $gradeitemids);
+            }
+
+            if ($dbman->table_exists('grade_items_history')) {
+                $DB->delete_records('grade_items_history', [
+                    'itemtype' => 'mod',
+                    'itemmodule' => 'videotracker',
+                ]);
+            }
+
+            $DB->delete_records('grade_items', [
+                'itemtype' => 'mod',
+                'itemmodule' => 'videotracker',
+            ]);
+        }
+    }
+
     // Delete all files stored by this module.
     $fs = get_file_storage();
 

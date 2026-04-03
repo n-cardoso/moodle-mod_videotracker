@@ -764,6 +764,9 @@ CSS;
                     $message = get_string('licenseerroractivationrequired', 'videotracker');
                 }
                 $statushtml = videotracker_license_display_effective_status($snapshot);
+                $statushelper = videotracker_license_site_activation_required($snapshot)
+                    ? get_string('licenseerroractivationrequired', 'videotracker')
+                    : '';
                 $type = strtolower(trim((string) $snapshot['licensetype']));
                 $status = strtolower(trim((string) $snapshot['currentstatus']));
                 $typehtml = videotracker_license_display_type(
@@ -788,7 +791,8 @@ CSS;
                     html_writer::div(
                         videotracker_license_overview_metric_card(
                             get_string('licensecurrentstatus', 'videotracker'),
-                            $statushtml
+                            $statushtml,
+                            $statushelper
                         ),
                         'col-lg-3 col-md-6'
                     ) .

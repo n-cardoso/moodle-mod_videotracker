@@ -220,6 +220,9 @@ class license_api_client {
         $responsekeys = [
             'status',
             'expires_at',
+            'license_type',
+            'site_activated',
+            'activation_allowed',
             'activations_used',
             'activations_limit',
             'update_available',

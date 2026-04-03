@@ -1286,10 +1286,12 @@ class license_manager {
     }
 
     /**
-     * Ensure the Moodle DB connection is alive after remote HTTP calls.
+     * Probe the Moodle DB connection after remote HTTP calls.
      *
-     * Some hosts close idle MySQL sessions aggressively while waiting for the
-     * external license server response. We probe and reconnect before writes.
+     * Some hosts may drop idle MySQL sessions while waiting for external
+     * responses. This helper must never actively dispose the global DB handle,
+     * because Moodle core will continue using the same instance in the current
+     * request.
      *
      * @return void
      */
@@ -1298,25 +1300,9 @@ class license_manager {
 
         try {
             $DB->get_field_sql('SELECT 1');
-            return;
         } catch (\Throwable $e) {
-            // Continue with reconnect attempt.
-            unset($e);
-        }
-
-        if (method_exists($DB, 'dispose')) {
-            try {
-                $DB->dispose();
-            } catch (\Throwable $e) {
-                // Ignore and retry probe below.
-                unset($e);
-            }
-        }
-
-        try {
-            $DB->get_field_sql('SELECT 1');
-        } catch (\Throwable $e) {
-            // Leave final error handling to the next real DB operation.
+            // Do not dispose or mutate the global DB handle here. Leave any
+            // final DB error handling to the next real Moodle DB operation.
             unset($e);
         }
     }

@@ -463,18 +463,16 @@ echo $progresspanel;
 echo $objectiveshtml;
 echo html_writer::end_tag('div');
 
-$needsreadonlyexternalplayer = !$trackingenabled && $externalprovider === 'youtube' && !empty($externalid);
-
-if ($trackingenabled || $needsreadonlyexternalplayer) {
-    // Load premium tracking when licensed, or initialize a read-only YouTube
-    // player for restricted demo mode so the embed path remains consistent.
+if ($trackingenabled) {
+    // Load tracking only when premium features are enabled. Restricted demo
+    // mode should leave the native YouTube iframe untouched to avoid late
+    // player re-binding that can restart playback.
     $PAGE->requires->js_call_amd('mod_videotracker/tracker', 'init', [
         'cmid' => (int) $cm->id,
         'instanceid' => (int) $videotracker->id,
         'resume' => (int) $resume,
         'percentinit' => (int) $percentinit,
         'completedinit' => (int) $completedinit,
-        'readonly' => $needsreadonlyexternalplayer ? 1 : 0,
     ]);
 }
 $PAGE->requires->js_call_amd('mod_videotracker/tooltip', 'init');

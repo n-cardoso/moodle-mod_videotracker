@@ -152,6 +152,7 @@ This version marks the official start of the stable `v1.0` line for the Video Tr
 - YouTube restricted-demo playback fix: unlicensed/expired YouTube activities now bootstrap through the same API-backed player path used by the premium runtime instead of a raw iframe fallback, preventing the recent embedded anti-bot/login prompt from appearing in normal playback.
 - YouTube embed host hardening: all YouTube playback modes now instantiate the Iframe API player against `youtube-nocookie.com`, keeping runtime behavior aligned across premium and restricted states and avoiding the recent embedded login/anti-bot prompt.
 - YouTube iframe binding hardening: the activity page now renders a `youtube-nocookie` embed iframe for every YouTube activity and attaches the Iframe API to that existing iframe instead of letting the API create a fresh embed, reducing divergence between licensed and unlicensed playback paths.
+- AMD build repair: the committed `tracker.min.js` no longer references a missing `loadYouTubeApi` symbol after the recent YouTube embed hardening pass.
 
 ## Notes for administrators
 

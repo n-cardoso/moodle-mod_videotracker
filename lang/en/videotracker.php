@@ -202,7 +202,11 @@ $string['licenseenforcementactive'] = 'Premium features are enabled.';
 
 $string['licenseenforcementblocked'] = 'Premium features are currently restricted because the license is not valid.';
 
+$string['licenseexpirednotice'] = 'License expired. Premium features are now restricted until the license is renewed and validated again.';
+
 $string['licenseerroractivationrequired'] = 'This license is valid, but it is not activated for this Moodle site. Click Activate License to register this site or use a different license.';
+
+$string['licenseexpiredstatus'] = 'Expired';
 
 $string['licenseerroremptyresponse'] = 'The license server returned an empty response.';
 

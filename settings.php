@@ -367,6 +367,18 @@ CSS;
             }
         }
 
+        if (!function_exists('videotracker_license_locally_expired')) {
+            /**
+             * Determine whether the locally cached license has already passed expiry.
+             *
+             * @param array $snapshot
+             * @return bool
+             */
+            function videotracker_license_locally_expired(array $snapshot): bool {
+                return (($snapshot['runtimereason'] ?? '') === 'expired');
+            }
+        }
+
         if (!function_exists('videotracker_license_display_effective_status')) {
             /**
              * Formats the effective site status badge shown to admins.
@@ -378,6 +390,13 @@ CSS;
                 if (videotracker_license_site_activation_required($snapshot)) {
                     return html_writer::span(
                         get_string('licenseactivationrequiredstatus', 'videotracker'),
+                        'badge bg-warning text-dark'
+                    );
+                }
+
+                if (videotracker_license_locally_expired($snapshot)) {
+                    return html_writer::span(
+                        get_string('licenseexpiredstatus', 'videotracker'),
                         'badge bg-warning text-dark'
                     );
                 }
@@ -398,6 +417,10 @@ CSS;
                     return false;
                 }
 
+                if (videotracker_license_locally_expired($snapshot)) {
+                    return false;
+                }
+
                 return videotracker_license_status_is_success((string) ($snapshot['currentstatus'] ?? ''));
             }
         }
@@ -411,6 +434,10 @@ CSS;
              */
             function videotracker_license_effective_alert_class(array $snapshot): string {
                 if (videotracker_license_site_activation_required($snapshot)) {
+                    return 'alert-warning';
+                }
+
+                if (videotracker_license_locally_expired($snapshot)) {
                     return 'alert-warning';
                 }
 
@@ -764,14 +791,18 @@ CSS;
                     $message = get_string('licenseerroractivationrequired', 'videotracker');
                 }
                 $statushtml = videotracker_license_display_effective_status($snapshot);
-                $statushelper = videotracker_license_site_activation_required($snapshot)
-                    ? get_string('licenseerroractivationrequired', 'videotracker')
-                    : '';
+                $statushelper = '';
+                if (videotracker_license_site_activation_required($snapshot)) {
+                    $statushelper = get_string('licenseerroractivationrequired', 'videotracker');
+                } else if (videotracker_license_locally_expired($snapshot)) {
+                    $statushelper = get_string('licenseexpirednotice', 'videotracker');
+                }
                 $type = strtolower(trim((string) $snapshot['licensetype']));
                 $status = strtolower(trim((string) $snapshot['currentstatus']));
+                $effectivestatus = videotracker_license_locally_expired($snapshot) ? 'expired' : $status;
                 $typehtml = videotracker_license_display_type(
                     (string) $snapshot['licensetype'],
-                    (string) $snapshot['currentstatus']
+                    $effectivestatus
                 );
                 $typehelper = '';
                 $alertclass = videotracker_license_effective_alert_class($snapshot);
@@ -779,9 +810,13 @@ CSS;
                 $expiresvalue = videotracker_license_display_value($snapshot['expiresat']);
                 $activationshtml = videotracker_license_display_activations($snapshot);
 
-                if ($type === 'trial' && $status === 'expired') {
+                if (videotracker_license_locally_expired($snapshot)) {
+                    $message = ($type === 'trial')
+                        ? get_string('licensetrialexpirednotice', 'videotracker')
+                        : get_string('licenseexpirednotice', 'videotracker');
+                }
+                if ($type === 'trial' && $effectivestatus === 'expired') {
                     $typehelper = get_string('licensetypetrialexpiredhelp', 'videotracker');
-                    $message = get_string('licensetrialexpirednotice', 'videotracker');
                 }
                 if ($message !== '' && !videotracker_license_effective_status_is_success($snapshot)) {
                     $summarymessage = $message;

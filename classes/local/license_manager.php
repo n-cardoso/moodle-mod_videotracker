@@ -245,10 +245,22 @@ class license_manager {
             trim((string) get_config(self::COMPONENT, 'licensetype')),
             $currentstatus
         );
+        $expiresat = trim((string) get_config(self::COMPONENT, 'licenseexpiresat'));
         $lastcheckstatus = trim((string) get_config(self::COMPONENT, 'licenselastcheckstatus'));
         $lastsuccessat = (int) get_config(self::COMPONENT, 'licenselastsuccessat');
         $graceuntil = self::get_grace_until($lastsuccessat);
         $graceactive = self::is_transient_remote_failure($lastcheckstatus) && $lastsuccessat > 0 && $now <= $graceuntil;
+
+        if (self::current_license_is_locally_expired($currentstatus, $expiresat, $now)) {
+            return [
+                'allowed' => false,
+                'mode' => 'restricted_demo',
+                'reason' => 'expired',
+                'message' => self::build_expired_license_message($licensetype),
+                'graceactive' => false,
+                'graceuntil' => $graceuntil,
+            ];
+        }
 
         if ($graceactive) {
             return [
@@ -1042,6 +1054,72 @@ class license_manager {
     private static function status_is_licensed(string $status): bool {
         $status = strtolower(trim($status));
         return ($status === '' || in_array($status, ['active', 'valid', 'activated', 'ok'], true));
+    }
+
+    /**
+     * Determine whether a locally cached licensed state has already passed expiry.
+     *
+     * This protects against stale "active" snapshots remaining premium-enabled
+     * after the known expiry time has already elapsed locally.
+     *
+     * @param string $status
+     * @param string $rawexpiresat
+     * @param int|null $now
+     * @return bool
+     */
+    private static function current_license_is_locally_expired(
+        string $status,
+        string $rawexpiresat,
+        ?int $now = null
+    ): bool {
+        if (trim($status) === '' || !self::status_is_licensed($status)) {
+            return false;
+        }
+
+        $expiresat = self::parse_license_expiry_timestamp($rawexpiresat);
+        if ($expiresat <= 0) {
+            return false;
+        }
+
+        return ($now ?? time()) > $expiresat;
+    }
+
+    /**
+     * Builds the admin/user-facing message for a locally expired license state.
+     *
+     * @param string $licensetype
+     * @return string
+     */
+    private static function build_expired_license_message(string $licensetype): string {
+        if ($licensetype === 'trial') {
+            return get_string('licensetrialexpirednotice', 'videotracker');
+        }
+
+        return get_string('licenseexpirednotice', 'videotracker');
+    }
+
+    /**
+     * Parse the stored expiry value returned by the license server.
+     *
+     * @param string $rawexpiresat
+     * @return int
+     */
+    private static function parse_license_expiry_timestamp(string $rawexpiresat): int {
+        $rawexpiresat = trim($rawexpiresat);
+        if ($rawexpiresat === '') {
+            return 0;
+        }
+
+        if (ctype_digit($rawexpiresat)) {
+            return (int) $rawexpiresat;
+        }
+
+        $timestamp = strtotime($rawexpiresat);
+        if ($timestamp === false) {
+            return 0;
+        }
+
+        return (int) $timestamp;
     }
 
     /**

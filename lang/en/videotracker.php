@@ -232,6 +232,10 @@ $string['licenseerrornotconfigured'] = 'License settings are incomplete. Configu
 
 $string['licenseerrorremote'] = 'The license server rejected the request.';
 
+$string['licenseexpirednotice'] = 'License expired. Premium features are now restricted until the license is renewed and validated again.';
+
+$string['licenseexpiredstatus'] = 'Expired';
+
 $string['licenseexpiresat'] = 'Expires at';
 
 $string['licensefeaturecompletion'] = 'Completion and grade progression';

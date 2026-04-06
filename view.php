@@ -110,6 +110,14 @@ if (!in_array($embedratio, $allowedratios, true)) {
     $embedratio = '16:9';
 }
 $embedratiocss = str_replace(':', ' / ', $embedratio);
+$siteorigin = '';
+$siteparts = parse_url($CFG->wwwroot);
+if (!empty($siteparts['scheme']) && !empty($siteparts['host'])) {
+    $siteorigin = $siteparts['scheme'] . '://' . $siteparts['host'];
+    if (!empty($siteparts['port'])) {
+        $siteorigin .= ':' . $siteparts['port'];
+    }
+}
 $videourl = null;
 $mime = '';
 
@@ -124,7 +132,16 @@ if ($videosource === 'upload') {
     $externalprovider = 'youtube';
     $externalid = videotracker_extract_youtube_id($externalurl);
     if ($externalid !== '') {
-        $youtubeembedurl = 'https://www.youtube-nocookie.com/embed/' . $externalid . '?rel=0&playsinline=1';
+        $youtubeembedparams = [
+            'rel' => 0,
+            'playsinline' => 1,
+            'enablejsapi' => 1,
+        ];
+        if ($siteorigin !== '') {
+            $youtubeembedparams['origin'] = $siteorigin;
+        }
+        $youtubeembedurl = 'https://www.youtube-nocookie.com/embed/' . $externalid . '?' .
+            http_build_query($youtubeembedparams, '', '&', PHP_QUERY_RFC3986);
     }
 } else if ($videosource === 'vimeo') {
     $externalprovider = 'vimeo';
@@ -314,7 +331,7 @@ if (($usehtml5 && empty($videourl)) || (!$usehtml5 && !$hasexternalsource)) {
         $videoattributes
     );
 } else {
-    if ($externalprovider === 'youtube' && !$trackingenabled && !empty($youtubeembedurl)) {
+    if ($externalprovider === 'youtube' && !empty($youtubeembedurl)) {
         $embedinner = html_writer::tag('iframe', '', [
             'id' => 'videotracker-video',
             'class' => 'vt-embed-inner',
@@ -447,7 +464,9 @@ echo $objectiveshtml;
 echo html_writer::end_tag('div');
 
 if ($trackingenabled) {
-    // Load premium tracking only when the current runtime/license state allows it.
+    // Load tracking only when premium features are enabled. Restricted demo
+    // mode should leave the native YouTube iframe untouched to avoid late
+    // player re-binding that can restart playback.
     $PAGE->requires->js_call_amd('mod_videotracker/tracker', 'init', [
         'cmid' => (int) $cm->id,
         'instanceid' => (int) $videotracker->id,

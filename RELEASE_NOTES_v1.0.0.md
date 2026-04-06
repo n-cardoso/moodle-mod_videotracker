@@ -1,7 +1,7 @@
 # LearnPlug Video Tracker - Release Notes v1.0.0
 
 - Release: `1.0.0`
-- Build: `2026033004`
+- Build: `2026040303`
 - Compatibility: Moodle `4.5+`
 - Component: `mod_videotracker`
 
@@ -11,6 +11,9 @@ This version marks the official start of the stable `v1.0` line for the Video Tr
 
 ## Reviewer follow-up in this build
 
+- License validation no longer disposes Moodle's global DB handle after remote HTTP calls, preventing `mysqli object is already closed` and follow-on `is_temptable() on null` failures during `Validate now` on affected hosts.
+- License validation responses now preserve explicit `site_activated` and `activation_allowed` flags from the WordPress server, so Moodle correctly shows `Activation required` and keeps premium features locked until the current site is actually activated.
+- Uninstall cleanup now removes `videotracker` gradebook rows directly before Moodle core runs generic module-grade cleanup, avoiding repeated "The instance of this module does not exist" debugging output when uninstalling the plugin from sites with historical grade items.
 - YouTube activities now render a direct iframe player in deactivated/restricted mode so playback remains available when premium tracking is disabled.
 - Fixed low-contrast text in premium-status badges and primary license action buttons so alerts and actions remain readable on Boost/Moodle standard palettes.
 - License status panels on activity/report pages now use Moodle-standard alert styling instead of custom state gradients, improving consistency with Boost and core UI patterns.
@@ -146,6 +149,9 @@ This version marks the official start of the stable `v1.0` line for the Video Tr
 - Restricted-demo playback fix: when the site has no valid license, learner playback now remains available without initializing the premium progress tracker on the activity page, preventing the unlicensed 2-second restart loop caused by server-side zero-progress responses being interpreted as a full reset.
 - Local expiry enforcement fix: cached `active` license states no longer keep premium features enabled past the stored `expires_at` timestamp, and the admin summary now shows an explicit expired state instead of a misleading green active badge.
 - Language pack ordering cleanup: the new expiry-related string keys were reordered to satisfy Moodle Codechecker lang-file ordering rules without changing runtime behaviour.
+- YouTube restricted-demo playback fix: unlicensed/expired YouTube activities now bootstrap through the same API-backed player path used by the premium runtime instead of a raw iframe fallback, preventing the recent embedded anti-bot/login prompt from appearing in normal playback.
+- YouTube embed host hardening: all YouTube playback modes now instantiate the Iframe API player against `youtube-nocookie.com`, keeping runtime behavior aligned across premium and restricted states and avoiding the recent embedded login/anti-bot prompt.
+- YouTube iframe binding hardening: the activity page now renders a `youtube-nocookie` embed iframe for every YouTube activity and attaches the Iframe API to that existing iframe instead of letting the API create a fresh embed, reducing divergence between licensed and unlicensed playback paths.
 
 ## Notes for administrators
 

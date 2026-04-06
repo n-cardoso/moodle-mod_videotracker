@@ -296,6 +296,10 @@ const initYouTubeController = (container, videoId, callbacks) => {
         let lastState = null;
 
         const pollIntervalMs = 500;
+        const embedHost = 'https://www.youtube-nocookie.com';
+        const usesExistingIframe = (container && container.tagName)
+            ? container.tagName.toLowerCase() === 'iframe'
+            : false;
 
         const applyState = (state) => {
             if (state === lastState) {
@@ -375,7 +379,34 @@ const initYouTubeController = (container, videoId, callbacks) => {
         };
 
         try {
-            player = new YT.Player(container, {
+            const playerevents = {
+                onReady: () => {
+                    duration = toNumber(player.getDuration(), duration);
+                    playbackRate = toNumber(player.getPlaybackRate(), playbackRate);
+                    startPoll();
+                    if (callbacks.onReady) {
+                        callbacks.onReady();
+                    }
+                    resolve(controller);
+                },
+                onStateChange: (e) => {
+                    if (!e || typeof e.data === 'undefined') {
+                        return;
+                    }
+                    applyState(e.data);
+                },
+                onPlaybackRateChange: () => {
+                    playbackRate = toNumber(player.getPlaybackRate(), playbackRate);
+                    if (callbacks.onRateChange) {
+                        callbacks.onRateChange();
+                    }
+                }
+            };
+
+            const playerconfig = usesExistingIframe ? {
+                events: playerevents
+            } : {
+                host: embedHost,
                 videoId,
                 playerVars: {
                     autoplay: 0,
@@ -386,30 +417,10 @@ const initYouTubeController = (container, videoId, callbacks) => {
                     enablejsapi: 1,
                     origin: window.location.origin
                 },
-                events: {
-                    onReady: () => {
-                        duration = toNumber(player.getDuration(), duration);
-                        playbackRate = toNumber(player.getPlaybackRate(), playbackRate);
-                        startPoll();
-                        if (callbacks.onReady) {
-                            callbacks.onReady();
-                        }
-                        resolve(controller);
-                    },
-                    onStateChange: (e) => {
-                        if (!e || typeof e.data === 'undefined') {
-                            return;
-                        }
-                        applyState(e.data);
-                    },
-                    onPlaybackRateChange: () => {
-                        playbackRate = toNumber(player.getPlaybackRate(), playbackRate);
-                        if (callbacks.onRateChange) {
-                            callbacks.onRateChange();
-                        }
-                    }
-                }
-            });
+                events: playerevents
+            };
+
+            player = new YT.Player(container, playerconfig);
         } catch (e) {
             reject(e);
         }
@@ -562,6 +573,7 @@ export const init = (params) => {
 
     let cmid = Number(params.cmid);
     let instanceid = Number(params.instanceid);
+    const readonly = Number(params.readonly || 0) !== 0;
 
     const root = document.querySelector('.mod_videotracker');
     if ((!cmid || !instanceid) && root) {
@@ -608,9 +620,24 @@ export const init = (params) => {
     const textEnded = t.statusEnded || 'Finished.';
     const textReady = t.statusReady || 'Ready.';
     const textCompleted = t.statusCompleted || 'Completed';
+    const externalProvider = (root.dataset.externalprovider || '').toLowerCase();
+    const externalId = root.dataset.externalid || '';
+    const externalUrl = root.dataset.externalurl || '';
 
     const playerEl = document.getElementById('videotracker-video');
     if (!playerEl) {
+        return;
+    }
+
+    if (readonly) {
+        if (externalProvider === 'youtube' && externalId) {
+            initYouTubeController(playerEl, externalId, {}).catch(() => null);
+            return;
+        }
+
+        if (externalProvider === 'vimeo' && (externalId || externalUrl)) {
+            initVimeoController(playerEl, externalId, externalUrl, {}).catch(() => null);
+        }
         return;
     }
 
@@ -1349,9 +1376,6 @@ export const init = (params) => {
     });
 
     const isHtml5 = playerEl.tagName.toLowerCase() === 'video';
-    const externalProvider = (root.dataset.externalprovider || '').toLowerCase();
-    const externalId = root.dataset.externalid || '';
-    const externalUrl = root.dataset.externalurl || '';
 
     if (isHtml5) {
         const video = playerEl;

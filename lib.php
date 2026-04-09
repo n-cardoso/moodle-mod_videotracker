@@ -354,14 +354,6 @@ function videotracker_add_instance(stdClass $data, ?mod_videotracker_mod_form $m
 function videotracker_update_instance(stdClass $data, ?mod_videotracker_mod_form $mform = null): bool {
     global $DB;
 
-    $oldrecord = $DB->get_record('videotracker', ['id' => $data->instance], 'id, videosource', MUST_EXIST);
-    $beforehash = '';
-    if (!empty($data->coursemodule)) {
-        $context = context_module::instance((int) $data->coursemodule);
-        $beforefile = videotracker_get_video_file($context);
-        $beforehash = $beforefile ? (string) $beforefile->get_contenthash() : '';
-    }
-
     videotracker_apply_default_gradepass_from_minpercent($data);
 
     $record = videotracker_build_record($data);
@@ -372,21 +364,6 @@ function videotracker_update_instance(stdClass $data, ?mod_videotracker_mod_form
     if (!empty($data->coursemodule)) {
         videotracker_save_video_file($data, (int) $data->coursemodule);
         videotracker_save_poster_file($data, (int) $data->coursemodule);
-    }
-
-    $sourcechanged = ((string) ($oldrecord->videosource ?? 'upload') !== (string) $record->videosource);
-    if (!empty($data->coursemodule)) {
-        $context = context_module::instance((int) $data->coursemodule);
-        $afterfile = videotracker_get_video_file($context);
-        $afterhash = $afterfile ? (string) $afterfile->get_contenthash() : '';
-        $sourcechanged = $sourcechanged || ($beforehash !== $afterhash);
-    }
-
-    if ($sourcechanged || (string) $record->videosource !== 'upload') {
-        \mod_videotracker\local\subtitle_manager::delete_all_for_activity(
-            (int) $record->id,
-            !empty($data->coursemodule) ? (int) $data->coursemodule : 0
-        );
     }
 
     // Update grade item with gradepass.
@@ -410,16 +387,11 @@ function videotracker_delete_instance(int $id): bool {
     global $DB;
 
     $inst = $DB->get_record('videotracker', ['id' => $id], 'id, course', IGNORE_MISSING);
-    $cm = get_coursemodule_from_instance('videotracker', $id, 0, false, IGNORE_MISSING);
     $courseid = $inst ? (int) $inst->course : 0;
     videotracker_cleanup_grade_items($id, $courseid);
 
     if ($DB->get_manager()->table_exists('videotracker_progress')) {
         $DB->delete_records('videotracker_progress', ['videotrackerid' => $id]);
-    }
-
-    if ($DB->get_manager()->table_exists('videotracker_subtitles')) {
-        \mod_videotracker\local\subtitle_manager::delete_all_for_activity($id, $cm ? (int) $cm->id : 0);
     }
 
     if ($inst) {
@@ -449,7 +421,7 @@ function videotracker_pluginfile($course, $cm, $context, $filearea, $args, $forc
     require_login($course, false, $cm);
     require_capability('mod/videotracker:view', $context);
 
-    if (!in_array($filearea, ['content', 'poster', 'subtitles'], true)) {
+    if (!in_array($filearea, ['content', 'poster'], true)) {
         return false;
     }
 
@@ -468,7 +440,7 @@ function videotracker_pluginfile($course, $cm, $context, $filearea, $args, $forc
         return false;
     }
 
-    if ($filearea === 'poster' || $filearea === 'subtitles') {
+    if ($filearea === 'poster') {
         $forcedownload = false;
     }
 

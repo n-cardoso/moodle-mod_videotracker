@@ -526,26 +526,6 @@ $string['status_ended'] = 'Finished. Checking completion…';
 
 $string['status_init'] = 'Starting…';
 
-$string['openaiapikey'] = 'OpenAI API key';
-
-$string['openaiapikey_desc'] = 'Server-side OpenAI API key used for subtitle transcription and translation. Never expose this key in the browser.';
-
-$string['openaitranscriptionmodel'] = 'OpenAI transcription model';
-
-$string['openaitranscriptionmodel_desc'] = 'Speech-to-text model used for subtitle generation. Use a model that supports timestamped transcription output.';
-
-$string['openaitranslationmodel'] = 'OpenAI translation model';
-
-$string['openaitranslationmodel_desc'] = 'Text model used to translate generated subtitle cues into target languages.';
-
-$string['privacy:metadata:openai'] = 'When subtitle generation or translation is used, audio and subtitle text are sent to OpenAI for processing.';
-
-$string['privacy:metadata:openai:audio'] = 'Audio extracted from uploaded HTML5 videos is sent to OpenAI speech-to-text during subtitle generation.';
-
-$string['privacy:metadata:openai:subtitletext'] = 'Generated source subtitle text is sent to OpenAI when translation tracks are requested.';
-
-$string['privacy:metadata:openai:targetlanguages'] = 'Requested target subtitle languages are sent to OpenAI during subtitle translation.';
-
 $string['status_paused'] = 'Paused.';
 
 $string['status_playing'] = 'Watching…';
@@ -553,162 +533,6 @@ $string['status_playing'] = 'Watching…';
 $string['status_ready'] = 'Ready to start.';
 
 $string['tasklicensecheck'] = 'Video Tracker license validation';
-
-$string['taskprocesssubtitletrack'] = 'Video Tracker subtitle processing';
-
-$string['privacy:metadata:videotracker_subtitles'] = 'Stores generated subtitle-track metadata for each Video Tracker activity.';
-
-$string['privacy:metadata:videotracker_subtitles:attemptcount'] = 'How many processing attempts have been made for this subtitle track.';
-
-$string['privacy:metadata:videotracker_subtitles:basesourcehash'] = 'Hash of the source subtitle content this track was generated from.';
-
-$string['privacy:metadata:videotracker_subtitles:cmid'] = 'The course module id owning this subtitle track.';
-
-$string['privacy:metadata:videotracker_subtitles:currenthash'] = 'Hash of the current VTT file content.';
-
-$string['privacy:metadata:videotracker_subtitles:identifier'] = 'Stable internal identifier for the subtitle track.';
-
-$string['privacy:metadata:videotracker_subtitles:langcode'] = 'Language code used for the subtitle track.';
-
-$string['privacy:metadata:videotracker_subtitles:langlabel'] = 'Human-readable language label for the subtitle track.';
-
-$string['privacy:metadata:videotracker_subtitles:lasterror'] = 'Last processing error stored for the subtitle track.';
-
-$string['privacy:metadata:videotracker_subtitles:openaimodel'] = 'OpenAI model used to generate or translate the subtitle track.';
-
-$string['privacy:metadata:videotracker_subtitles:status'] = 'Current processing status for the subtitle track.';
-
-$string['privacy:metadata:videotracker_subtitles:timecreated'] = 'When the subtitle track record was created.';
-
-$string['privacy:metadata:videotracker_subtitles:timemodified'] = 'When the subtitle track record was last updated.';
-
-$string['privacy:metadata:videotracker_subtitles:tracktype'] = 'Whether the track is the generated source subtitles or a translation.';
-
-$string['privacy:metadata:videotracker_subtitles:videotrackerid'] = 'The Video Tracker activity that owns this subtitle track.';
-
-$string['subtitleactions'] = 'Actions';
-
-$string['subtitlebacktoactivity'] = 'Back to activity';
-
-$string['subtitlecronnotice'] = 'Subtitle generation and translation run in Moodle background tasks. Make sure cron is running so queued subtitle jobs can complete.';
-
-$string['subtitledeletetrackok'] = 'Subtitle track deleted.';
-
-$string['subtitleerror'] = 'Last error';
-
-$string['subtitleerrorapikeymissing'] = 'OpenAI is not configured yet. Add a server-side API key in the Video Tracker plugin settings.';
-
-$string['subtitleerrorchunktoolarge'] = 'The extracted audio chunk is too large for the OpenAI speech-to-text upload limit. Configure ffprobe so the plugin can split long videos safely, or use a shorter uploaded video.';
-
-$string['subtitleerroremptytranscript'] = 'OpenAI returned no subtitle text for this video.';
-
-$string['subtitleerrorexecdisabled'] = 'The PHP exec() function is disabled on this server, so Video Tracker cannot extract audio with ffmpeg.';
-
-$string['subtitleerrorextractionfailed'] = 'Audio extraction failed. Verify the configured ffmpeg path and make sure the uploaded file is a valid HTML5 video.';
-
-$string['subtitleerrorffmpegmissing'] = 'ffmpeg is not available. Configure the ffmpeg path in the Video Tracker plugin settings.';
-
-$string['subtitleerrorgeneric'] = 'Subtitle processing failed.';
-
-$string['subtitleerrorinvalidsourcevtt'] = 'The generated source subtitle file is invalid and cannot be translated.';
-
-$string['subtitleerrornolanguages'] = 'Select at least one target language.';
-
-$string['subtitleerrornosource'] = 'Generate source subtitles first before queueing translations.';
-
-$string['subtitleerrornosourcefile'] = 'The source subtitle file is missing. Generate source subtitles again.';
-
-$string['subtitleerrornovideofile'] = 'No uploaded HTML5 video was found for this activity.';
-
-$string['subtitleerrortranslationmismatch'] = 'The translated subtitle batch did not match the source cue structure.';
-
-$string['subtitleerrorunsupportedsource'] = 'Phase 1 subtitles are only available for uploaded HTML5 videos in Video Tracker. YouTube, Vimeo, and direct external URLs are not supported here.';
-
-$string['subtitleexistingtracks'] = 'Existing subtitle tracks';
-
-$string['subtitleffmpegpath'] = 'ffmpeg binary path';
-
-$string['subtitleffmpegpath_desc'] = 'Path or command name for ffmpeg. Video Tracker uses ffmpeg server-side to extract audio before sending it to OpenAI.';
-
-$string['subtitleffprobepath'] = 'ffprobe binary path';
-
-$string['subtitleffprobepath_desc'] = 'Path or command name for ffprobe. When available, Video Tracker uses it to split long videos into audio chunks that stay below OpenAI upload limits.';
-
-$string['subtitlelanguage'] = 'Language';
-
-$string['subtitlelanguageunknown'] = 'Unknown language';
-
-$string['subtitlemodel'] = 'Model';
-
-$string['subtitleprivacynotice'] = 'Privacy note: subtitle generation sends extracted audio to OpenAI speech-to-text, and subtitle translation sends source subtitle text to OpenAI. Only use this for course media you are allowed to process with an external provider.';
-
-$string['subtitlequeuesourceok'] = 'Source subtitle generation has been queued.';
-
-$string['subtitlequeuetrackok'] = 'Subtitle track regeneration has been queued.';
-
-$string['subtitlequeuetranslationsok'] = '{$a} translation track(s) have been queued.';
-
-$string['subtitlequeuetranslationsskipped'] = '{$a} language selection(s) were skipped because they were invalid or matched the source language.';
-
-$string['subtitlerefresh'] = 'Refresh';
-
-$string['subtitlesdelete'] = 'Delete';
-
-$string['subtitlesdownload'] = 'Download';
-
-$string['subtitlesmanage'] = 'Manage subtitles';
-
-$string['subtitlesnotgenerated'] = 'Not generated yet';
-
-$string['subtitlesnotracks'] = 'No subtitle tracks exist for this activity yet.';
-
-$string['subtitlesettings'] = 'OpenAI subtitles';
-
-$string['subtitlesettings_desc'] = 'Configure server-side OpenAI subtitle generation for uploaded HTML5 videos. Audio and subtitle text are sent to OpenAI during processing, so review your privacy notice and vendor terms before enabling this feature.';
-
-$string['subtitlesourcegenerate'] = 'Generate source subtitles';
-
-$string['subtitlesourceheading'] = 'Source subtitles';
-
-$string['subtitlesourcehelp'] = 'Generate a timed WebVTT subtitle file from the uploaded HTML5 video. The plugin extracts audio server-side, sends it to OpenAI speech-to-text, and stores the generated track inside Moodle.';
-
-$string['subtitlesourceregenerate'] = 'Regenerate source subtitles';
-
-$string['subtitlesourcestatus'] = 'Source track status';
-
-$string['subtitlesregenerate'] = 'Regenerate';
-
-$string['subtitlestatus'] = 'Status';
-
-$string['subtitlestatusfailed'] = 'Failed';
-
-$string['subtitlestatusprocessing'] = 'Processing';
-
-$string['subtitlestatusqueued'] = 'Queued';
-
-$string['subtitlestatusready'] = 'Ready';
-
-$string['subtitlestatusstale'] = 'Out of date';
-
-$string['subtitletrack'] = 'Track';
-
-$string['subtitletrackrestorependingtask'] = 'This subtitle track was queued or processing when the activity was backed up. Regenerate it after restore.';
-
-$string['subtitletracksource'] = 'Original subtitles';
-
-$string['subtitletracksourcewithlanguage'] = 'Original subtitles ({$a})';
-
-$string['subtitletranslationheading'] = 'Translations';
-
-$string['subtitletranslationhelp'] = 'Choose one or more target languages. Video Tracker translates the generated source VTT server-side and stores one WebVTT file per selected language.';
-
-$string['subtitletranslationlanguages'] = 'Target languages';
-
-$string['subtitletranslationqueue'] = 'Queue translations';
-
-$string['subtitletranslationwaitforsource'] = 'Generate source subtitles first, then return here to queue translations.';
-
-$string['subtitleupdated'] = 'Updated';
 
 $string['timespent'] = 'Time watched';
 
@@ -741,8 +565,6 @@ $string['videosource_vimeo'] = 'Vimeo';
 $string['videosource_youtube'] = 'YouTube';
 
 $string['videotracker:addinstance'] = 'Add a new Video Tracker activity';
-
-$string['videotracker:managesubtitles'] = 'Manage Video Tracker subtitles';
 
 $string['videotracker:resetprogress'] = 'Reset learner video progress';
 

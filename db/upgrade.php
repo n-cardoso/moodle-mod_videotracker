@@ -375,39 +375,5 @@ function xmldb_videotracker_upgrade(int $oldversion): bool {
         upgrade_mod_savepoint(true, 2026031403, 'videotracker');
     }
 
-    if ($oldversion < 2026040700) {
-        $dbman = $DB->get_manager();
-        $table = new xmldb_table('videotracker_subtitles');
-
-        if (!$dbman->table_exists($table)) {
-            $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-            $table->add_field('videotrackerid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-            $table->add_field('cmid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-            $table->add_field('identifier', XMLDB_TYPE_CHAR, '40', null, XMLDB_NOTNULL, null, null);
-            $table->add_field('tracktype', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, null);
-            $table->add_field('langcode', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, null);
-            $table->add_field('langlabel', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
-            $table->add_field('status', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, null);
-            $table->add_field('basesourcehash', XMLDB_TYPE_CHAR, '40', null, XMLDB_NOTNULL, null, null);
-            $table->add_field('currenthash', XMLDB_TYPE_CHAR, '40', null, XMLDB_NOTNULL, null, null);
-            $table->add_field('openaimodel', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
-            $table->add_field('attemptcount', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-            $table->add_field('lasterror', XMLDB_TYPE_TEXT, null, null, null, null, null);
-            $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-            $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-
-            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-            $table->add_key('videotrackerfk', XMLDB_KEY_FOREIGN, ['videotrackerid'], 'videotracker', ['id']);
-            $table->add_key('subtitlecmfk', XMLDB_KEY_FOREIGN, ['cmid'], 'course_modules', ['id']);
-            $table->add_index('videotracker_identifier_uix', XMLDB_INDEX_UNIQUE, ['videotrackerid', 'identifier']);
-            $table->add_index('subtitlecm_idx', XMLDB_INDEX_NOTUNIQUE, ['cmid']);
-            $table->add_index('subtitlestatus_idx', XMLDB_INDEX_NOTUNIQUE, ['status']);
-
-            $dbman->create_table($table);
-        }
-
-        upgrade_mod_savepoint(true, 2026040700, 'videotracker');
-    }
-
     return true;
 }

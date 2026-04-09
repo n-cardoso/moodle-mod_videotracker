@@ -1291,50 +1291,5 @@ CSS;
             get_string('licensediagnostics', 'videotracker'),
             videotracker_license_diagnostics_html($snapshot)
         ));
-
-        $settings->add(new admin_setting_heading(
-            'mod_videotracker/subtitlesettings',
-            get_string('subtitlesettings', 'videotracker'),
-            get_string('subtitlesettings_desc', 'videotracker')
-        ));
-
-        $settings->add(new \mod_videotracker\local\admin_setting_configpasswordunmask_wrapped(
-            'mod_videotracker/openaiapikey',
-            get_string('openaiapikey', 'videotracker'),
-            get_string('openaiapikey_desc', 'videotracker'),
-            ''
-        ));
-
-        $settings->add(new \mod_videotracker\local\admin_setting_configtext_wrapped(
-            'mod_videotracker/openaitranscriptionmodel',
-            get_string('openaitranscriptionmodel', 'videotracker'),
-            get_string('openaitranscriptionmodel_desc', 'videotracker'),
-            'whisper-1',
-            PARAM_TEXT
-        ));
-
-        $settings->add(new \mod_videotracker\local\admin_setting_configtext_wrapped(
-            'mod_videotracker/openaitranslationmodel',
-            get_string('openaitranslationmodel', 'videotracker'),
-            get_string('openaitranslationmodel_desc', 'videotracker'),
-            'gpt-4.1-mini',
-            PARAM_TEXT
-        ));
-
-        $settings->add(new \mod_videotracker\local\admin_setting_configtext_wrapped(
-            'mod_videotracker/subtitleffmpegpath',
-            get_string('subtitleffmpegpath', 'videotracker'),
-            get_string('subtitleffmpegpath_desc', 'videotracker'),
-            'ffmpeg',
-            PARAM_TEXT
-        ));
-
-        $settings->add(new \mod_videotracker\local\admin_setting_configtext_wrapped(
-            'mod_videotracker/subtitleffprobepath',
-            get_string('subtitleffprobepath', 'videotracker'),
-            get_string('subtitleffprobepath_desc', 'videotracker'),
-            'ffprobe',
-            PARAM_TEXT
-        ));
     }
 }

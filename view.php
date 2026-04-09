@@ -87,7 +87,6 @@ $systemcontext = \context_system::instance();
 $canmanagelicense = has_capability('moodle/site:config', $systemcontext);
 $canmanageactivity = has_capability('moodle/course:manageactivities', $context);
 $canviewreports = has_capability('mod/videotracker:viewreports', $context);
-$canmanagesubtitles = has_capability('mod/videotracker:managesubtitles', $context);
 $showlicensepanel = $canmanagelicense || $canmanageactivity || $canviewreports;
 $licensesettingsurl = $canmanagelicense
     ? new moodle_url('/admin/settings.php', ['section' => 'modsettingvideotrackerlicense'])
@@ -153,15 +152,6 @@ if ($videosource === 'upload') {
 $usehtml5 = ($videosource === 'upload' || $videosource === 'external');
 $hasexternalsource = !empty($externalid) || ($externalprovider === 'vimeo' && $externalurl !== '');
 $posterurl = videotracker_get_poster_file_url($context);
-$subtitletracks = [];
-$subtitlesmanageurl = null;
-
-if ($videosource === 'upload') {
-    $subtitletracks = \mod_videotracker\local\subtitle_manager::get_ready_tracks_for_activity((int) $videotracker->id);
-    if ($canmanagesubtitles) {
-        $subtitlesmanageurl = \mod_videotracker\local\subtitle_manager::get_manage_url($cm);
-    }
-}
 
 // Completion and playback settings.
 $minpercent = (int) ($videotracker->completionminpercent ?? 0);
@@ -212,17 +202,6 @@ if (!$objectivesenabled) {
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($videotracker->name));
-
-if ($subtitlesmanageurl instanceof moodle_url) {
-    echo html_writer::div(
-        html_writer::link(
-            $subtitlesmanageurl,
-            get_string('subtitlesmanage', 'videotracker'),
-            ['class' => 'btn btn-outline-secondary']
-        ),
-        'mb-3'
-    );
-}
 
 if ($showlicensepanel) {
     $badgeclass = 'bg-secondary text-white';
@@ -346,31 +325,9 @@ if (($usehtml5 && empty($videourl)) || (!$usehtml5 && !$hasexternalsource)) {
     if (!empty($mime)) {
         $sourceattributes['type'] = $mime;
     }
-    $trackhtml = '';
-    if ($videosource === 'upload' && !empty($subtitletracks)) {
-        foreach ($subtitletracks as $track) {
-            $trackurl = \mod_videotracker\local\subtitle_manager::get_track_file_url($track);
-            if (!$trackurl) {
-                continue;
-            }
-
-            $trackattributes = [
-                'kind' => 'subtitles',
-                'src' => $trackurl->out(false),
-                'srclang' => (string) ($track->langcode ?: 'en'),
-                'label' => \mod_videotracker\local\subtitle_manager::get_track_display_label($track),
-            ];
-            if ((string) $track->tracktype === \mod_videotracker\local\subtitle_manager::TRACKTYPE_SOURCE) {
-                $trackattributes['default'] = 'default';
-            }
-
-            $trackhtml .= html_writer::empty_tag('track', $trackattributes);
-        }
-    }
-
     $mediahtml = html_writer::tag(
         'video',
-        html_writer::empty_tag('source', $sourceattributes) . $trackhtml . get_string('html5videonotsupported', 'videotracker'),
+        html_writer::empty_tag('source', $sourceattributes) . get_string('html5videonotsupported', 'videotracker'),
         $videoattributes
     );
 } else {

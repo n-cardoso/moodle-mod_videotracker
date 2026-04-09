@@ -15,22 +15,42 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Video Tracker version information.
+ * Ad hoc task for subtitle generation and translation.
  *
  * @package     mod_videotracker
  * @copyright   2026 LearnPlug
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace mod_videotracker\task;
+
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'mod_videotracker';
+/**
+ * Process one queued subtitle track.
+ */
+class process_subtitle_track_task extends \core\task\adhoc_task {
+    /**
+     * Human-readable task name.
+     *
+     * @return string
+     */
+    public function get_name(): string {
+        return get_string('taskprocesssubtitletrack', 'videotracker');
+    }
 
-// Subtitle generation and translation build.
-$plugin->version   = 2026040700;
+    /**
+     * Execute the task.
+     *
+     * @return void
+     */
+    public function execute(): void {
+        $customdata = (array) $this->get_custom_data();
+        $trackid = isset($customdata['trackid']) ? (int) $customdata['trackid'] : 0;
+        if ($trackid <= 0) {
+            return;
+        }
 
-// Moodle 4.5 (keep existing requirement baseline).
-$plugin->requires  = 2024042200;
-
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0.0';
+        \mod_videotracker\local\subtitle_manager::process_track($trackid);
+    }
+}

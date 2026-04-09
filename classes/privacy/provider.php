@@ -55,6 +55,12 @@ class provider implements
             'installedversion' => 'privacy:metadata:learnpluglicenseserver:installedversion',
         ], 'privacy:metadata:learnpluglicenseserver');
 
+        $collection->add_external_location_link('openai', [
+            'audio' => 'privacy:metadata:openai:audio',
+            'subtitletext' => 'privacy:metadata:openai:subtitletext',
+            'targetlanguages' => 'privacy:metadata:openai:targetlanguages',
+        ], 'privacy:metadata:openai');
+
         $collection->add_database_table('videotracker_progress', [
             'videotrackerid' => 'privacy:metadata:videotracker_progress:videotrackerid',
             'cmid' => 'privacy:metadata:videotracker_progress:cmid',
@@ -73,6 +79,23 @@ class provider implements
             'timecreated' => 'privacy:metadata:videotracker_progress:timecreated',
             'timemodified' => 'privacy:metadata:videotracker_progress:timemodified',
         ], 'privacy:metadata:videotracker_progress');
+
+        $collection->add_database_table('videotracker_subtitles', [
+            'videotrackerid' => 'privacy:metadata:videotracker_subtitles:videotrackerid',
+            'cmid' => 'privacy:metadata:videotracker_subtitles:cmid',
+            'identifier' => 'privacy:metadata:videotracker_subtitles:identifier',
+            'tracktype' => 'privacy:metadata:videotracker_subtitles:tracktype',
+            'langcode' => 'privacy:metadata:videotracker_subtitles:langcode',
+            'langlabel' => 'privacy:metadata:videotracker_subtitles:langlabel',
+            'status' => 'privacy:metadata:videotracker_subtitles:status',
+            'basesourcehash' => 'privacy:metadata:videotracker_subtitles:basesourcehash',
+            'currenthash' => 'privacy:metadata:videotracker_subtitles:currenthash',
+            'openaimodel' => 'privacy:metadata:videotracker_subtitles:openaimodel',
+            'attemptcount' => 'privacy:metadata:videotracker_subtitles:attemptcount',
+            'lasterror' => 'privacy:metadata:videotracker_subtitles:lasterror',
+            'timecreated' => 'privacy:metadata:videotracker_subtitles:timecreated',
+            'timemodified' => 'privacy:metadata:videotracker_subtitles:timemodified',
+        ], 'privacy:metadata:videotracker_subtitles');
 
         return $collection;
     }

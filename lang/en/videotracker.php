@@ -532,10 +532,6 @@ $string['status_playing'] = 'Watching…';
 
 $string['status_ready'] = 'Ready to start.';
 
-$string['tasklicensecheck'] = 'Video Tracker license validation';
-
-$string['taskprocesssubtitletrack'] = 'Video Tracker subtitle processing';
-
 $string['openaiapikey'] = 'OpenAI API key';
 
 $string['openaiapikey_desc'] = 'Server-side OpenAI API key used for subtitle transcription and translation. Never expose this key in the browser.';
@@ -547,6 +543,10 @@ $string['openaitranscriptionmodel_desc'] = 'Speech-to-text model used for subtit
 $string['openaitranslationmodel'] = 'OpenAI translation model';
 
 $string['openaitranslationmodel_desc'] = 'Text model used to translate generated subtitle cues into target languages.';
+
+$string['tasklicensecheck'] = 'Video Tracker license validation';
+
+$string['taskprocesssubtitletrack'] = 'Video Tracker subtitle processing';
 
 $string['privacy:metadata:openai'] = 'When subtitle generation or translation is used, audio and subtitle text are sent to OpenAI for processing.';
 
@@ -670,11 +670,11 @@ $string['subtitlesourcehelp'] = 'Generate a timed WebVTT subtitle file from the 
 
 $string['subtitlesourceregenerate'] = 'Regenerate source subtitles';
 
-$string['subtitlesourcestatus'] = 'Source track status';
-
 $string['subtitlesettings'] = 'OpenAI subtitles';
 
 $string['subtitlesettings_desc'] = 'Configure server-side OpenAI subtitle generation for uploaded HTML5 videos. Audio and subtitle text are sent to OpenAI during processing, so review your privacy notice and vendor terms before enabling this feature.';
+
+$string['subtitlesourcestatus'] = 'Source track status';
 
 $string['subtitlesregenerate'] = 'Regenerate';
 

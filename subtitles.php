@@ -198,7 +198,10 @@ echo $OUTPUT->notification(get_string('subtitleprivacynotice', 'videotracker'), 
 echo $OUTPUT->notification(get_string('subtitlecronnotice', 'videotracker'), \core\output\notification::NOTIFY_INFO);
 
 if (!$supported) {
-    echo $OUTPUT->notification(get_string('subtitleerrorunsupportedsource', 'videotracker'), \core\output\notification::NOTIFY_WARNING);
+    echo $OUTPUT->notification(
+        get_string('subtitleerrorunsupportedsource', 'videotracker'),
+        \core\output\notification::NOTIFY_WARNING
+    );
     echo $OUTPUT->footer();
     exit;
 }
@@ -269,7 +272,10 @@ if ($sourceready) {
 
     echo $translateform;
 } else {
-    echo $OUTPUT->notification(get_string('subtitletranslationwaitforsource', 'videotracker'), \core\output\notification::NOTIFY_WARNING);
+    echo $OUTPUT->notification(
+        get_string('subtitletranslationwaitforsource', 'videotracker'),
+        \core\output\notification::NOTIFY_WARNING
+    );
 }
 
 if (empty($tracks)) {

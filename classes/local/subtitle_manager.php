@@ -24,8 +24,6 @@
 
 namespace mod_videotracker\local;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Coordinates subtitle track storage, queueing, and processing.
  */
@@ -91,7 +89,7 @@ class subtitle_manager {
             'tracktype ASC, langlabel ASC, id ASC'
         ));
 
-        usort($tracks, static function($a, $b): int {
+        usort($tracks, static function ($a, $b): int {
             if ($a->tracktype === $b->tracktype) {
                 return strcmp((string) $a->langlabel, (string) $b->langlabel);
             }
@@ -110,7 +108,7 @@ class subtitle_manager {
     public static function get_ready_tracks_for_activity(int $videotrackerid): array {
         $tracks = self::get_tracks_for_activity($videotrackerid);
 
-        return array_values(array_filter($tracks, static function($track): bool {
+        return array_values(array_filter($tracks, static function ($track): bool {
             return (string) $track->status === self::STATUS_READY;
         }));
     }
@@ -891,7 +889,7 @@ class subtitle_manager {
             }
 
             $lines = preg_split('/\R/u', $text) ?: [];
-            $lines = array_values(array_filter(array_map('trim', $lines), static function(string $line): bool {
+            $lines = array_values(array_filter(array_map('trim', $lines), static function (string $line): bool {
                 return $line !== '';
             }));
 

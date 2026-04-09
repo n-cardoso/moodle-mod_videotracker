@@ -24,8 +24,6 @@
 
 namespace mod_videotracker\task;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Process one queued subtitle track.
  */

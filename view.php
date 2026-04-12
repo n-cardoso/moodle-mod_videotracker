@@ -176,7 +176,7 @@ if (!$licensestate['allowed']) {
 $trackingenabled = !empty($licensestate['allowed']);
 $initialstatustext = $trackingenabled
     ? get_string('status_init', 'videotracker')
-    : get_string('licensepremiumdisabled', 'videotracker');
+    : '';
 
 $goaltext = $minpercent > 0
     ? get_string('reachtocomplete', 'videotracker', $minpercent)
@@ -386,11 +386,11 @@ $progresspanel = html_writer::div(
         html_writer::div(get_string('videoprogress', 'videotracker'), 'vt-panel-title') .
         html_writer::div(
             html_writer::span('0%', 'vt-percent', ['id' => 'videotracker-percent']) .
-            html_writer::span(
+            ($initialstatustext !== '' ? html_writer::span(
                 $initialstatustext,
                 'vt-status-text',
                 ['id' => 'videotracker-status-text']
-            ) .
+            ) : '') .
             html_writer::span(
                 get_string('completed', 'videotracker'),
                 'badge rounded-pill alert-success icon-no-margin',

@@ -190,7 +190,7 @@ if (!\mod_videotracker\local\license_enforcer::reports_enabled()) {
 
 $fields = "u.id, u.firstname, u.lastname, u.email,
            u.firstnamephonetic, u.lastnamephonetic, u.middlename, u.alternatename,
-           p.percent, p.completed, p.timemodified, p.duration, p.watched, p.lastpos";
+           p.percent, p.completed, p.timemodified, p.duration, p.watched, p.viewmap, p.lastpos";
 $from = "{user} u
          JOIN ({$enrolledsql}) eu ON eu.id = u.id
          LEFT JOIN {videotracker_progress} p
@@ -248,6 +248,28 @@ $videoduration = (int) $DB->get_field_sql(
     "SELECT MAX(duration) FROM {videotracker_progress} WHERE cmid = :cmid",
     ['cmid' => $cm->id]
 );
+
+$aggregateviewmap = \mod_videotracker\local\view_map::empty_map();
+$viewmapcontributors = 0;
+$viewmaprecordset = $DB->get_recordset_sql(
+    "SELECT p.viewmap
+       FROM {$from}
+      WHERE {$where}
+        AND p.viewmap IS NOT NULL
+        AND " . $DB->sql_compare_text('p.viewmap') . " <> :emptyviewmap",
+    ['emptyviewmap' => ''] + $params
+);
+
+foreach ($viewmaprecordset as $viewmaprow) {
+    $normalisedmap = \mod_videotracker\local\view_map::normalise($viewmaprow->viewmap ?? null);
+    if (!\mod_videotracker\local\view_map::has_data($normalisedmap)) {
+        continue;
+    }
+
+    $aggregateviewmap = \mod_videotracker\local\view_map::merge($aggregateviewmap, $normalisedmap);
+    $viewmapcontributors++;
+}
+$viewmaprecordset->close();
 
 /**
  * SQL-backed table used for the engagement report.
@@ -408,6 +430,25 @@ class videotracker_report_table extends table_sql {
             return '—';
         }
         return format_time($seconds);
+    }
+
+    /**
+     * Formats the learner timeline view map.
+     *
+     * @param \stdClass $row Table row.
+     * @return string
+     */
+    public function col_viewmap($row) {
+        if ($this->is_downloading()) {
+            return '';
+        }
+
+        $duration = $this->videoduration > 0 ? $this->videoduration : (int) ($row->duration ?? 0);
+        return \mod_videotracker\local\view_map::render(
+            \mod_videotracker\local\view_map::normalise($row->viewmap ?? null),
+            $duration,
+            true
+        );
     }
 
     /**
@@ -607,6 +648,7 @@ if (!empty($action) && $canreset) {
         if ($progress) {
             $progress->percent = 0;
             $progress->watched = 0;
+            $progress->viewmap = null;
             $progress->completed = 0;
             $progress->lastpos = 0;
             $progress->obj1 = 0;
@@ -723,6 +765,7 @@ if (!empty($action) && $canreset) {
                 "UPDATE {videotracker_progress}
                     SET percent = 0,
                         watched = 0,
+                        viewmap = NULL,
                         completed = 0,
                         lastpos = 0,
                         obj1 = 0,
@@ -864,6 +907,29 @@ echo html_writer::link(
     ['class' => 'btn btn-secondary mb-3']
 );
 
+echo html_writer::div(
+    html_writer::tag('div', get_string('viewmapaggregate', 'videotracker'), ['class' => 'fw-bold mb-1']) .
+    html_writer::tag(
+        'div',
+        get_string('viewmapaggregatecount', 'videotracker', $viewmapcontributors),
+        ['class' => 'text-muted small mb-2']
+    ) .
+    html_writer::tag(
+        'div',
+        get_string('viewmaplegend', 'videotracker'),
+        ['class' => 'text-muted small mb-2']
+    ) .
+    \mod_videotracker\local\view_map::render($aggregateviewmap, $videoduration, false) .
+    html_writer::div(
+        html_writer::span(\mod_videotracker\local\view_map::format_timepoint(0)) .
+        html_writer::span(
+            \mod_videotracker\local\view_map::format_timepoint((float) max(0, $videoduration))
+        ),
+        'vt-viewmap-scale'
+    ),
+    'vt-viewmap-summary mb-3'
+);
+
 // Bulk reset section (filtered).
 if ($canreset) {
     $reseturl = new moodle_url('/mod/videotracker/report.php', $baseurlparams + ['action' => 'resetall']);
@@ -898,6 +964,7 @@ $columns = [
     'lastviewed',
     'videotime',
     'timespent',
+    'viewmap',
     'lastposition',
     'completionrequired',
 ];
@@ -910,6 +977,7 @@ $headers = [
     get_string('lastviewed', 'videotracker'),
     get_string('videoduration', 'videotracker'),
     get_string('timespent', 'videotracker'),
+    get_string('viewmap', 'videotracker'),
     get_string('lastposition', 'videotracker'),
     get_string('completionrequired', 'videotracker'),
 ];
@@ -927,6 +995,7 @@ $table->no_sorting('videoitem');
 $table->no_sorting('lastviewed');
 $table->no_sorting('videotime');
 $table->no_sorting('timespent');
+$table->no_sorting('viewmap');
 $table->no_sorting('lastposition');
 $table->no_sorting('completionrequired');
 if ($canreset) {

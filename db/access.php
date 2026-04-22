@@ -62,4 +62,13 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    'mod/videotracker:managesubtitles' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
 ];

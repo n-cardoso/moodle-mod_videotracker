@@ -35,10 +35,20 @@ if ($hassiteconfig) {
     );
 
     if ($ADMIN->fulltree) {
-        global $PAGE;
-
+        global $PAGE, $SCRIPT;
         $currentsection = isset($section) ? (string) $section : '';
+        $script = is_string($SCRIPT ?? null) ? $SCRIPT : '';
+        $stringmanager = get_string_manager();
+        $safesettingstring = static function (string $identifier, string $fallback) use ($stringmanager): string {
+            if ($stringmanager->string_exists($identifier, 'videotracker')) {
+                return get_string($identifier, 'videotracker');
+            }
+
+            return $fallback;
+        };
+
         $canautorefresh = $currentsection === 'modsettingvideotrackerlicense'
+            && str_ends_with($script, '/admin/settings.php')
             && \mod_videotracker\local\license_manager::is_safe_admin_refresh_context();
         $autorefreshrequested = optional_param('vtlicenseautorefresh', 0, PARAM_BOOL);
         $requestmethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -1290,6 +1300,69 @@ CSS;
             'mod_videotracker/licensediagnostics_display',
             get_string('licensediagnostics', 'videotracker'),
             videotracker_license_diagnostics_html($snapshot)
+        ));
+
+        $settings->add(new admin_setting_heading(
+            'mod_videotracker/subtitlesettings',
+            $safesettingstring('subtitlesettings', 'OpenAI subtitles'),
+            $safesettingstring(
+                'subtitlesettings_desc',
+                'Configure server-side OpenAI subtitle generation for uploaded HTML5 videos.'
+            )
+        ));
+
+        $settings->add(new \mod_videotracker\local\admin_setting_configpasswordunmask_wrapped(
+            'mod_videotracker/openaiapikey',
+            $safesettingstring('openaiapikey', 'OpenAI API key'),
+            $safesettingstring(
+                'openaiapikey_desc',
+                'Server-side OpenAI API key used for subtitle transcription and translation.'
+            ),
+            ''
+        ));
+
+        $settings->add(new \mod_videotracker\local\admin_setting_configtext_wrapped(
+            'mod_videotracker/openaitranscriptionmodel',
+            $safesettingstring('openaitranscriptionmodel', 'OpenAI transcription model'),
+            $safesettingstring(
+                'openaitranscriptionmodel_desc',
+                'Speech-to-text model used for subtitle generation.'
+            ),
+            'whisper-1',
+            PARAM_TEXT
+        ));
+
+        $settings->add(new \mod_videotracker\local\admin_setting_configtext_wrapped(
+            'mod_videotracker/openaitranslationmodel',
+            $safesettingstring('openaitranslationmodel', 'OpenAI translation model'),
+            $safesettingstring(
+                'openaitranslationmodel_desc',
+                'Text model used to translate generated subtitle cues into target languages.'
+            ),
+            'gpt-4.1-mini',
+            PARAM_TEXT
+        ));
+
+        $settings->add(new \mod_videotracker\local\admin_setting_configtext_wrapped(
+            'mod_videotracker/subtitleffmpegpath',
+            $safesettingstring('subtitleffmpegpath', 'ffmpeg binary path'),
+            $safesettingstring(
+                'subtitleffmpegpath_desc',
+                'Path or command name for ffmpeg.'
+            ),
+            'ffmpeg',
+            PARAM_TEXT
+        ));
+
+        $settings->add(new \mod_videotracker\local\admin_setting_configtext_wrapped(
+            'mod_videotracker/subtitleffprobepath',
+            $safesettingstring('subtitleffprobepath', 'ffprobe binary path'),
+            $safesettingstring(
+                'subtitleffprobepath_desc',
+                'Path or command name for ffprobe.'
+            ),
+            'ffprobe',
+            PARAM_TEXT
         ));
     }
 }

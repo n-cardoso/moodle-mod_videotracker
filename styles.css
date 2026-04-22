@@ -676,6 +676,99 @@ body.vt-license-advanced-ready.vt-license-advanced-open .vt-license-advanced-set
         gap: .35rem;
     }
 }
+
+.vt-viewmap-summary {
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: .85rem;
+    background: var(--bs-body-bg, #fff);
+}
+
+.vt-viewmap {
+    display: flex;
+    align-items: stretch;
+    gap: 2px;
+    min-height: 2.4rem;
+    padding: .35rem;
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: .75rem;
+    background: linear-gradient(180deg, rgba(15, 108, 191, .05), rgba(15, 108, 191, .015));
+}
+
+.vt-viewmap-compact {
+    min-width: 7rem;
+    min-height: 1.2rem;
+    padding: .2rem;
+    gap: 1px;
+}
+
+.vt-viewmap-segment {
+    flex: 1 1 0;
+    min-width: 2px;
+    border-radius: 999px;
+    background: rgba(15, 108, 191, calc(.08 + (var(--vt-viewmap-intensity, 0) * .92)));
+}
+
+.vt-viewmap-scale {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: .4rem;
+    font-size: .78rem;
+    color: var(--bs-secondary-color, #6c757d);
+}
+
+.vt-subtitle-card {
+    max-width: 62rem;
+}
+
+.vt-subtitle-form {
+    max-width: 42rem;
+}
+
+.vt-subtitle-file-control {
+    width: 100%;
+    max-width: 38rem;
+}
+
+.vt-subtitle-source-language {
+    width: 100%;
+    max-width: 14rem;
+}
+
+.vt-subtitle-language-select {
+    width: 100%;
+    max-width: 34rem;
+    min-height: 13rem;
+}
+
+.vt-subtitle-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .75rem;
+}
+
+.vt-subtitle-submit {
+    display: inline-flex;
+    justify-content: center;
+    width: auto !important;
+    min-width: 11rem;
+}
+
+@media (max-width: 576px) {
+    .vt-subtitle-card,
+    .vt-subtitle-form,
+    .vt-subtitle-file-control,
+    .vt-subtitle-source-language,
+    .vt-subtitle-language-select {
+        max-width: 100%;
+    }
+
+    .vt-subtitle-submit {
+        width: 100% !important;
+    }
+}
 /* This file is part of Moodle - http://moodle.org/
 *
 * Moodle is free software: you can redistribute it and/or modify

@@ -98,6 +98,7 @@ class license_enforcer {
         $tracking = get_string('licensefeaturetracking', 'videotracker');
         $completion = get_string('licensefeaturecompletion', 'videotracker');
         $reports = get_string('licensefeaturereports', 'videotracker');
+        $subtitles = get_string('licensefeaturesubtitles', 'videotracker');
         $objectives = get_string('licensefeatureobjectives', 'videotracker');
         $videoaccess = get_string('licensefeaturevideoaccess', 'videotracker');
 
@@ -110,20 +111,20 @@ class license_enforcer {
             'badgelabel' => get_string('licensemodedemo', 'videotracker'),
             'headline' => get_string('licensepaneldemoheadline', 'videotracker'),
             'availablefeatures' => [$videoaccess],
-            'lockedfeatures' => [$tracking, $completion, $reports, $objectives, $playback],
+            'lockedfeatures' => [$tracking, $completion, $reports, $subtitles, $objectives, $playback],
         ];
 
         if ($mode === 'premium') {
             $context['badgeclass'] = 'success';
             $context['badgelabel'] = get_string('licensemodepremium', 'videotracker');
             $context['headline'] = get_string('licensepanelpremiumheadline', 'videotracker');
-            $context['availablefeatures'] = [$videoaccess, $tracking, $completion, $reports, $objectives, $playback];
+            $context['availablefeatures'] = [$videoaccess, $tracking, $completion, $reports, $subtitles, $objectives, $playback];
             $context['lockedfeatures'] = [];
         } else if ($mode === 'grace') {
             $context['badgeclass'] = 'warning';
             $context['badgelabel'] = get_string('licensemodegrace', 'videotracker');
             $context['headline'] = get_string('licensepanelgraceheadline', 'videotracker');
-            $context['availablefeatures'] = [$videoaccess, $tracking, $completion, $reports, $objectives, $playback];
+            $context['availablefeatures'] = [$videoaccess, $tracking, $completion, $reports, $subtitles, $objectives, $playback];
             $context['lockedfeatures'] = [];
         }
 
@@ -145,6 +146,15 @@ class license_enforcer {
      * @return bool
      */
     public static function reports_enabled(): bool {
+        return self::premium_features_enabled();
+    }
+
+    /**
+     * Whether subtitle generation, translation, and playback are available.
+     *
+     * @return bool
+     */
+    public static function subtitles_enabled(): bool {
         return self::premium_features_enabled();
     }
 

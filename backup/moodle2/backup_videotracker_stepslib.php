@@ -50,12 +50,32 @@ class backup_videotracker_activity_structure_step extends backup_activity_struct
             'objective3',
             'timemodified',
         ]);
+        $subtitletracks = new backup_nested_element('subtitletracks');
+        $subtitletrack = new backup_nested_element('subtitletrack', ['id'], [
+            'identifier',
+            'tracktype',
+            'langcode',
+            'langlabel',
+            'status',
+            'basesourcehash',
+            'currenthash',
+            'openaimodel',
+            'attemptcount',
+            'lasterror',
+            'timecreated',
+            'timemodified',
+        ]);
+
+        $videotracker->add_child($subtitletracks);
+        $subtitletracks->add_child($subtitletrack);
 
         $videotracker->set_source_table('videotracker', ['id' => backup::VAR_ACTIVITYID]);
+        $subtitletrack->set_source_table('videotracker_subtitles', ['videotrackerid' => backup::VAR_ACTIVITYID]);
 
         $videotracker->annotate_files('mod_videotracker', 'intro', null);
         $videotracker->annotate_files('mod_videotracker', 'content', null);
         $videotracker->annotate_files('mod_videotracker', 'poster', null);
+        $videotracker->annotate_files('mod_videotracker', 'subtitles', null);
 
         return $this->prepare_activity_structure($videotracker);
     }

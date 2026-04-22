@@ -30,6 +30,8 @@ namespace mod_videotracker\local;
 class admin_setting_configcheckbox_wrapped extends \admin_setting_configcheckbox {
     /** @var string */
     private $wrapperclass;
+    /** @var mixed */
+    private $fallbacksetting;
 
     /**
      * Constructor.
@@ -43,6 +45,17 @@ class admin_setting_configcheckbox_wrapped extends \admin_setting_configcheckbox
     public function __construct($name, $visiblename, $description, $defaultsetting, string $wrapperclass = '') {
         parent::__construct($name, $visiblename, $description, $defaultsetting);
         $this->wrapperclass = $wrapperclass;
+        $this->fallbacksetting = $defaultsetting;
+    }
+
+    /**
+     * Return a fallback value when Moodle has not saved this optional setting yet.
+     *
+     * @return mixed
+     */
+    public function get_setting() {
+        $setting = parent::get_setting();
+        return $setting === null ? $this->fallbacksetting : $setting;
     }
 
     /**

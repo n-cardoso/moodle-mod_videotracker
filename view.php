@@ -81,13 +81,15 @@ if ($progress) {
 $licensestate = \mod_videotracker\local\license_enforcer::get_runtime_state();
 $licenseuicontext = \mod_videotracker\local\license_enforcer::admin_ui_context();
 $reportsenabled = \mod_videotracker\local\license_enforcer::reports_enabled();
+$subtitlesenabled = \mod_videotracker\local\license_enforcer::subtitles_enabled();
 $objectivesenabled = \mod_videotracker\local\license_enforcer::objectives_enabled();
 $playbackcontrolsenabled = \mod_videotracker\local\license_enforcer::advanced_playback_controls_enabled();
 $systemcontext = \context_system::instance();
 $canmanagelicense = has_capability('moodle/site:config', $systemcontext);
 $canmanageactivity = has_capability('moodle/course:manageactivities', $context);
 $canviewreports = has_capability('mod/videotracker:viewreports', $context);
-$showlicensepanel = $canmanagelicense || $canmanageactivity || $canviewreports;
+$canmanagesubtitles = has_capability('mod/videotracker:managesubtitles', $context);
+$showlicensepanel = $canmanagelicense || $canmanageactivity || $canviewreports || $canmanagesubtitles;
 $licensesettingsurl = $canmanagelicense
     ? new moodle_url('/admin/settings.php', ['section' => 'modsettingvideotrackerlicense'])
     : null;
@@ -152,6 +154,15 @@ if ($videosource === 'upload') {
 $usehtml5 = ($videosource === 'upload' || $videosource === 'external');
 $hasexternalsource = !empty($externalid) || ($externalprovider === 'vimeo' && $externalurl !== '');
 $posterurl = videotracker_get_poster_file_url($context);
+$subtitletracks = [];
+$subtitlesmanageurl = null;
+
+if ($videosource === 'upload' && $subtitlesenabled) {
+    $subtitletracks = \mod_videotracker\local\subtitle_manager::get_ready_tracks_for_activity((int) $videotracker->id);
+    if ($canmanagesubtitles) {
+        $subtitlesmanageurl = \mod_videotracker\local\subtitle_manager::get_manage_url($cm);
+    }
+}
 
 // Completion and playback settings.
 $minpercent = (int) ($videotracker->completionminpercent ?? 0);
@@ -176,7 +187,7 @@ if (!$licensestate['allowed']) {
 $trackingenabled = !empty($licensestate['allowed']);
 $initialstatustext = $trackingenabled
     ? get_string('status_init', 'videotracker')
-    : '';
+    : ($showlicensepanel ? get_string('licensepremiumdisabled', 'videotracker') : '');
 
 $goaltext = $minpercent > 0
     ? get_string('reachtocomplete', 'videotracker', $minpercent)
@@ -214,67 +225,48 @@ if ($showlicensepanel) {
         $alertclass = 'alert-warning';
     }
 
-    $availableitems = '';
-    foreach (($licenseuicontext['availablefeatures'] ?? []) as $feature) {
-        $availableitems .= html_writer::tag('li', s((string) $feature));
-    }
-
-    $lockeditems = '';
-    foreach (($licenseuicontext['lockedfeatures'] ?? []) as $feature) {
-        $lockeditems .= html_writer::tag('li', s((string) $feature));
-    }
-
     $actions = '';
     if ($reporturl instanceof moodle_url) {
         $actions .= html_writer::link($reporturl, get_string('reporttitle', 'videotracker'), [
             'class' => 'btn btn-secondary',
         ]);
     }
+    if ($subtitlesmanageurl instanceof moodle_url) {
+        $actions .= ($actions === '' ? '' : ' ') . html_writer::link(
+            $subtitlesmanageurl,
+            get_string('subtitlesmanage', 'videotracker'),
+            ['class' => 'btn btn-outline-secondary']
+        );
+    }
     if ($licensesettingsurl instanceof moodle_url) {
-        $actions .= ' ' . html_writer::link(
+        $actions .= ($actions === '' ? '' : ' ') . html_writer::link(
             $licensesettingsurl,
             get_string('licenseopenlicensesettings', 'videotracker'),
             ['class' => 'btn btn-primary vt-license-primary-action']
         );
-    } else if (!$canmanagelicense) {
-        $actions .= html_writer::div(
-            get_string('licensecontactsiteadmin', 'videotracker'),
-            'vt-license-contact'
-        );
     }
 
-    $featurecolumns = html_writer::div(
-        html_writer::tag('strong', get_string('licensepanelavailabletitle', 'videotracker')) .
-        html_writer::tag('ul', $availableitems, ['class' => 'vt-license-list']),
-        'vt-license-column'
-    );
-    if ($lockeditems !== '') {
-        $featurecolumns .= html_writer::div(
-            html_writer::tag('strong', get_string('licensepanellockedtitle', 'videotracker')) .
-            html_writer::tag('ul', $lockeditems, ['class' => 'vt-license-list']),
-            'vt-license-column'
+    if ($actions !== '') {
+        $statushtml = '';
+        $mode = (string) ($licenseuicontext['mode'] ?? '');
+        if ($mode === 'premium' || $mode === 'grace') {
+            $defaultlabel = $mode === 'premium'
+                ? get_string('licensemodepremium', 'videotracker')
+                : get_string('licensemodegrace', 'videotracker');
+            $statushtml = html_writer::div(
+                html_writer::span(
+                    s((string) ($licenseuicontext['badgelabel'] ?? $defaultlabel)),
+                    'badge ' . $badgeclass . ' vt-license-badge'
+                ),
+                'vt-license-status'
+            );
+        }
+
+        echo html_writer::div(
+            html_writer::div($actions, 'vt-license-actions') . $statushtml,
+            'vt-license-panel alert ' . $alertclass . ' d-flex flex-wrap justify-content-between align-items-center gap-2'
         );
     }
-
-    echo html_writer::div(
-        html_writer::span(
-            s((string) ($licenseuicontext['badgelabel'] ?? '')),
-            'badge ' . $badgeclass . ' vt-license-badge'
-        ) .
-        html_writer::tag(
-            'h4',
-            s((string) ($licenseuicontext['headline'] ?? '')),
-            ['class' => 'alert-heading vt-license-heading']
-        ) .
-        html_writer::tag(
-            'p',
-            s((string) ($licenseuicontext['message'] ?? '')),
-            ['class' => 'vt-license-message']
-        ) .
-        html_writer::div($featurecolumns, 'vt-license-columns') .
-        html_writer::div($actions, 'vt-license-actions'),
-        'vt-license-panel alert ' . $alertclass
-    );
 }
 
 $rootattributes = [
@@ -325,9 +317,31 @@ if (($usehtml5 && empty($videourl)) || (!$usehtml5 && !$hasexternalsource)) {
     if (!empty($mime)) {
         $sourceattributes['type'] = $mime;
     }
+    $trackhtml = '';
+    if ($videosource === 'upload' && !empty($subtitletracks)) {
+        foreach ($subtitletracks as $track) {
+            $trackurl = \mod_videotracker\local\subtitle_manager::get_track_file_url($track);
+            if (!$trackurl) {
+                continue;
+            }
+
+            $trackattributes = [
+                'kind' => 'subtitles',
+                'src' => $trackurl->out(false),
+                'srclang' => (string) ($track->langcode ?: 'en'),
+                'label' => \mod_videotracker\local\subtitle_manager::get_track_display_label($track),
+            ];
+            if ((string) $track->tracktype === \mod_videotracker\local\subtitle_manager::TRACKTYPE_SOURCE) {
+                $trackattributes['default'] = 'default';
+            }
+
+            $trackhtml .= html_writer::empty_tag('track', $trackattributes);
+        }
+    }
+
     $mediahtml = html_writer::tag(
         'video',
-        html_writer::empty_tag('source', $sourceattributes) . get_string('html5videonotsupported', 'videotracker'),
+        html_writer::empty_tag('source', $sourceattributes) . $trackhtml . get_string('html5videonotsupported', 'videotracker'),
         $videoattributes
     );
 } else {
@@ -386,11 +400,11 @@ $progresspanel = html_writer::div(
         html_writer::div(get_string('videoprogress', 'videotracker'), 'vt-panel-title') .
         html_writer::div(
             html_writer::span('0%', 'vt-percent', ['id' => 'videotracker-percent']) .
-            ($initialstatustext !== '' ? html_writer::span(
+            html_writer::span(
                 $initialstatustext,
                 'vt-status-text',
                 ['id' => 'videotracker-status-text']
-            ) : '') .
+            ) .
             html_writer::span(
                 get_string('completed', 'videotracker'),
                 'badge rounded-pill alert-success icon-no-margin',

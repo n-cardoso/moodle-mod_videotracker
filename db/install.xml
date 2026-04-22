@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/videotracker/db" VERSION="2026030906" COMMENT="Video Tracker tables"
+<XMLDB PATH="mod/videotracker/db" VERSION="2026041003" COMMENT="Video Tracker tables"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
 
@@ -55,6 +55,7 @@
 
         <FIELD NAME="duration" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
         <FIELD NAME="watched" TYPE="number" LENGTH="10" DECIMALS="2" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="viewmap" TYPE="text" NOTNULL="false"/>
         <FIELD NAME="percent" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0"/>
         <FIELD NAME="completed" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
         <FIELD NAME="lastpos" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
@@ -101,6 +102,35 @@
       <INDEXES>
         <INDEX NAME="action_idx" UNIQUE="false" FIELDS="action"/>
         <INDEX NAME="timecreated_idx" UNIQUE="false" FIELDS="timecreated"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="videotracker_subtitles" COMMENT="Generated subtitle tracks for Video Tracker">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="videotrackerid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="identifier" TYPE="char" LENGTH="40" NOTNULL="true"/>
+        <FIELD NAME="tracktype" TYPE="char" LENGTH="20" NOTNULL="true"/>
+        <FIELD NAME="langcode" TYPE="char" LENGTH="20" NOTNULL="true"/>
+        <FIELD NAME="langlabel" TYPE="char" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true"/>
+        <FIELD NAME="basesourcehash" TYPE="char" LENGTH="40" NOTNULL="true"/>
+        <FIELD NAME="currenthash" TYPE="char" LENGTH="40" NOTNULL="true"/>
+        <FIELD NAME="openaimodel" TYPE="char" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="attemptcount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="lasterror" TYPE="text" NOTNULL="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="videotrackerfk" TYPE="foreign" FIELDS="videotrackerid" REFTABLE="videotracker" REFFIELDS="id"/>
+        <KEY NAME="cmfk" TYPE="foreign" FIELDS="cmid" REFTABLE="course_modules" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="videotracker_identifier_uix" UNIQUE="true" FIELDS="videotrackerid, identifier"/>
+        <INDEX NAME="subtitlestatus_idx" UNIQUE="false" FIELDS="status"/>
       </INDEXES>
     </TABLE>
 

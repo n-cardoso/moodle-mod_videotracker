@@ -35,6 +35,7 @@ use external_function_parameters;
 use external_value;
 use external_single_structure;
 use context_module;
+use mod_videotracker\local\view_map;
 
 /**
  * External service to persist learner playback progress.
@@ -139,6 +140,7 @@ class update_progress extends external_api {
         $oldobj1 = 0;
         $oldobj2 = 0;
         $oldobj3 = 0;
+        $oldviewmap = null;
 
         if ($progress) {
             $oldpercent = (int) $progress->percent;
@@ -152,11 +154,22 @@ class update_progress extends external_api {
             $oldobj1 = (int) $progress->obj1;
             $oldobj2 = (int) $progress->obj2;
             $oldobj3 = (int) $progress->obj3;
+            $oldviewmap = $progress->viewmap ?? null;
         }
 
         $lastseq = (int) $params['seq'];
         $state = clean_param((string) $params['state'], PARAM_TEXT);
-        $allowedstates = ['init', 'loadedmetadata', 'playing', 'paused', 'ended', 'seeking', 'seeked', 'ratechange'];
+        $allowedstates = [
+            'init',
+            'loadedmetadata',
+            'playing',
+            'paused',
+            'pausedafterplay',
+            'ended',
+            'seeking',
+            'seeked',
+            'ratechange',
+        ];
         if (!in_array($state, $allowedstates, true)) {
             $state = 'playing';
         }
@@ -215,6 +228,12 @@ class update_progress extends external_api {
                         $maxadvance = $elapsed * $rate + 0.25;
                         $maxadvance = max(0.25, min(4.0, $maxadvance));
                     }
+                } else if ($state === 'pausedafterplay' || $state === 'ended') {
+                    // Trusted pause/end flushes may arrive after a slower heartbeat interval.
+                    // Allow a realistic final advance based on elapsed server time without
+                    // relaxing the stricter clamp used for generic seek/pause packets.
+                    $maxadvance = max(0.75, ($elapsed * max(1.0, $rate)) + 1.0);
+                    $maxadvance = min(12.0, $maxadvance);
                 } else {
                     // Strict clamp for pause/seek packets: dragging must not increase progress.
                     $maxadvance = 0.75;
@@ -260,6 +279,7 @@ class update_progress extends external_api {
 
         // Track "time watched" cumulatively (allows rewatching).
         $watched = (float) $oldwatched;
+        $viewmap = $oldviewmap;
         if ($state === 'playing') {
             $delta = $currenttime - (float) $oldlastct;
             if ($delta > 0) {
@@ -268,6 +288,12 @@ class update_progress extends external_api {
                 $maxadvance = min(30.0, $maxadvance);
                 if ($delta <= $maxadvance) {
                     $watched += $delta;
+                    $viewmap = view_map::add_interval(
+                        $viewmap,
+                        (int) max(0, floor($duration)),
+                        (float) $oldlastct,
+                        $currenttime
+                    );
                 }
             }
         }
@@ -313,6 +339,7 @@ class update_progress extends external_api {
             $rec->userid = $userid;
             $rec->duration = (int) max(0, floor($duration));
             $rec->watched = $watched;
+            $rec->viewmap = $viewmap;
             $rec->percent = $percent;
             $rec->completed = $completed;
             $rec->lastpos = $lastpos;
@@ -339,6 +366,7 @@ class update_progress extends external_api {
             }
 
             $rec->watched = $watched;
+            $rec->viewmap = $viewmap;
             $rec->percent = $percent;
             $rec->completed = $completed;
             $rec->lastpos = $lastpos;
@@ -358,6 +386,8 @@ class update_progress extends external_api {
         // Push grade = percent (0..100) to gradebook only when needed.
         // Update when percent changes by >= 1 or on pause/end to reduce load.
         $shouldupdategrade = ($percent >= ($oldpercent + 1));
+        $missinggradeentry = false;
+        $existinggradepass = false;
         if ($state === 'paused' || $state === 'ended') {
             $shouldupdategrade = true;
         }
@@ -369,7 +399,9 @@ class update_progress extends external_api {
                 'iteminstance' => (int) $instanceid,
                 'itemnumber' => 0,
             ], IGNORE_MISSING);
-            if ($gradeitemid <= 0 || !$DB->record_exists('grade_grades', ['itemid' => $gradeitemid, 'userid' => $userid])) {
+            $missinggradeentry = ($gradeitemid <= 0)
+                || !$DB->record_exists('grade_grades', ['itemid' => $gradeitemid, 'userid' => $userid]);
+            if ($missinggradeentry) {
                 $shouldupdategrade = true;
             }
         }
@@ -413,116 +445,129 @@ class update_progress extends external_api {
             );
         }
 
+        $gradepasscrossed = $existinggradepass !== false
+            && $existinggradepass !== null
+            && $oldpercent < (float) $existinggradepass
+            && $percent >= (float) $existinggradepass;
+        $shouldrefreshcompletion = ($state === 'paused' || $state === 'pausedafterplay' || $state === 'ended')
+            || ($completed !== $oldcompleted)
+            || $missinggradeentry
+            || $gradepasscrossed;
         $moodlecompleted = 0;
 
-        // Force completion recalculation so "grade" / "passing grade" updates immediately.
-        try {
-            $course = get_course((int) $cm->course);
-            $completion = new \completion_info($course);
-            $modinfo = get_fast_modinfo($course, $userid);
-            $cminfo = $modinfo->get_cm($cmid);
+        if ($shouldrefreshcompletion) {
+            // Refresh completion only on milestone events or when a completion boundary is crossed.
+            try {
+                $course = get_course((int) $cm->course);
+                $completion = new \completion_info($course);
+                $modinfo = get_fast_modinfo($course, $userid);
+                $cminfo = $modinfo->get_cm($cmid);
 
-            $gradeitem = $DB->get_record('grade_items', [
-                'courseid' => (int) $vt->course,
-                'itemtype' => 'mod',
-                'itemmodule' => 'videotracker',
-                'iteminstance' => (int) $instanceid,
-                'itemnumber' => 0,
-            ], 'id,gradepass', IGNORE_MISSING);
+                $gradeitem = $DB->get_record('grade_items', [
+                    'courseid' => (int) $vt->course,
+                    'itemtype' => 'mod',
+                    'itemmodule' => 'videotracker',
+                    'iteminstance' => (int) $instanceid,
+                    'itemnumber' => 0,
+                ], 'id,gradepass', IGNORE_MISSING);
 
-            $gradefinal = null;
-            if ($gradeitem && !empty($gradeitem->id)) {
-                $gradegrade = $DB->get_record('grade_grades', [
-                    'itemid' => (int) $gradeitem->id,
-                    'userid' => $userid,
-                ], 'finalgrade', IGNORE_MISSING);
-                if ($gradegrade && $gradegrade->finalgrade !== null) {
-                    $gradefinal = (float) $gradegrade->finalgrade;
+                $gradefinal = null;
+                if ($gradeitem && !empty($gradeitem->id)) {
+                    $gradegrade = $DB->get_record('grade_grades', [
+                        'itemid' => (int) $gradeitem->id,
+                        'userid' => $userid,
+                    ], 'finalgrade', IGNORE_MISSING);
+                    if ($gradegrade && $gradegrade->finalgrade !== null) {
+                        $gradefinal = (float) $gradegrade->finalgrade;
+                    }
                 }
-            }
 
-            $customruleenabled = ($minpercent > 0);
-            $customrulemet = !$customruleenabled || !empty($completed);
+                $customruleenabled = ($minpercent > 0);
+                $customrulemet = !$customruleenabled || !empty($completed);
 
-            $requiresgrade = isset($cminfo->completiongradeitemnumber)
-                && $cminfo->completiongradeitemnumber !== null
-                && (int) $cminfo->completiongradeitemnumber >= 0;
-            $requirespassgrade = !empty($cminfo->completionpassgrade);
+                $requiresgrade = isset($cminfo->completiongradeitemnumber)
+                    && $cminfo->completiongradeitemnumber !== null
+                    && (int) $cminfo->completiongradeitemnumber >= 0;
+                $requirespassgrade = !empty($cminfo->completionpassgrade);
 
-            $effectivegrade = ($gradefinal !== null) ? (float) $gradefinal : 0.0;
-            $hasgrade = ($gradefinal !== null);
-            $gradepass = ($gradeitem && isset($gradeitem->gradepass)) ? (float) $gradeitem->gradepass : 0.0;
-            $passmet = $hasgrade && ($effectivegrade >= $gradepass);
+                $effectivegrade = ($gradefinal !== null) ? (float) $gradefinal : 0.0;
+                $hasgrade = ($gradefinal !== null);
+                $gradepass = ($gradeitem && isset($gradeitem->gradepass)) ? (float) $gradeitem->gradepass : 0.0;
+                $passmet = $hasgrade && ($effectivegrade >= $gradepass);
 
-            $allmet = $customrulemet
-                && (!$requiresgrade || $hasgrade)
-                && (!$requirespassgrade || $passmet);
+                $allmet = $customrulemet
+                    && (!$requiresgrade || $hasgrade)
+                    && (!$requirespassgrade || $passmet);
 
-            $completion->update_state($cminfo, COMPLETION_UNKNOWN, $userid);
-            $completiondata = $completion->get_data($cminfo, false, $userid);
-            $completionstate = isset($completiondata->completionstate)
-                ? (int) $completiondata->completionstate
-                : COMPLETION_INCOMPLETE;
-
-            // If all requirements are met but completion is still stale, force a refresh.
-            if (
-                (int) $cminfo->completion === COMPLETION_TRACKING_AUTOMATIC &&
-                $allmet &&
-                $completionstate !== COMPLETION_COMPLETE &&
-                (!defined('COMPLETION_COMPLETE_PASS') || $completionstate !== COMPLETION_COMPLETE_PASS)
-            ) {
-                $completion->update_state($cminfo, COMPLETION_COMPLETE, $userid);
+                $completion->update_state($cminfo, COMPLETION_UNKNOWN, $userid);
                 $completiondata = $completion->get_data($cminfo, false, $userid);
                 $completionstate = isset($completiondata->completionstate)
                     ? (int) $completiondata->completionstate
                     : COMPLETION_INCOMPLETE;
-            }
 
-            // Last-resort fallback for custom rule only (never force grade-based completion by DB write).
-            $canforcecompletion = !$requiresgrade && !$requirespassgrade;
-            if (
-                (int) $cminfo->completion === COMPLETION_TRACKING_AUTOMATIC &&
-                $canforcecompletion &&
-                $allmet &&
-                $completionstate !== COMPLETION_COMPLETE &&
-                (!defined('COMPLETION_COMPLETE_PASS') || $completionstate !== COMPLETION_COMPLETE_PASS)
-            ) {
-                $forcedstate = COMPLETION_COMPLETE;
-                if ($requirespassgrade && $passmet && defined('COMPLETION_COMPLETE_PASS')) {
-                    $forcedstate = COMPLETION_COMPLETE_PASS;
+                // If all requirements are met but completion is still stale, force a refresh.
+                if (
+                    (int) $cminfo->completion === COMPLETION_TRACKING_AUTOMATIC &&
+                    $allmet &&
+                    !self::completion_state_is_complete($completionstate)
+                ) {
+                    $completion->update_state($cminfo, COMPLETION_COMPLETE, $userid);
+                    $completiondata = $completion->get_data($cminfo, false, $userid);
+                    $completionstate = isset($completiondata->completionstate)
+                        ? (int) $completiondata->completionstate
+                        : COMPLETION_INCOMPLETE;
                 }
 
-                $cmc = $DB->get_record('course_modules_completion', [
-                    'coursemoduleid' => $cmid,
-                    'userid' => $userid,
-                ], '*', IGNORE_MISSING);
+                // Last-resort fallback for custom rule only (never force grade-based completion by DB write).
+                $canforcecompletion = !$requiresgrade && !$requirespassgrade;
+                if (
+                    (int) $cminfo->completion === COMPLETION_TRACKING_AUTOMATIC &&
+                    $canforcecompletion &&
+                    $allmet &&
+                    !self::completion_state_is_complete($completionstate)
+                ) {
+                    $forcedstate = COMPLETION_COMPLETE;
+                    if ($requirespassgrade && $passmet && defined('COMPLETION_COMPLETE_PASS')) {
+                        $forcedstate = COMPLETION_COMPLETE_PASS;
+                    }
 
-                if (!$cmc) {
-                    $cmc = new \stdClass();
-                    $cmc->coursemoduleid = $cmid;
-                    $cmc->userid = $userid;
-                    $cmc->completionstate = $forcedstate;
-                    $cmc->viewed = 0;
-                    $cmc->timemodified = $now;
-                    $DB->insert_record('course_modules_completion', $cmc);
-                } else {
-                    $cmc->completionstate = $forcedstate;
-                    $cmc->timemodified = $now;
-                    $DB->update_record('course_modules_completion', $cmc);
+                    $cmc = $DB->get_record('course_modules_completion', [
+                        'coursemoduleid' => $cmid,
+                        'userid' => $userid,
+                    ], '*', IGNORE_MISSING);
+
+                    if (!$cmc) {
+                        $cmc = new \stdClass();
+                        $cmc->coursemoduleid = $cmid;
+                        $cmc->userid = $userid;
+                        $cmc->completionstate = $forcedstate;
+                        $cmc->viewed = 0;
+                        $cmc->timemodified = $now;
+                        $DB->insert_record('course_modules_completion', $cmc);
+                    } else {
+                        $cmc->completionstate = $forcedstate;
+                        $cmc->timemodified = $now;
+                        $DB->update_record('course_modules_completion', $cmc);
+                    }
+
+                    $completionstate = $forcedstate;
                 }
 
-                $completionstate = $forcedstate;
+                if (self::completion_state_is_complete($completionstate)) {
+                    $moodlecompleted = 1;
+                }
+            } catch (\Throwable $e) {
+                // Never block progress update if completion refresh fails.
+                unset($e);
             }
-
-            if (
-                $completionstate === COMPLETION_COMPLETE ||
-                (defined('COMPLETION_COMPLETE_PASS') && $completionstate === COMPLETION_COMPLETE_PASS)
-            ) {
+        } else if (!$completed) {
+            $completionstate = (int) $DB->get_field('course_modules_completion', 'completionstate', [
+                'coursemoduleid' => $cmid,
+                'userid' => $userid,
+            ], IGNORE_MISSING);
+            if (self::completion_state_is_complete($completionstate)) {
                 $moodlecompleted = 1;
             }
-        } catch (\Throwable $e) {
-            // Never block progress update if completion refresh fails.
-            unset($e);
         }
 
         return [
@@ -547,6 +592,24 @@ class update_progress extends external_api {
             'lastpos' => new external_value(PARAM_INT, 'Resume position in seconds'),
             'watched' => new external_value(PARAM_FLOAT, 'Video time viewed (seconds)'),
         ]);
+    }
+
+    /**
+     * Whether a Moodle completion state should be treated as complete.
+     *
+     * @param int $completionstate Completion state.
+     * @return bool
+     */
+    private static function completion_state_is_complete(int $completionstate): bool {
+        if ($completionstate === COMPLETION_COMPLETE) {
+            return true;
+        }
+
+        if (defined('COMPLETION_COMPLETE_PASS') && $completionstate === COMPLETION_COMPLETE_PASS) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

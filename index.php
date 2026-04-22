@@ -41,7 +41,7 @@ $PAGE->set_context($context);
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('modulenameplural', 'videotracker'));
 
-$instances = get_all_instances_in_course('videotracker', $course, $context);
+$instances = get_all_instances_in_course('videotracker', $course);
 if (empty($instances)) {
     echo $OUTPUT->notification(get_string('thereareno', 'moodle', get_string('modulenameplural', 'videotracker')), 'info');
     echo $OUTPUT->footer();

@@ -736,13 +736,8 @@ export const init = (params) => {
         setObjectivesEnabled(percent);
 
         if (elPercent) {
-            if (completed) {
-                elPercent.textContent = '';
-                elPercent.style.visibility = 'hidden';
-            } else {
-                elPercent.textContent = `${percent}%`;
-                elPercent.style.visibility = 'visible';
-            }
+            elPercent.textContent = `${percent}%`;
+            elPercent.style.visibility = 'visible';
         }
 
         if (elBar) {
@@ -756,7 +751,7 @@ export const init = (params) => {
             text = textCompleted;
         } else if (state === 'playing') {
             text = textPlaying;
-        } else if (state === 'paused') {
+        } else if (state === 'paused' || state === 'pausedafterplay') {
             text = textPaused;
         } else if (state === 'ended') {
             text = textEnded;
@@ -1079,10 +1074,11 @@ export const init = (params) => {
 
     let seq = 0;
     let lastSent = 0;
+    const playingSendIntervalMs = 10000;
 
     const send = (state = 'playing', force = false) => {
         const now = Date.now();
-        if (!force && state === 'playing' && (now - lastSent) < 3000) {
+        if (!force && state === 'playing' && (now - lastSent) < playingSendIntervalMs) {
             saveCacheInstant('playing');
             return;
         }
@@ -1285,10 +1281,11 @@ export const init = (params) => {
     };
 
     const handlePause = () => {
+        const flushstate = isPlaying ? 'pausedafterplay' : 'paused';
         isPlaying = false;
         captureCurrentAsAllowed();
         saveCacheInstant('paused');
-        send('paused', true);
+        send(flushstate, true);
     };
 
     const handleEnded = () => {
@@ -1361,18 +1358,22 @@ export const init = (params) => {
     };
 
     window.addEventListener('pagehide', () => {
+        const flushstate = isPlaying ? 'pausedafterplay' : 'paused';
+        isPlaying = false;
         captureCurrentAsAllowed();
         saveCacheInstant('paused');
-        send('paused', true);
+        send(flushstate, true);
     }, {capture: true});
 
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState !== 'hidden') {
             return;
         }
+        const flushstate = isPlaying ? 'pausedafterplay' : 'paused';
+        isPlaying = false;
         captureCurrentAsAllowed();
         saveCacheInstant('paused');
-        send('paused', true);
+        send(flushstate, true);
     });
 
     const isHtml5 = playerEl.tagName.toLowerCase() === 'video';

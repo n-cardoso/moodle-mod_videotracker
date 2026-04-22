@@ -765,7 +765,8 @@ class license_manager {
         $productslug = trim((string) get_config(self::COMPONENT, 'licenseproductslug'));
         $apisecret = trim((string) get_config(self::COMPONENT, 'licenseapisecret'));
         $admincheckintervalhours = (int) get_config(self::COMPONENT, 'licenseadmincheckintervalhours');
-        $validateonadminaccess = !empty(get_config(self::COMPONENT, 'licensevalidateonadminaccess'));
+        $validateconfig = get_config(self::COMPONENT, 'licensevalidateonadminaccess');
+        $validateonadminaccess = $validateconfig === false ? true : !empty($validateconfig);
         $instanceid = self::ensure_instance_id();
 
         $cleanserverurl = rtrim(clean_param(self::get_server_url($serverurl), PARAM_URL), '/');

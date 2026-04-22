@@ -24,6 +24,7 @@
 
 namespace mod_videotracker\privacy;
 
+use mod_videotracker\local\view_map;
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
@@ -55,12 +56,19 @@ class provider implements
             'installedversion' => 'privacy:metadata:learnpluglicenseserver:installedversion',
         ], 'privacy:metadata:learnpluglicenseserver');
 
+        $collection->add_external_location_link('openai', [
+            'audio' => 'privacy:metadata:openai:audio',
+            'subtitletext' => 'privacy:metadata:openai:subtitletext',
+            'targetlanguages' => 'privacy:metadata:openai:targetlanguages',
+        ], 'privacy:metadata:openai');
+
         $collection->add_database_table('videotracker_progress', [
             'videotrackerid' => 'privacy:metadata:videotracker_progress:videotrackerid',
             'cmid' => 'privacy:metadata:videotracker_progress:cmid',
             'userid' => 'privacy:metadata:videotracker_progress:userid',
             'duration' => 'privacy:metadata:videotracker_progress:duration',
             'watched' => 'privacy:metadata:videotracker_progress:watched',
+            'viewmap' => 'privacy:metadata:videotracker_progress:viewmap',
             'percent' => 'privacy:metadata:videotracker_progress:percent',
             'completed' => 'privacy:metadata:videotracker_progress:completed',
             'lastpos' => 'privacy:metadata:videotracker_progress:lastpos',
@@ -73,6 +81,23 @@ class provider implements
             'timecreated' => 'privacy:metadata:videotracker_progress:timecreated',
             'timemodified' => 'privacy:metadata:videotracker_progress:timemodified',
         ], 'privacy:metadata:videotracker_progress');
+
+        $collection->add_database_table('videotracker_subtitles', [
+            'videotrackerid' => 'privacy:metadata:videotracker_subtitles:videotrackerid',
+            'cmid' => 'privacy:metadata:videotracker_subtitles:cmid',
+            'identifier' => 'privacy:metadata:videotracker_subtitles:identifier',
+            'tracktype' => 'privacy:metadata:videotracker_subtitles:tracktype',
+            'langcode' => 'privacy:metadata:videotracker_subtitles:langcode',
+            'langlabel' => 'privacy:metadata:videotracker_subtitles:langlabel',
+            'status' => 'privacy:metadata:videotracker_subtitles:status',
+            'basesourcehash' => 'privacy:metadata:videotracker_subtitles:basesourcehash',
+            'currenthash' => 'privacy:metadata:videotracker_subtitles:currenthash',
+            'openaimodel' => 'privacy:metadata:videotracker_subtitles:openaimodel',
+            'attemptcount' => 'privacy:metadata:videotracker_subtitles:attemptcount',
+            'lasterror' => 'privacy:metadata:videotracker_subtitles:lasterror',
+            'timecreated' => 'privacy:metadata:videotracker_subtitles:timecreated',
+            'timemodified' => 'privacy:metadata:videotracker_subtitles:timemodified',
+        ], 'privacy:metadata:videotracker_subtitles');
 
         return $collection;
     }
@@ -132,6 +157,7 @@ class provider implements
                 vt.name,
                 vtp.duration,
                 vtp.watched,
+                vtp.viewmap,
                 vtp.percent,
                 vtp.completed,
                 vtp.lastpos,
@@ -171,6 +197,7 @@ class provider implements
                 'name' => (string) $record->name,
                 'duration' => (int) $record->duration,
                 'watched' => (float) $record->watched,
+                'viewmap' => view_map::normalise($record->viewmap ?? null),
                 'percent' => (int) $record->percent,
                 'completed' => (int) $record->completed,
                 'lastpos' => (int) $record->lastpos,

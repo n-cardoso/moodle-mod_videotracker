@@ -375,5 +375,184 @@ function xmldb_videotracker_upgrade(int $oldversion): bool {
         upgrade_mod_savepoint(true, 2026031403, 'videotracker');
     }
 
+    if ($oldversion < 2026040700) {
+        $dbman = $DB->get_manager();
+        $table = new xmldb_table('videotracker_subtitles');
+
+        if (!$dbman->table_exists($table)) {
+            $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+            $table->add_field('videotrackerid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('cmid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('identifier', XMLDB_TYPE_CHAR, '40', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('tracktype', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('langcode', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('langlabel', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('status', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('basesourcehash', XMLDB_TYPE_CHAR, '40', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('currenthash', XMLDB_TYPE_CHAR, '40', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('openaimodel', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('attemptcount', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('lasterror', XMLDB_TYPE_TEXT, null, null, null, null, null);
+            $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $table->add_key('videotrackerfk', XMLDB_KEY_FOREIGN, ['videotrackerid'], 'videotracker', ['id']);
+            $table->add_key('cmfk', XMLDB_KEY_FOREIGN, ['cmid'], 'course_modules', ['id']);
+            $table->add_index('videotracker_identifier_uix', XMLDB_INDEX_UNIQUE, ['videotrackerid', 'identifier']);
+            $table->add_index('subtitlestatus_idx', XMLDB_INDEX_NOTUNIQUE, ['status']);
+
+            $dbman->create_table($table);
+        }
+
+        upgrade_mod_savepoint(true, 2026040700, 'videotracker');
+    }
+
+    if ($oldversion < 2026040901) {
+        // No DB schema change. Add manual source WebVTT upload fallback when exec() is unavailable.
+        upgrade_mod_savepoint(true, 2026040901, 'videotracker');
+    }
+
+    if ($oldversion < 2026040902) {
+        // No DB schema change. Harden subtitle translation parsing for OpenAI JSON variations.
+        upgrade_mod_savepoint(true, 2026040902, 'videotracker');
+    }
+
+    if ($oldversion < 2026041001) {
+        // No DB schema change. Simplify the premium activity toolbar and gate subtitles behind premium access.
+        upgrade_mod_savepoint(true, 2026041001, 'videotracker');
+    }
+
+    if ($oldversion < 2026041002) {
+        // No DB schema change. Fix course index activity listing to avoid passing a context object into modinfo helpers.
+        upgrade_mod_savepoint(true, 2026041002, 'videotracker');
+    }
+
+    if ($oldversion < 2026041003) {
+        $dbman = $DB->get_manager();
+        $table = new xmldb_table('videotracker_progress');
+        $field = new xmldb_field('viewmap', XMLDB_TYPE_TEXT, null, null, null, null, null, 'watched');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2026041003, 'videotracker');
+    }
+
+    if ($oldversion < 2026041004) {
+        // No DB schema change. Refine the report view-map UI with clearer heat colours and hover tooltips.
+        upgrade_mod_savepoint(true, 2026041004, 'videotracker');
+    }
+
+    if ($oldversion < 2026041005) {
+        // No DB schema change. Revert the view-map UI refinements to the previous simpler report display.
+        upgrade_mod_savepoint(true, 2026041005, 'videotracker');
+    }
+
+    if ($oldversion < 2026041006) {
+        // No DB schema change. Resolve PHPCS warnings in OpenAI parsing and language-string ordering.
+        upgrade_mod_savepoint(true, 2026041006, 'videotracker');
+    }
+
+    if ($oldversion < 2026041201) {
+        // No DB schema change. Hide the restricted-demo tracking notice from learners on the activity page.
+        upgrade_mod_savepoint(true, 2026041201, 'videotracker');
+    }
+
+    if ($oldversion < 2026041202) {
+        // No DB schema change. Make subtitle admin settings robust when lang caches/files are stale.
+        upgrade_mod_savepoint(true, 2026041202, 'videotracker');
+    }
+
+    if ($oldversion < 2026041501) {
+        // No DB schema change. Reorder language strings to satisfy Moodle lang-file key sorting.
+        upgrade_mod_savepoint(true, 2026041501, 'videotracker');
+    }
+
+    if ($oldversion < 2026041502) {
+        // No DB schema change. Reduce live progress tracking load by slowing heartbeats and limiting completion refreshes.
+        upgrade_mod_savepoint(true, 2026041502, 'videotracker');
+    }
+
+    if ($oldversion < 2026041503) {
+        // No DB schema change. Preserve final progress on pause/stop after playback while keeping the slower heartbeat.
+        upgrade_mod_savepoint(true, 2026041503, 'videotracker');
+    }
+
+    if ($oldversion < 2026041504) {
+        // No DB schema change. Paint the learner progress bar as fully complete whenever the activity is completed.
+        upgrade_mod_savepoint(true, 2026041504, 'videotracker');
+    }
+
+    if ($oldversion < 2026041601) {
+        // No DB schema change. Resolve PHPCS line-length and language-string ordering warnings.
+        upgrade_mod_savepoint(true, 2026041601, 'videotracker');
+    }
+
+    if ($oldversion < 2026041602) {
+        // No DB schema change. Keep the progress bar tied to watched percentage, not completion threshold.
+        upgrade_mod_savepoint(true, 2026041602, 'videotracker');
+    }
+
+    if ($oldversion < 2026042201) {
+        // No DB schema change. Maintenance checkpoint for admin settings handling.
+        upgrade_mod_savepoint(true, 2026042201, 'videotracker');
+    }
+
+    if ($oldversion < 2026042202) {
+        $defaults = [
+            'licenseserverurl' => 'https://loop2learning.pt',
+            'licenseapisecret' => '',
+            'licensesiteurl' => '',
+            'licensevalidateonadminaccess' => 1,
+            'licenseadmincheckintervalhours' => 12,
+            'openaiapikey' => '',
+            'openaitranscriptionmodel' => 'whisper-1',
+            'openaitranslationmodel' => 'gpt-4.1-mini',
+            'subtitleffmpegpath' => 'ffmpeg',
+            'subtitleffprobepath' => 'ffprobe',
+        ];
+
+        foreach ($defaults as $name => $value) {
+            if (get_config('mod_videotracker', $name) === false) {
+                set_config($name, $value, 'mod_videotracker');
+            }
+        }
+
+        $instanceid = trim((string) get_config('mod_videotracker', 'licenseinstanceid'));
+        if ($instanceid === '') {
+            try {
+                $instanceid = bin2hex(random_bytes(16));
+            } catch (\Throwable $e) {
+                unset($e);
+                $instanceid = sha1('mod_videotracker:' . microtime(true) . ':' . uniqid('', true));
+            }
+            set_config('licenseinstanceid', $instanceid, 'mod_videotracker');
+        }
+
+        upgrade_mod_savepoint(true, 2026042202, 'videotracker');
+    }
+
+    if ($oldversion < 2026042203) {
+        // No DB schema change. Prevent optional settings being treated as unsaved new settings.
+        upgrade_mod_savepoint(true, 2026042203, 'videotracker');
+    }
+
+    if ($oldversion < 2026042204) {
+        // No DB schema change. Keep the activity license controls compact for admins.
+        upgrade_mod_savepoint(true, 2026042204, 'videotracker');
+    }
+
+    if ($oldversion < 2026042205) {
+        // No DB schema change. Refine subtitle management form widths.
+        upgrade_mod_savepoint(true, 2026042205, 'videotracker');
+    }
+
+    if ($oldversion < 2026042206) {
+        // No DB schema change. Balance subtitle management cards and actions.
+        upgrade_mod_savepoint(true, 2026042206, 'videotracker');
+    }
+
     return true;
 }

@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 $plugin->component = 'mod_videotracker';
 
 // Reporting and subtitles feature build.
-$plugin->version   = 2026042206;
+$plugin->version   = 2026042209;
 
 // Moodle 4.5 (keep existing requirement baseline).
 $plugin->requires  = 2024042200;

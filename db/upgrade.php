@@ -554,5 +554,20 @@ function xmldb_videotracker_upgrade(int $oldversion): bool {
         upgrade_mod_savepoint(true, 2026042206, 'videotracker');
     }
 
+    if ($oldversion < 2026042207) {
+        // No DB schema change. Resolve install hook PHPCS warning.
+        upgrade_mod_savepoint(true, 2026042207, 'videotracker');
+    }
+
+    if ($oldversion < 2026042208) {
+        // No DB schema change. Resolve subtitle UI stylelint warnings.
+        upgrade_mod_savepoint(true, 2026042208, 'videotracker');
+    }
+
+    if ($oldversion < 2026042209) {
+        // No DB schema change. Confirm install hook PHPCS cleanup.
+        upgrade_mod_savepoint(true, 2026042209, 'videotracker');
+    }
+
     return true;
 }

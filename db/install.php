@@ -53,6 +53,11 @@ function xmldb_videotracker_install(): bool {
     }
 
     set_config('licenseinstanceid', $instanceid, 'mod_videotracker');
+    $plugin = new stdClass();
+    require(__DIR__ . '/../version.php');
+    if (!empty($plugin->version)) {
+        set_config('licenseinstallversion', (int) $plugin->version, 'mod_videotracker');
+    }
 
     return true;
 }

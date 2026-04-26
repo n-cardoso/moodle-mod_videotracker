@@ -54,6 +54,7 @@ class provider implements
             'instanceid' => 'privacy:metadata:learnpluglicenseserver:instanceid',
             'productslug' => 'privacy:metadata:learnpluglicenseserver:productslug',
             'installedversion' => 'privacy:metadata:learnpluglicenseserver:installedversion',
+            'trialconsent' => 'privacy:metadata:learnpluglicenseserver:trialconsent',
         ], 'privacy:metadata:learnpluglicenseserver');
 
         $collection->add_external_location_link('openai', [

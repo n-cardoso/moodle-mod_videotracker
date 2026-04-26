@@ -40,6 +40,8 @@ class license_manager {
     private const LOGTABLE = 'videotracker_license_log';
     /** @var string */
     private const DEFAULT_SERVER_URL = 'https://loop2learning.pt';
+    /** @var string */
+    private const DEFAULT_TRIAL_PRODUCT_SLUG = 'full-feature-trial';
     /** @var int */
     private const DEFAULT_GRACE_DAYS = 7;
     /** @var int */
@@ -352,6 +354,100 @@ class license_manager {
     }
 
     /**
+     * Start a hosted trial and persist the generated license.
+     *
+     * @param string $clientemail
+     * @param bool $consent
+     * @return array
+     */
+    public static function start_trial_license(string $clientemail, bool $consent): array {
+        $settings = self::get_remote_settings();
+        $clientemail = clean_param(trim($clientemail), PARAM_EMAIL);
+
+        if (!$consent) {
+            return self::build_error_result(
+                'start-trial',
+                0,
+                'missing_consent',
+                get_string('licensestarttrialmissingconsent', 'videotracker')
+            );
+        }
+
+        if ($clientemail === '' || !validate_email($clientemail)) {
+            return self::build_error_result(
+                'start-trial',
+                0,
+                'missing_email',
+                get_string('licensestarttrialmissingemail', 'videotracker')
+            );
+        }
+
+        if ($settings['serverurl'] === '') {
+            return self::build_error_result(
+                'start-trial',
+                0,
+                'missing_server',
+                get_string('licensestarttrialmissingserver', 'videotracker')
+            );
+        }
+
+        $productslug = $settings['productslug'] !== ''
+            ? $settings['productslug']
+            : self::DEFAULT_TRIAL_PRODUCT_SLUG;
+        $settings['clientemail'] = $clientemail;
+        $settings['productslug'] = $productslug;
+
+        $payload = [
+            'domain' => self::get_domain(),
+            'instance_id' => $settings['instanceid'],
+            'moodle_version' => self::get_moodle_version(),
+            'installed_version' => self::get_installed_version(),
+            'current_version' => self::get_installed_version(),
+            'product_slug' => $productslug,
+            'plugin_slug' => $productslug,
+            'trial_consent' => 1,
+        ];
+        $payload = self::apply_payload_compatibility_aliases($payload, $settings);
+
+        $result = self::request_remote('start-trial', $payload, $settings);
+        self::ensure_database_connection();
+
+        if ($result['success']) {
+            $data = $result['data'] ?? [];
+            $licensekey = self::extract_response_value($data, ['license_key', 'licensekey', 'key']);
+            if ($licensekey === '') {
+                $result = self::build_error_result(
+                    'start-trial',
+                    (int) ($result['httpcode'] ?? 0),
+                    'unexpected_response',
+                    get_string('licensestarttrialunexpectedresponse', 'videotracker')
+                );
+            } else {
+                $resolvedemail = self::extract_response_value($data, ['client_email', 'customer_email', 'email']);
+                $resolvedemail = clean_param($resolvedemail, PARAM_EMAIL);
+                $resolvedproductslug = self::extract_response_value($data, ['product_slug', 'plugin_slug']);
+                set_config('licensekey', clean_param($licensekey, PARAM_RAW_TRIMMED), self::COMPONENT);
+                set_config('licenseclientemail', $resolvedemail !== '' ? $resolvedemail : $clientemail, self::COMPONENT);
+                set_config(
+                    'licenseproductslug',
+                    clean_param($resolvedproductslug !== '' ? $resolvedproductslug : $productslug, PARAM_ALPHANUMEXT),
+                    self::COMPONENT
+                );
+            }
+        }
+
+        self::persist_license_result('start-trial', $result);
+        self::log_call('start-trial', self::endpoint_path('start-trial'), $result);
+
+        if ($result['success'] && self::status_is_licensed($result['status'])) {
+            self::send_trial_activation_email();
+            self::run_update_check();
+        }
+
+        return $result;
+    }
+
+    /**
      * Validate the configured license immediately.
      *
      * @return array
@@ -493,6 +589,48 @@ class license_manager {
     }
 
     /**
+     * Send the activated trial details to the current admin as a best-effort email.
+     *
+     * @return void
+     */
+    private static function send_trial_activation_email(): void {
+        global $CFG, $USER;
+
+        if (empty($USER->id) || empty($USER->email) || !validate_email((string) $USER->email)) {
+            return;
+        }
+
+        $supportuser = \core_user::get_support_user();
+        $licensekey = trim((string) get_config(self::COMPONENT, 'licensekey'));
+        $licenseemail = trim((string) get_config(self::COMPONENT, 'licenseclientemail'));
+        $licensetype = trim((string) get_config(self::COMPONENT, 'licensetype'));
+        $currentstatus = trim((string) get_config(self::COMPONENT, 'licensecurrentstatus'));
+        $expiresat = trim((string) get_config(self::COMPONENT, 'licenseexpiresat'));
+        $productslug = trim((string) get_config(self::COMPONENT, 'licenseproductslug'));
+        $licensesettingsurl = (new \moodle_url('/admin/settings.php', [
+            'section' => 'modsettingvideotrackerlicense',
+        ]))->out(false);
+
+        $placeholderdata = (object) [
+            'sitefullname' => format_string((string) get_site()->fullname, true, ['context' => \context_system::instance()]),
+            'siteurl' => $CFG->wwwroot,
+            'licensekey' => $licensekey !== '' ? $licensekey : get_string('licensenotavailable', 'videotracker'),
+            'licenseemail' => $licenseemail !== '' ? $licenseemail : get_string('licensenotavailable', 'videotracker'),
+            'licensetype' => $licensetype !== '' ? $licensetype : get_string('licensenotavailable', 'videotracker'),
+            'status' => $currentstatus !== '' ? $currentstatus : get_string('licensenotavailable', 'videotracker'),
+            'expiresat' => $expiresat !== '' ? $expiresat : get_string('licensenotavailable', 'videotracker'),
+            'productslug' => $productslug !== '' ? $productslug : get_string('licensenotavailable', 'videotracker'),
+            'licensesettingsurl' => $licensesettingsurl,
+        ];
+
+        $subject = get_string('licensetrialemailsubject', 'videotracker', $placeholderdata);
+        $textmessage = get_string('licensetrialemailbody', 'videotracker', $placeholderdata);
+        $htmlmessage = \text_to_html($textmessage, false, false, true);
+
+        email_to_user($USER, $supportuser, $subject, $textmessage, $htmlmessage);
+    }
+
+    /**
      * Normalises a remote API response.
      *
      * @param string $action
@@ -560,6 +698,15 @@ class license_manager {
             'licenseType',
             'site_activated',
             'offline_grace_days',
+            'license_key',
+            'licensekey',
+            'key',
+            'client_email',
+            'customer_email',
+            'email',
+            'product_slug',
+            'plugin_slug',
+            'reused',
         ];
         foreach ($responsekeys as $key) {
             if (array_key_exists($key, $decoded) && !array_key_exists($key, $data)) {
@@ -1013,6 +1160,8 @@ class license_manager {
         switch ($action) {
             case 'activate':
                 return '/wp-json/license-server/v1/activate';
+            case 'start-trial':
+                return '/wp-json/license-server/v1/start-trial';
             case 'validate':
                 return '/wp-json/license-server/v1/validate';
             case 'check':
@@ -1131,7 +1280,17 @@ class license_manager {
      */
     private static function is_authoritative_status(string $status): bool {
         $status = strtolower(trim($status));
-        return !in_array($status, ['network_error', 'invalid_response', 'empty_response', 'not_configured'], true);
+        $nonauthoritative = [
+            'network_error',
+            'invalid_response',
+            'empty_response',
+            'not_configured',
+            'missing_consent',
+            'missing_email',
+            'missing_server',
+            'unexpected_response',
+        ];
+        return !in_array($status, $nonauthoritative, true);
     }
 
     /**
@@ -1244,6 +1403,28 @@ class license_manager {
         }
 
         return null;
+    }
+
+    /**
+     * Extracts the first clean scalar response value matching the supplied keys.
+     *
+     * @param array $data
+     * @param array $keys
+     * @return string
+     */
+    private static function extract_response_value(array $data, array $keys): string {
+        foreach ($keys as $key) {
+            if (!array_key_exists($key, $data) || is_array($data[$key]) || is_object($data[$key])) {
+                continue;
+            }
+
+            $value = self::clean_string((string) $data[$key]);
+            if ($value !== '') {
+                return $value;
+            }
+        }
+
+        return '';
     }
 
     /**

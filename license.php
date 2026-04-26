@@ -31,6 +31,7 @@ require_sesskey();
 $systemcontext = context_system::instance();
 require_login();
 require_capability('moodle/site:config', $systemcontext);
+$PAGE->set_context($systemcontext);
 
 $returnurl = new moodle_url('/admin/settings.php', ['section' => 'modsettingvideotrackerlicense']);
 
@@ -114,7 +115,16 @@ if ($validateonadminaccess !== null) {
     set_config('licensevalidateonadminaccess', !empty($validateonadminaccess) ? 1 : 0, 'mod_videotracker');
 }
 
+$trialconsent = optional_param('licensetrialconsent', 0, PARAM_BOOL);
+$trialemail = trim((string) get_config('mod_videotracker', 'licenseclientemail'));
+if ($trialemail === '' && !empty($USER->email)) {
+    $trialemail = clean_param((string) $USER->email, PARAM_EMAIL);
+}
+
 switch ($action) {
+    case 'start-trial':
+        $result = \mod_videotracker\local\license_manager::start_trial_license($trialemail, !empty($trialconsent));
+        break;
     case 'activate':
         $result = \mod_videotracker\local\license_manager::activate_license();
         break;

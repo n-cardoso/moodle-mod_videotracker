@@ -114,7 +114,7 @@ $string['lastviewed'] = 'Last viewed';
 
 $string['licenseactionautosave'] = 'The buttons below also save the values entered in this section.';
 
-$string['licenseactionnote'] = 'Enter the license key and billing email from your purchase email, then click Activate License.';
+$string['licenseactionnote'] = 'Start a 14-day trial with your email, or enter a purchased license key and activate it.';
 
 $string['licenseactionnoteactive'] = 'This site already has an active license. Update these details only if you are replacing the current license.';
 
@@ -124,7 +124,7 @@ $string['licenseactionsaveconnectionfirst'] = 'If you changed the server URL or 
 
 $string['licenseactivate'] = 'Activate License';
 
-$string['licenseactivationhelp'] = 'Most sites only need the license key and billing email.';
+$string['licenseactivationhelp'] = 'For a trial, only the email and consent checkbox are needed. For a paid license, enter the license key and license email.';
 
 $string['licenseactivationmanagetitle'] = 'Activation details';
 
@@ -164,9 +164,9 @@ $string['licenseapisecret_desc'] = 'Only needed when signed requests are enabled
 
 $string['licensebacktoactivity'] = 'Back to activity';
 
-$string['licenseclientemail'] = 'Billing email';
+$string['licenseclientemail'] = 'License email';
 
-$string['licenseclientemail_desc'] = 'Email used when the license was purchased. Required by the WordPress license server for activation, validation, deactivation, and update checks.';
+$string['licenseclientemail_desc'] = 'Email used for trial activation. It is sent to the license server only when an admin starts a trial.';
 
 $string['licenseconnectionsettings'] = 'Advanced troubleshooting';
 
@@ -256,6 +256,20 @@ $string['licensefeaturetracking'] = 'Saved learner tracking and resume state';
 
 $string['licensefeaturevideoaccess'] = 'Video playback and activity access';
 
+$string['licensefirstinstallbody'] = 'You can now activate a full-feature 14-day trial for this Moodle site directly from this page.';
+
+$string['licensefirstinstalldetail'] = 'This lets you test Video Tracker exactly as your teachers and learners will use it, including watched progress tracking, playback restrictions, completion rules, reporting, and subtitle features.';
+
+$string['licensefirstinstallstep1'] = 'Enter your email';
+
+$string['licensefirstinstallstep2'] = 'Accept the consent checkbox';
+
+$string['licensefirstinstallstep3'] = 'Click Start free 14-day trial';
+
+$string['licensefirstinstallstepsintro'] = 'To start the trial:';
+
+$string['licensefirstinstalltitle'] = 'Your Video Tracker plugin is installed';
+
 $string['licenseformcompletionlocked'] = 'Trusted progress-based completion is premium. Activate a paid or trial license to configure completion thresholds and pass rules tied to video tracking.';
 
 $string['licenseformgeneralrestricted'] = 'Restricted demo mode is active. Teachers can still create the activity and learners can still watch the video, but premium tracking, reports, objectives, and playback enforcement remain locked until a paid or trial license is activated.';
@@ -264,11 +278,11 @@ $string['licenseformobjectiveslocked'] = 'Learning objectives are premium. Activ
 
 $string['licenseformplaybacklocked'] = 'Playback enforcement options are premium. Activate a paid or trial license to edit anti-skip, playback rate, download, PiP, and context menu controls.';
 
-$string['licensegetstartedbutton'] = 'Get a 14-day trial or buy a license';
+$string['licensegetstartedbutton'] = 'Open LearnPlug website';
 
-$string['licensegetstartedhelp'] = 'After you receive the license key by email, return here and activate this Moodle site using the license key and billing email.';
+$string['licensegetstartedhelp'] = 'For the fastest setup, enter your email below, accept the consent checkbox, and start the trial from Moodle.';
 
-$string['licensegetstartedintro'] = 'No license is active for this Moodle site. Start a full-feature 14-day trial or buy a license on the website below.';
+$string['licensegetstartedintro'] = 'No license is active for this Moodle site. You can start a full-feature 14-day trial directly on this page or buy a license from LearnPlug.';
 
 $string['licensegetstartedtitle'] = 'Need a license?';
 
@@ -362,11 +376,41 @@ $string['licensesiteurl'] = 'Site URL override';
 
 $string['licensesiteurl_desc'] = 'Only change this if the site address sent to the license server must be different from this Moodle site URL.';
 
+$string['licensestarttrial'] = 'Start free 14-day trial';
+
+$string['licensestarttrialconsent'] = 'I agree to send this site URL and license email to the LearnPlug license server to create and activate the trial.';
+
+$string['licensestarttrialintro'] = 'A trial license will be created and activated automatically for this Moodle site.';
+
+$string['licensestarttrialmissingconsent'] = 'Confirm the trial consent checkbox before starting the trial.';
+
+$string['licensestarttrialmissingemail'] = 'Enter a valid email address before starting the trial.';
+
+$string['licensestarttrialmissingserver'] = 'The license server URL is not configured.';
+
+$string['licensestarttrialprivacy'] = 'This sends the license email, Moodle site URL, instance ID, Moodle version, and plugin version to the LearnPlug license server.';
+
+$string['licensestarttrialunexpectedresponse'] = 'The license server created the trial but did not return a license key.';
+
 $string['licensesuccessgeneric'] = 'License request completed successfully.';
 
 $string['licensesummaryhelp'] = 'This section shows the current activation state for this Moodle site.';
 
 $string['licensesummarytitle'] = 'License status';
+
+$string['licensetrialemailbody'] = 'Your LearnPlug Video Tracker 14-day trial is now active for {$a->sitefullname}.' . "\n\n" .
+    'License details:' . "\n" .
+    'License key: {$a->licensekey}' . "\n" .
+    'License email: {$a->licenseemail}' . "\n" .
+    'License type: {$a->licensetype}' . "\n" .
+    'Status: {$a->status}' . "\n" .
+    'Expires at: {$a->expiresat}' . "\n" .
+    'Product slug: {$a->productslug}' . "\n" .
+    'Site URL: {$a->siteurl}' . "\n\n" .
+    'Manage this license in Moodle:' . "\n" .
+    '{$a->licensesettingsurl}';
+
+$string['licensetrialemailsubject'] = 'LearnPlug Video Tracker trial activated for {$a->sitefullname}';
 
 $string['licensetrialexpirednotice'] = 'Trial period ended. Premium features are now restricted. Upgrade to a paid license to continue.';
 
@@ -464,7 +508,7 @@ $string['posterimage'] = 'Preview image';
 
 $string['posterimage_help'] = 'Optional image shown before the video starts (poster).';
 
-$string['privacy:metadata:learnpluglicenseserver'] = 'In order to activate, validate, deactivate, and check commercial licenses, some data is sent to the external LearnPlug license server.';
+$string['privacy:metadata:learnpluglicenseserver'] = 'In order to start trials, activate, validate, deactivate, and check commercial licenses, some data is sent to the external LearnPlug license server.';
 
 $string['privacy:metadata:learnpluglicenseserver:customeremail'] = 'The billing email used to identify the license owner.';
 
@@ -477,6 +521,8 @@ $string['privacy:metadata:learnpluglicenseserver:licensekey'] = 'The commercial 
 $string['privacy:metadata:learnpluglicenseserver:productslug'] = 'The optional product slug sent with the license request.';
 
 $string['privacy:metadata:learnpluglicenseserver:siteurl'] = 'The Moodle site URL/domain reported to the external license server.';
+
+$string['privacy:metadata:learnpluglicenseserver:trialconsent'] = 'Whether the admin explicitly consented to sending trial activation data.';
 
 $string['privacy:metadata:openai'] = 'When subtitle generation or translation is used, audio and subtitle text are sent to OpenAI for processing.';
 

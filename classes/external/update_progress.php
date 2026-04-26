@@ -210,10 +210,13 @@ class update_progress extends external_api {
             $elapsed = $oldlastserverts > 0 ? max(0, $now - $oldlastserverts) : 0;
 
             $autofinished = false;
-            // Only trust ended packets if the server has already seen the learner near the end.
+            // Trust ended packets when the client itself reports a genuine end position.
+            // This avoids leaving progress below 100% if the final trusted heartbeat
+            // arrived slightly earlier than the browser's native ended event.
             if ($state === 'ended' && $duration >= 8.0 && is_finite($duration)) {
                 $nearend = ($oldlastct >= ($duration - 3.0))
-                    || ($oldlastpos >= (int) floor($duration - 3.0));
+                    || ($oldlastpos >= (int) floor($duration - 3.0))
+                    || ($currenttime >= ($duration - 1.5));
                 if ($nearend) {
                     $currenttime = $duration;
                     $autofinished = true;

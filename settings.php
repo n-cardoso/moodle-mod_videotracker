@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/videotracker/classes/local/admin_setting_configtext_wrapped.php');
 require_once($CFG->dirroot . '/mod/videotracker/classes/local/admin_setting_configcheckbox_wrapped.php');
 require_once($CFG->dirroot . '/mod/videotracker/classes/local/admin_setting_configpasswordunmask_wrapped.php');
+require_once($CFG->dirroot . '/mod/videotracker/classes/local/admin_setting_license_trial_email.php');
 
 if ($hassiteconfig) {
     $settings = new admin_settingpage(
@@ -35,9 +36,10 @@ if ($hassiteconfig) {
     );
 
     if ($ADMIN->fulltree) {
-        global $PAGE, $SCRIPT;
+        global $PAGE, $SCRIPT, $USER;
         $currentsection = isset($section) ? (string) $section : '';
         $script = is_string($SCRIPT ?? null) ? $SCRIPT : '';
+        $isupgradesettingspage = str_ends_with($script, '/admin/upgradesettings.php');
         $stringmanager = get_string_manager();
         $safesettingstring = static function (string $identifier, string $fallback) use ($stringmanager): string {
             if ($stringmanager->string_exists($identifier, 'videotracker')) {
@@ -69,7 +71,82 @@ if ($hassiteconfig) {
         }
 
         $snapshot = \mod_videotracker\local\license_manager::get_status_snapshot();
-        $PAGE->requires->js_call_amd('mod_videotracker/license_settings_toggle', 'init');
+        if (!$isupgradesettingspage) {
+            $PAGE->requires->js_call_amd('mod_videotracker/license_settings_toggle', 'init');
+        }
+
+        if ($isupgradesettingspage) {
+            $plugin = new stdClass();
+            require($CFG->dirroot . '/mod/videotracker/version.php');
+            $currentpluginbuild = !empty($plugin->version) ? (int) $plugin->version : 0;
+            $installsetupversion = (int) get_config('mod_videotracker', 'licenseinstallversion');
+            $showinstallfunnel = ($currentpluginbuild > 0 && $installsetupversion === $currentpluginbuild);
+
+            $defaultemail = trim((string) get_config('mod_videotracker', 'licenseclientemail'));
+            if ($defaultemail === '' && !empty($USER->email) && validate_email((string) $USER->email)) {
+                $defaultemail = clean_param((string) $USER->email, PARAM_EMAIL);
+            }
+            $defaultlicensekey = trim((string) get_config('mod_videotracker', 'licensekey'));
+            $defaultproductslug = trim((string) get_config('mod_videotracker', 'licenseproductslug'));
+            $licensesettingsurl = (new moodle_url('/admin/settings.php', [
+                'section' => 'modsettingvideotrackerlicense',
+            ]))->out(false);
+            if ($showinstallfunnel) {
+                $settings->add(new \mod_videotracker\local\admin_setting_license_trial_email(
+                    'mod_videotracker/licenseclientemail',
+                    get_string('licenseclientemail', 'videotracker'),
+                    get_string('licenseclientemail_desc', 'videotracker'),
+                    $defaultemail,
+                    PARAM_EMAIL
+                ));
+
+                $settings->add(new admin_setting_configpasswordunmask(
+                    'mod_videotracker/licensekey',
+                    get_string('licensekeysetting', 'videotracker'),
+                    get_string('licensekeysetting_desc', 'videotracker'),
+                    $defaultlicensekey
+                ));
+
+                $settings->add(new admin_setting_configtext(
+                    'mod_videotracker/licenseproductslug',
+                    get_string('licenseproductslug', 'videotracker'),
+                    get_string('licenseproductslug_desc', 'videotracker'),
+                    $defaultproductslug,
+                    PARAM_ALPHANUMEXT
+                ));
+
+            } else {
+                $statuslabel = trim((string) ($snapshot['currentstatus'] ?? ''));
+                if ($statuslabel === '') {
+                    $statuslabel = get_string('licensenotavailable', 'videotracker');
+                }
+
+                $updateintro = html_writer::tag(
+                    'h5',
+                    get_string('licensesummarytitle', 'videotracker'),
+                    ['class' => 'h5 mb-2']
+                );
+                $updateintro .= html_writer::div(get_string('licensesummaryhelp', 'videotracker'), 'mb-2');
+                $updateintro .= html_writer::div(
+                    get_string('licensecurrentstatus', 'videotracker') . ': ' . s($statuslabel),
+                    'mb-2'
+                );
+                $updateintro .= html_writer::div(
+                    html_writer::link(
+                        $licensesettingsurl,
+                        get_string('licenseopenlicensesettings', 'videotracker')
+                    )
+                );
+
+                $settings->add(new admin_setting_heading(
+                    'mod_videotracker/licensesetupintro',
+                    get_string('licensesettings', 'videotracker'),
+                    $updateintro
+                ));
+            }
+
+            return;
+        }
 
         if (!function_exists('videotracker_license_admin_inline_css')) {
             /**
@@ -664,17 +741,36 @@ CSS;
              * @return string
              */
             function videotracker_license_actions_html(array $snapshot): string {
+                global $USER;
+
                 $actionurl = new moodle_url('/mod/videotracker/license.php');
                 $isactive = videotracker_license_effective_status_is_success($snapshot);
                 $alertclass = videotracker_license_effective_alert_class($snapshot);
                 $currentkey = trim((string) get_config('mod_videotracker', 'licensekey'));
                 $currentemail = trim((string) get_config('mod_videotracker', 'licenseclientemail'));
+                if ($currentemail === '' && !empty($USER->email) && validate_email((string) $USER->email)) {
+                    $currentemail = clean_param((string) $USER->email, PARAM_EMAIL);
+                }
                 $currentproductslug = trim((string) get_config('mod_videotracker', 'licenseproductslug'));
                 $hasconfiguredlicense = ($currentkey !== '') || ($currentemail !== '') || ($currentproductslug !== '');
-                $buttons = [
-                    'activate' => ['class' => 'btn-primary', 'label' => get_string('licenseactivate', 'videotracker')],
-                    'validate' => ['class' => 'btn-secondary', 'label' => get_string('licensevalidate', 'videotracker')],
-                ];
+                if ($isactive) {
+                    $buttons = [
+                        'activate' => ['class' => 'btn-primary', 'label' => get_string('licenseactivate', 'videotracker')],
+                        'validate' => ['class' => 'btn-secondary', 'label' => get_string('licensevalidate', 'videotracker')],
+                    ];
+                } else {
+                    $buttons = [
+                        'start-trial' => [
+                            'class' => 'btn-primary',
+                            'label' => get_string('licensestarttrial', 'videotracker'),
+                        ],
+                        'activate' => [
+                            'class' => 'btn-outline-secondary',
+                            'label' => get_string('licenseactivate', 'videotracker'),
+                        ],
+                        'validate' => ['class' => 'btn-secondary', 'label' => get_string('licensevalidate', 'videotracker')],
+                    ];
+                }
                 $paneltitle = $isactive
                     ? get_string('licenseactivationmanagetitle', 'videotracker')
                     : get_string('licenseactivationtitle', 'videotracker');
@@ -702,23 +798,6 @@ CSS;
                 $html .= html_writer::start_div('vt-license-action-fields');
 
                 $html .= html_writer::start_div('mb-3 vt-license-field-full');
-                $html .= html_writer::tag('label', get_string('licensekeysetting', 'videotracker'), [
-                    'for' => 'videotracker-licensekey-action',
-                    'class' => 'form-label',
-                ]);
-                $html .= html_writer::empty_tag('input', [
-                    'type' => 'password',
-                    'id' => 'videotracker-licensekey-action',
-                    'name' => 'licensekey',
-                    'value' => $currentkey,
-                    'class' => 'form-control',
-                    'required' => 'required',
-                    'autocomplete' => 'off',
-                    'spellcheck' => 'false',
-                ]);
-                $html .= html_writer::end_div();
-
-                $html .= html_writer::start_div('mb-3 vt-license-field-full');
                 $html .= html_writer::tag('label', get_string('licenseclientemail', 'videotracker'), [
                     'for' => 'videotracker-licenseemail-action',
                     'class' => 'form-label',
@@ -731,6 +810,22 @@ CSS;
                     'class' => 'form-control',
                     'required' => 'required',
                     'autocomplete' => 'email',
+                    'spellcheck' => 'false',
+                ]);
+                $html .= html_writer::end_div();
+
+                $html .= html_writer::start_div('mb-3 vt-license-field-full');
+                $html .= html_writer::tag('label', get_string('licensekeysetting', 'videotracker'), [
+                    'for' => 'videotracker-licensekey-action',
+                    'class' => 'form-label',
+                ]);
+                $html .= html_writer::empty_tag('input', [
+                    'type' => 'password',
+                    'id' => 'videotracker-licensekey-action',
+                    'name' => 'licensekey',
+                    'value' => $currentkey,
+                    'class' => 'form-control',
+                    'autocomplete' => 'off',
                     'spellcheck' => 'false',
                 ]);
                 $html .= html_writer::end_div();
@@ -756,6 +851,27 @@ CSS;
                 $html .= html_writer::div(get_string('licenseproductslug_desc', 'videotracker'), 'vt-license-admin-helper mt-2');
                 $html .= html_writer::end_div();
                 $html .= html_writer::end_tag('details');
+
+                if (!$isactive) {
+                    $html .= html_writer::div(
+                        get_string('licensestarttrialintro', 'videotracker') . ' ' .
+                        get_string('licensestarttrialprivacy', 'videotracker'),
+                        'vt-license-admin-helper mb-2'
+                    );
+                    $html .= html_writer::start_div('form-check mb-3');
+                    $html .= html_writer::empty_tag('input', [
+                        'type' => 'checkbox',
+                        'id' => 'videotracker-licensetrialconsent-action',
+                        'name' => 'licensetrialconsent',
+                        'value' => '1',
+                        'class' => 'form-check-input',
+                    ]);
+                    $html .= html_writer::tag('label', get_string('licensestarttrialconsent', 'videotracker'), [
+                        'for' => 'videotracker-licensetrialconsent-action',
+                        'class' => 'form-check-label',
+                    ]);
+                    $html .= html_writer::end_div();
+                }
 
                 $html .= html_writer::start_div('vt-license-action-buttons mt-4');
                 foreach ($buttons as $action => $button) {

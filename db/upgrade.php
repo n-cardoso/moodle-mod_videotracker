@@ -569,5 +569,15 @@ function xmldb_videotracker_upgrade(int $oldversion): bool {
         upgrade_mod_savepoint(true, 2026042209, 'videotracker');
     }
 
+    if ($oldversion < 2026042501) {
+        // No DB schema change. Add one-click 14-day trial activation from Moodle.
+        upgrade_mod_savepoint(true, 2026042501, 'videotracker');
+    }
+
+    if ($oldversion < 2026042601) {
+        // No DB schema change. Restrict install-time trial funnel to fresh installs.
+        upgrade_mod_savepoint(true, 2026042601, 'videotracker');
+    }
+
     return true;
 }

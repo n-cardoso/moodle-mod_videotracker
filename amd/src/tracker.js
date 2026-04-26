@@ -827,6 +827,7 @@ export const init = (params) => {
     let resumeInProgress = false;
     let resumeTimer = 0;
     let resumeSyncTimer = 0;
+    let nearEndSyncSent = false;
     let internalSeekInProgress = false;
     let internalSeekTimer = 0;
     const supportsSeekedEvent = (playerEl.tagName.toLowerCase() === 'video');
@@ -869,6 +870,7 @@ export const init = (params) => {
         lastAllowedTickTs = Date.now();
         isSeeking = false;
         resumeInProgress = false;
+        nearEndSyncSent = false;
         goalAlreadyReached = false;
         root.classList.remove('vt-goal-reached');
         clearInternalSeek();
@@ -1262,6 +1264,7 @@ export const init = (params) => {
     }
 
     const handleReady = () => {
+        nearEndSyncSent = false;
         applyResumeIfPossible();
         enforcePlaybackRateCap();
         send('loadedmetadata', true);
@@ -1269,6 +1272,7 @@ export const init = (params) => {
 
     const handlePlay = () => {
         isPlaying = true;
+        nearEndSyncSent = false;
         lastAllowedTickTs = Date.now();
         if (!allowFastForward) {
             enforceSeekRestriction(false);
@@ -1311,6 +1315,16 @@ export const init = (params) => {
             updateMaxAllowed();
             enforceSeekRestriction(false);
         }
+
+        const duration = toNumber(getDuration(), 0);
+        const currentTime = toNumber(getCurrentTime(), 0);
+        const isNearEnd = duration > 0 && currentTime >= (duration - 2.5);
+        if (isNearEnd && !nearEndSyncSent) {
+            nearEndSyncSent = true;
+            send('playing', true);
+            return;
+        }
+
         send('playing', false);
     };
 

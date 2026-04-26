@@ -106,7 +106,6 @@ if ($hassiteconfig) {
                     get_string('licensekeysetting_desc', 'videotracker'),
                     $defaultlicensekey
                 ));
-
                 $settings->add(new admin_setting_configtext(
                     'mod_videotracker/licenseproductslug',
                     get_string('licenseproductslug', 'videotracker'),
@@ -114,7 +113,6 @@ if ($hassiteconfig) {
                     $defaultproductslug,
                     PARAM_ALPHANUMEXT
                 ));
-
             } else {
                 $statuslabel = trim((string) ($snapshot['currentstatus'] ?? ''));
                 if ($statuslabel === '') {

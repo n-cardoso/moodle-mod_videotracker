@@ -256,19 +256,33 @@ $string['licensefeaturetracking'] = 'Saved learner tracking and resume state';
 
 $string['licensefeaturevideoaccess'] = 'Video playback and activity access';
 
-$string['licensefirstinstallbody'] = 'You can now activate a full-feature 14-day trial for this Moodle site directly from this page.';
+$string['licensefirstinstallbody'] = 'Start your full-feature 14-day free trial now and test Video Tracker on this Moodle site in real conditions.';
 
-$string['licensefirstinstalldetail'] = 'This lets you test Video Tracker exactly as your teachers and learners will use it, including watched progress tracking, playback restrictions, completion rules, reporting, and subtitle features.';
+$string['licensefirstinstalldetail'] = '';
 
-$string['licensefirstinstallstep1'] = 'Enter your email';
+$string['licensefirstinstallfeature1'] = 'Real watched progress tracking';
+
+$string['licensefirstinstallfeature2'] = 'Playback controls and anti-skip restrictions';
+
+$string['licensefirstinstallfeature3'] = 'Completion rules linked to video viewing';
+
+$string['licensefirstinstallfeature4'] = 'Reporting and engagement insights';
+
+$string['licensefirstinstallfeature5'] = 'Subtitle features';
+
+$string['licensefirstinstallfeaturestitle'] = 'See how it works for teachers and learners with:';
+
+$string['licensefirstinstallhavekey'] = 'If you already have a License key';
+
+$string['licensefirstinstallstep1'] = 'Enter email address';
 
 $string['licensefirstinstallstep2'] = 'Accept the consent checkbox';
 
 $string['licensefirstinstallstep3'] = 'Click Start free 14-day trial';
 
-$string['licensefirstinstallstepsintro'] = 'To start the trial:';
+$string['licensefirstinstallstepsintro'] = 'To activate your trial:';
 
-$string['licensefirstinstalltitle'] = 'Your Video Tracker plugin is installed';
+$string['licensefirstinstalltitle'] = 'Your Video Tracker plugin is installed!';
 
 $string['licenseformcompletionlocked'] = 'Trusted progress-based completion is premium. Activate a paid or trial license to configure completion thresholds and pass rules tied to video tracking.';
 
@@ -380,7 +394,11 @@ $string['licensestarttrial'] = 'Start free 14-day trial';
 
 $string['licensestarttrialconsent'] = 'I agree to send this site URL and license email to the LearnPlug license server to create and activate the trial.';
 
+$string['licensestarttrialconsentinstall'] = 'I agree to share this email address with VideoTracker to activate my 14-day free trial.';
+
 $string['licensestarttrialintro'] = 'A trial license will be created and activated automatically for this Moodle site.';
+
+$string['licensestarttrialinstallintro'] = 'The full-feature 14-day free trial will automatically be created on this site.';
 
 $string['licensestarttrialmissingconsent'] = 'Confirm the trial consent checkbox before starting the trial.';
 
@@ -398,17 +416,7 @@ $string['licensesummaryhelp'] = 'This section shows the current activation state
 
 $string['licensesummarytitle'] = 'License status';
 
-$string['licensetrialemailbody'] = 'Your LearnPlug Video Tracker 14-day trial is now active for {$a->sitefullname}.' . "\n\n" .
-    'License details:' . "\n" .
-    'License key: {$a->licensekey}' . "\n" .
-    'License email: {$a->licenseemail}' . "\n" .
-    'License type: {$a->licensetype}' . "\n" .
-    'Status: {$a->status}' . "\n" .
-    'Expires at: {$a->expiresat}' . "\n" .
-    'Product slug: {$a->productslug}' . "\n" .
-    'Site URL: {$a->siteurl}' . "\n\n" .
-    'Manage this license in Moodle:' . "\n" .
-    '{$a->licensesettingsurl}';
+$string['licensetrialemailbody'] = 'Your LearnPlug Video Tracker 14-day trial is now active for {$a->sitefullname}.\n\nLicense details:\nLicense key: {$a->licensekey}\nLicense email: {$a->licenseemail}\nLicense type: {$a->licensetype}\nStatus: {$a->status}\nExpires at: {$a->expiresat}\nProduct slug: {$a->productslug}\nSite URL: {$a->siteurl}\n\nManage this license in Moodle:\n{$a->licensesettingsurl}';
 
 $string['licensetrialemailsubject'] = 'LearnPlug Video Tracker trial activated for {$a->sitefullname}';
 

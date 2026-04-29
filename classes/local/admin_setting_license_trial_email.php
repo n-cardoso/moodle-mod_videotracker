@@ -52,7 +52,18 @@ class admin_setting_license_trial_email extends \admin_setting_configtext {
             return $html;
         }
 
-        $introstyle = \html_writer::tag('style', '#page-admin-upgradesettings #region-main > p:first-of-type{display:none;}');
+        $emailfieldid = json_encode($this->get_id());
+        $introstyle = \html_writer::tag(
+            'style',
+            '#page-admin-upgradesettings #region-main > p:first-of-type{display:none;}'
+        );
+        $introstyle .= \html_writer::tag(
+            'script',
+            '(function(){var p=document.querySelectorAll("#region-main p");' .
+            'p.forEach(function(node){if(node.textContent&&node.textContent.indexOf(' .
+            '"The settings shown below were added during your last Moodle upgrade.")!==-1){' .
+            'node.style.display="none";}});}());'
+        );
         $introhtml = \html_writer::tag(
             'h4',
             get_string('licensefirstinstalltitle', 'videotracker'),
@@ -63,11 +74,22 @@ class admin_setting_license_trial_email extends \admin_setting_configtext {
             get_string('licensefirstinstallbody', 'videotracker'),
             ['class' => 'mb-2']
         );
+        $detailtext = get_string('licensefirstinstalldetail', 'videotracker');
+        if ($detailtext !== '') {
+            $introhtml .= \html_writer::tag('div', $detailtext, ['class' => 'mb-2']);
+        }
         $introhtml .= \html_writer::tag(
             'div',
-            get_string('licensefirstinstalldetail', 'videotracker'),
+            get_string('licensefirstinstallfeaturestitle', 'videotracker'),
             ['class' => 'mb-2']
         );
+        $introhtml .= \html_writer::start_tag('ul', ['class' => 'mb-3 ps-3']);
+        $introhtml .= \html_writer::tag('li', get_string('licensefirstinstallfeature1', 'videotracker'));
+        $introhtml .= \html_writer::tag('li', get_string('licensefirstinstallfeature2', 'videotracker'));
+        $introhtml .= \html_writer::tag('li', get_string('licensefirstinstallfeature3', 'videotracker'));
+        $introhtml .= \html_writer::tag('li', get_string('licensefirstinstallfeature4', 'videotracker'));
+        $introhtml .= \html_writer::tag('li', get_string('licensefirstinstallfeature5', 'videotracker'));
+        $introhtml .= \html_writer::end_tag('ul');
         $introhtml .= \html_writer::tag(
             'div',
             get_string('licensefirstinstallstepsintro', 'videotracker'),
@@ -80,8 +102,7 @@ class admin_setting_license_trial_email extends \admin_setting_configtext {
         $introhtml .= \html_writer::end_tag('ol');
         $ctahtml = \html_writer::tag(
             'div',
-            get_string('licensestarttrialintro', 'videotracker') . ' ' .
-                get_string('licensestarttrialprivacy', 'videotracker'),
+            get_string('licensestarttrialinstallintro', 'videotracker'),
             ['class' => 'mb-2']
         );
         $ctahtml .= \html_writer::start_div('form-check mb-3');
@@ -92,12 +113,21 @@ class admin_setting_license_trial_email extends \admin_setting_configtext {
             'value' => '1',
             'class' => 'form-check-input',
         ]);
-        $ctahtml .= \html_writer::tag('label', get_string('licensestarttrialconsent', 'videotracker'), [
+        $ctahtml .= \html_writer::tag('label', get_string('licensestarttrialconsentinstall', 'videotracker'), [
             'for' => 'id_mod_videotracker_licensetrialconsent_upgrade',
             'class' => 'form-check-label',
         ]);
         $ctahtml .= \html_writer::end_div();
+        $missingemailmessage = json_encode(get_string('licensestarttrialmissingemail', 'videotracker'));
+        $missingconsentmessage = json_encode(get_string('licensestarttrialmissingconsent', 'videotracker'));
         $submitonclick = "var f=this.form;if(!f){return false;}" .
+            "var consent=f.querySelector('input[name=\"licensetrialconsent\"]');" .
+            "if(!consent||!consent.checked){alert(" . $missingconsentmessage . ");if(consent){consent.focus();}return false;}" .
+            "var email=document.getElementById(" . $emailfieldid . ");" .
+            "var emailvalue=email&&typeof email.value==='string'?email.value.trim():'';" .
+            "var emailok=/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(emailvalue);" .
+            "if(!email||emailvalue===''||!emailok)" .
+            "{alert(" . $missingemailmessage . ");if(email){email.focus();}return false;}" .
             "var e=f.querySelector('input[name=\"savechanges\"]');" .
             "if(!e){e=document.createElement(\"input\");e.type=\"hidden\";" .
             "e.name=\"savechanges\";f.appendChild(e);}e.value=\"1\";" .

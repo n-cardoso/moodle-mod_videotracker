@@ -28,6 +28,7 @@ require_once($CFG->dirroot . '/mod/videotracker/classes/local/admin_setting_conf
 require_once($CFG->dirroot . '/mod/videotracker/classes/local/admin_setting_configcheckbox_wrapped.php');
 require_once($CFG->dirroot . '/mod/videotracker/classes/local/admin_setting_configpasswordunmask_wrapped.php');
 require_once($CFG->dirroot . '/mod/videotracker/classes/local/admin_setting_license_trial_email.php');
+require_once($CFG->dirroot . '/mod/videotracker/classes/local/admin_setting_license_upgrade_key.php');
 
 if ($hassiteconfig) {
     $settings = new admin_settingpage(
@@ -87,7 +88,6 @@ if ($hassiteconfig) {
                 $defaultemail = clean_param((string) $USER->email, PARAM_EMAIL);
             }
             $defaultlicensekey = trim((string) get_config('mod_videotracker', 'licensekey'));
-            $defaultproductslug = trim((string) get_config('mod_videotracker', 'licenseproductslug'));
             $licensesettingsurl = (new moodle_url('/admin/settings.php', [
                 'section' => 'modsettingvideotrackerlicense',
             ]))->out(false);
@@ -95,23 +95,16 @@ if ($hassiteconfig) {
                 $settings->add(new \mod_videotracker\local\admin_setting_license_trial_email(
                     'mod_videotracker/licenseclientemail',
                     get_string('licenseclientemail', 'videotracker'),
-                    get_string('licenseclientemail_desc', 'videotracker'),
+                    '',
                     $defaultemail,
                     PARAM_EMAIL
                 ));
 
-                $settings->add(new admin_setting_configpasswordunmask(
+                $settings->add(new \mod_videotracker\local\admin_setting_license_upgrade_key(
                     'mod_videotracker/licensekey',
                     get_string('licensekeysetting', 'videotracker'),
-                    get_string('licensekeysetting_desc', 'videotracker'),
+                    '',
                     $defaultlicensekey
-                ));
-                $settings->add(new admin_setting_configtext(
-                    'mod_videotracker/licenseproductslug',
-                    get_string('licenseproductslug', 'videotracker'),
-                    get_string('licenseproductslug_desc', 'videotracker'),
-                    $defaultproductslug,
-                    PARAM_ALPHANUMEXT
                 ));
             } else {
                 $statuslabel = trim((string) ($snapshot['currentstatus'] ?? ''));

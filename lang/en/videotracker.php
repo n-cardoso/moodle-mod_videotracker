@@ -396,9 +396,9 @@ $string['licensestarttrialconsent'] = 'I agree to send this site URL and license
 
 $string['licensestarttrialconsentinstall'] = 'I agree to share this email address with VideoTracker to activate my 14-day free trial.';
 
-$string['licensestarttrialintro'] = 'A trial license will be created and activated automatically for this Moodle site.';
-
 $string['licensestarttrialinstallintro'] = 'The full-feature 14-day free trial will automatically be created on this site.';
+
+$string['licensestarttrialintro'] = 'A trial license will be created and activated automatically for this Moodle site.';
 
 $string['licensestarttrialmissingconsent'] = 'Confirm the trial consent checkbox before starting the trial.';
 

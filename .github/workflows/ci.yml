@@ -92,8 +92,13 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: mod_videotracker-amd-build
-          path: plugin/amd/build/
+          path: ci/moodle/mod/videotracker/amd/build/
           if-no-files-found: error
+
+      - name: Sync rebuilt AMD files back to plugin checkout
+        if: always()
+        run: |
+          rsync -a ci/moodle/mod/videotracker/amd/build/ plugin/amd/build/
 
       - name: Fail if AMD build files changed
         run: |

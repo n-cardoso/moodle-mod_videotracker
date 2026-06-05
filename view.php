@@ -23,6 +23,8 @@
  */
 
 require('../../config.php');
+require_once($CFG->dirroot . '/group/lib.php');
+require_once($CFG->libdir . '/enrollib.php');
 require_once($CFG->dirroot . '/mod/videotracker/locallib.php');
 require_once($CFG->libdir . '/completionlib.php');
 
@@ -35,8 +37,15 @@ require_login($course, true, $cm);
 
 $context = context_module::instance($cm->id);
 require_capability('mod/videotracker:view', $context);
+$canresetprogress = has_capability('mod/videotracker:resetprogress', $context);
+$action = optional_param('action', '', PARAM_ALPHA);
+$confirm = optional_param('confirm', 0, PARAM_BOOL);
+$ack = optional_param('ack', 0, PARAM_BOOL);
+$userid = optional_param('userid', 0, PARAM_INT);
 
 $videotracker = $DB->get_record('videotracker', ['id' => $cm->instance], '*', MUST_EXIST);
+$reportsenabled = \mod_videotracker\local\license_enforcer::reports_enabled();
+$showfreeresettools = $canresetprogress && !$reportsenabled;
 
 $PAGE->set_url('/mod/videotracker/view.php', ['id' => $cm->id]);
 $PAGE->set_title(format_string($videotracker->name));
@@ -55,6 +64,139 @@ $event->trigger();
 // Mark activity as viewed before output.
 $completion = new completion_info($course);
 $completion->set_module_viewed($cm);
+$pageurl = new moodle_url('/mod/videotracker/view.php', ['id' => $cm->id]);
+
+$groupid = groups_get_activity_group($cm, true);
+$learneroptions = [];
+if ($showfreeresettools) {
+    $fields = 'u.id, u.firstname, u.lastname, u.firstnamephonetic, u.lastnamephonetic, u.middlename, u.alternatename';
+    $users = get_enrolled_users($context, 'mod/videotracker:view', $groupid ?: 0, $fields);
+    foreach ($users as $candidate) {
+        if ((int) $candidate->id === (int) $USER->id) {
+            continue;
+        }
+        $learneroptions[(int) $candidate->id] = fullname($candidate);
+    }
+    asort($learneroptions, SORT_NATURAL | SORT_FLAG_CASE);
+}
+
+if ($action === 'resetself' && $showfreeresettools) {
+    if (!$confirm) {
+        echo $OUTPUT->header();
+        echo $OUTPUT->heading(get_string('resetmyprogress', 'videotracker'));
+        echo html_writer::tag('p', get_string('resetmyprogressconfirm', 'videotracker'));
+        echo html_writer::start_tag('form', [
+            'method' => 'post',
+            'action' => $pageurl->out(false),
+            'class' => 'mt-3',
+        ]);
+        echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'id', 'value' => $cm->id]);
+        echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'action', 'value' => 'resetself']);
+        echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'confirm', 'value' => 1]);
+        echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
+        echo html_writer::tag(
+            'div',
+            html_writer::checkbox('ack', 1, false, get_string('resetprogressack', 'videotracker')),
+            ['class' => 'mb-3']
+        );
+        echo html_writer::empty_tag('input', [
+            'type' => 'submit',
+            'class' => 'btn btn-danger',
+            'value' => get_string('resetmyprogress', 'videotracker'),
+        ]);
+        echo html_writer::link($pageurl, get_string('cancel'), ['class' => 'btn btn-secondary ms-2']);
+        echo html_writer::end_tag('form');
+        echo $OUTPUT->footer();
+        exit;
+    }
+
+    require_sesskey();
+    if (empty($ack)) {
+        redirect(
+            $pageurl,
+            get_string('resetprogressackrequired', 'videotracker'),
+            null,
+            \core\output\notification::NOTIFY_ERROR
+        );
+    }
+
+    videotracker_reset_user_progress($course, $cm, $videotracker, (int) $USER->id);
+    redirect(
+        $pageurl,
+        get_string('resetprogressdone', 'videotracker'),
+        null,
+        \core\output\notification::NOTIFY_SUCCESS
+    );
+}
+
+if ($action === 'resetuser' && $showfreeresettools) {
+    $targetuser = null;
+    if ($userid > 0 && isset($learneroptions[$userid])) {
+        $targetuser = $DB->get_record(
+            'user',
+            ['id' => $userid],
+            'id, firstname, lastname, firstnamephonetic, lastnamephonetic, middlename, alternatename',
+            IGNORE_MISSING
+        );
+    }
+
+    if (!$targetuser) {
+        redirect(
+            $pageurl,
+            get_string('resetlearnerinvalid', 'videotracker'),
+            null,
+            \core\output\notification::NOTIFY_ERROR
+        );
+    }
+
+    if (!$confirm) {
+        echo $OUTPUT->header();
+        echo $OUTPUT->heading(get_string('resetlearnerprogress', 'videotracker'));
+        echo html_writer::tag('p', get_string('resetprogressconfirm', 'videotracker', fullname($targetuser)));
+        echo html_writer::start_tag('form', [
+            'method' => 'post',
+            'action' => $pageurl->out(false),
+            'class' => 'mt-3',
+        ]);
+        echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'id', 'value' => $cm->id]);
+        echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'action', 'value' => 'resetuser']);
+        echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'userid', 'value' => (int) $targetuser->id]);
+        echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'confirm', 'value' => 1]);
+        echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
+        echo html_writer::tag(
+            'div',
+            html_writer::checkbox('ack', 1, false, get_string('resetprogressack', 'videotracker')),
+            ['class' => 'mb-3']
+        );
+        echo html_writer::empty_tag('input', [
+            'type' => 'submit',
+            'class' => 'btn btn-danger',
+            'value' => get_string('resetlearnerprogress', 'videotracker'),
+        ]);
+        echo html_writer::link($pageurl, get_string('cancel'), ['class' => 'btn btn-secondary ms-2']);
+        echo html_writer::end_tag('form');
+        echo $OUTPUT->footer();
+        exit;
+    }
+
+    require_sesskey();
+    if (empty($ack)) {
+        redirect(
+            $pageurl,
+            get_string('resetprogressackrequired', 'videotracker'),
+            null,
+            \core\output\notification::NOTIFY_ERROR
+        );
+    }
+
+    videotracker_reset_user_progress($course, $cm, $videotracker, (int) $targetuser->id);
+    redirect(
+        $pageurl,
+        get_string('resetprogressdone', 'videotracker'),
+        null,
+        \core\output\notification::NOTIFY_SUCCESS
+    );
+}
 
 // Fetch user progress before rendering so resume/progress UI stays in sync.
 $progress = $DB->get_record('videotracker_progress', [
@@ -85,11 +227,12 @@ $subtitlesenabled = \mod_videotracker\local\license_enforcer::subtitles_enabled(
 $objectivesenabled = \mod_videotracker\local\license_enforcer::objectives_enabled();
 $playbackcontrolsenabled = \mod_videotracker\local\license_enforcer::advanced_playback_controls_enabled();
 $systemcontext = \context_system::instance();
+$roleswitched = function_exists('is_role_switched') ? is_role_switched($course->id) : false;
 $canmanagelicense = has_capability('moodle/site:config', $systemcontext);
 $canmanageactivity = has_capability('moodle/course:manageactivities', $context);
 $canviewreports = has_capability('mod/videotracker:viewreports', $context);
 $canmanagesubtitles = has_capability('mod/videotracker:managesubtitles', $context);
-$showlicensepanel = $canmanagelicense || $canmanageactivity || $canviewreports || $canmanagesubtitles;
+$showlicensepanel = !$roleswitched && ($canmanagelicense || $canmanageactivity || $canviewreports || $canmanagesubtitles);
 $licensesettingsurl = $canmanagelicense
     ? new moodle_url('/admin/settings.php', ['section' => 'modsettingvideotrackerlicense'])
     : null;
@@ -180,11 +323,7 @@ if (!$playbackcontrolsenabled) {
     $maxplaybackrate = 0.0;
     $disablecontextmenu = 0;
 }
-if (!$licensestate['allowed']) {
-    $minpercent = 0;
-}
-
-$trackingenabled = !empty($licensestate['allowed']);
+$trackingenabled = true;
 $initialstatustext = $trackingenabled
     ? get_string('status_init', 'videotracker')
     : ($showlicensepanel ? get_string('licensepremiumdisabled', 'videotracker') : '');
@@ -267,6 +406,53 @@ if ($showlicensepanel) {
             'vt-license-panel alert ' . $alertclass . ' d-flex flex-wrap justify-content-between align-items-center gap-2'
         );
     }
+}
+
+if ($showfreeresettools) {
+    $resetselfurl = new moodle_url('/mod/videotracker/view.php', [
+        'id' => $cm->id,
+        'action' => 'resetself',
+    ]);
+    $resetcontrols = html_writer::link(
+        $resetselfurl,
+        get_string('resetmyprogress', 'videotracker'),
+        ['class' => 'btn btn-outline-danger']
+    );
+
+    if (!empty($learneroptions)) {
+        $learnerreseturl = new moodle_url('/mod/videotracker/view.php', ['id' => $cm->id]);
+        $learnerform = html_writer::start_tag('form', [
+            'method' => 'get',
+            'action' => $learnerreseturl->out(false),
+            'class' => 'd-flex flex-wrap gap-2 align-items-end mt-3',
+        ]);
+        $learnerform .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'id', 'value' => $cm->id]);
+        $learnerform .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'action', 'value' => 'resetuser']);
+        $learnerlabel = html_writer::label(
+            get_string('resetlearnerselect', 'videotracker'),
+            'id_resetlearner',
+            false,
+            ['class' => 'form-label']
+        );
+        $learnerform .= html_writer::div(
+            $learnerlabel .
+            html_writer::select($learneroptions, 'userid', 0, ['' => get_string('choose')], [
+                'id' => 'id_resetlearner',
+                'class' => 'form-select',
+            ])
+        );
+        $learnerform .= html_writer::div(
+            html_writer::empty_tag('input', [
+                'type' => 'submit',
+                'class' => 'btn btn-outline-danger',
+                'value' => get_string('resetlearnerprogress', 'videotracker'),
+            ])
+        );
+        $learnerform .= html_writer::end_tag('form');
+        $resetcontrols .= $learnerform;
+    }
+
+    echo html_writer::div($resetcontrols, 'mb-3');
 }
 
 $rootattributes = [
@@ -478,9 +664,9 @@ echo $objectiveshtml;
 echo html_writer::end_tag('div');
 
 if ($trackingenabled) {
-    // Load tracking only when premium features are enabled. Restricted demo
-    // mode should leave the native YouTube iframe untouched to avoid late
-    // player re-binding that can restart playback.
+    // Progress tracking and watch-based completion remain available in the
+    // free runtime. Premium gating applies only to advanced capabilities such
+    // as reports, AI subtitles, objectives, and playback restrictions.
     $PAGE->requires->js_call_amd('mod_videotracker/tracker', 'init', [
         'cmid' => (int) $cm->id,
         'instanceid' => (int) $videotracker->id,

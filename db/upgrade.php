@@ -579,5 +579,34 @@ function xmldb_videotracker_upgrade(int $oldversion): bool {
         upgrade_mod_savepoint(true, 2026042601, 'videotracker');
     }
 
+    if ($oldversion < 2026060503) {
+        $dbman = $DB->get_manager();
+        if ($dbman->table_exists('course_completion_criteria') && $dbman->table_exists('course_modules')) {
+            $moduleid = (int) $DB->get_field('modules', 'id', ['name' => 'videotracker'], IGNORE_MISSING);
+            $criteriatype = defined('COMPLETION_CRITERIA_TYPE_ACTIVITY') ? COMPLETION_CRITERIA_TYPE_ACTIVITY : 4;
+
+            if ($moduleid > 0) {
+                $sql = "SELECT c.id
+                          FROM {course_completion_criteria} c
+                     LEFT JOIN {course_modules} cm
+                            ON cm.id = c.moduleinstance
+                         WHERE c.criteriatype = :criteriatype
+                           AND c.module = :moduleid
+                           AND (c.moduleinstance IS NULL OR cm.id IS NULL OR cm.module <> :moduleidcheck)";
+                $params = [
+                    'criteriatype' => $criteriatype,
+                    'moduleid' => $moduleid,
+                    'moduleidcheck' => $moduleid,
+                ];
+                $stalecriteria = $DB->get_records_sql($sql, $params);
+                foreach ($stalecriteria as $criterion) {
+                    $DB->delete_records('course_completion_criteria', ['id' => (int) $criterion->id]);
+                }
+            }
+        }
+
+        upgrade_mod_savepoint(true, 2026060503, 'videotracker');
+    }
+
     return true;
 }

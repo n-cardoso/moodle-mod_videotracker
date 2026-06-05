@@ -251,6 +251,36 @@ function videotracker_cleanup_grade_items(int $instanceid, int $fallbackcourseid
 }
 
 /**
+ * Remove course-completion activity criteria rows that reference this module.
+ *
+ * Moodle course completion stores activity criteria separately from the module
+ * record. If an activity is removed or the criteria row becomes stale, reports
+ * like report/completion/index.php can crash while dereferencing a missing
+ * course_modules record.
+ *
+ * @param int $cmid Course module id.
+ * @return void
+ */
+function videotracker_cleanup_completion_criteria(int $cmid): void {
+    global $DB;
+
+    if ($cmid <= 0) {
+        return;
+    }
+
+    $dbman = $DB->get_manager();
+    if (!$dbman->table_exists('course_completion_criteria')) {
+        return;
+    }
+
+    $criteriatype = defined('COMPLETION_CRITERIA_TYPE_ACTIVITY') ? COMPLETION_CRITERIA_TYPE_ACTIVITY : 4;
+    $DB->delete_records('course_completion_criteria', [
+        'criteriatype' => $criteriatype,
+        'moduleinstance' => $cmid,
+    ]);
+}
+
+/**
  * Updates gradebook grades for one user or for all users.
  *
  * @param stdClass $videotracker Activity record.
@@ -413,6 +443,9 @@ function videotracker_delete_instance(int $id): bool {
     $cm = get_coursemodule_from_instance('videotracker', $id, 0, false, IGNORE_MISSING);
     $courseid = $inst ? (int) $inst->course : 0;
     videotracker_cleanup_grade_items($id, $courseid);
+    if ($cm) {
+        videotracker_cleanup_completion_criteria((int) $cm->id);
+    }
 
     if ($DB->get_manager()->table_exists('videotracker_progress')) {
         $DB->delete_records('videotracker_progress', ['videotrackerid' => $id]);

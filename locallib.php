@@ -22,6 +22,11 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->libdir . '/completionlib.php');
+require_once($CFG->libdir . '/gradelib.php');
+
 /**
  * Save the uploaded video file from the form draft area into the module filearea.
  *
@@ -183,6 +188,69 @@ function videotracker_get_poster_file_url(context_module $context): ?moodle_url 
         $file->get_filepath(),
         $file->get_filename()
     );
+}
+
+/**
+ * Reset one user's tracked progress, grade, and completion state.
+ *
+ * @param stdClass $course Course record.
+ * @param stdClass $cm Course module record.
+ * @param stdClass $videotracker Activity record.
+ * @param int $userid User id.
+ * @return void
+ */
+function videotracker_reset_user_progress(stdClass $course, stdClass $cm, stdClass $videotracker, int $userid): void {
+    global $DB;
+
+    $userid = (int) $userid;
+    if ($userid <= 0) {
+        return;
+    }
+
+    $now = time();
+    $progress = $DB->get_record('videotracker_progress', ['cmid' => (int) $cm->id, 'userid' => $userid], 'id', IGNORE_MISSING);
+    if ($progress) {
+        $progress->percent = 0;
+        $progress->watched = 0;
+        $progress->viewmap = null;
+        $progress->completed = 0;
+        $progress->lastpos = 0;
+        $progress->obj1 = 0;
+        $progress->obj2 = 0;
+        $progress->obj3 = 0;
+        $progress->lastct = 0;
+        $progress->lastseq = 0;
+        $progress->lastserverts = 0;
+        $progress->timemodified = $now;
+        $DB->update_record('videotracker_progress', $progress);
+    }
+
+    $grade = new stdClass();
+    $grade->userid = $userid;
+    $grade->rawgrade = null;
+    $grade->rawgrademin = 0;
+    $grade->rawgrademax = 100;
+    $grade->timemodified = $now;
+
+    grade_update(
+        'mod/videotracker',
+        (int) $course->id,
+        'mod',
+        'videotracker',
+        (int) $cm->instance,
+        0,
+        [$userid => $grade],
+        [
+            'itemname' => clean_param($videotracker->name, PARAM_TEXT),
+            'gradetype' => GRADE_TYPE_VALUE,
+            'grademin' => 0,
+            'grademax' => 100,
+        ]
+    );
+
+    $completion = new completion_info($course);
+    $cminfo = cm_info::create($cm);
+    $completion->update_state($cminfo, COMPLETION_UNKNOWN, $userid);
 }
 
 /**

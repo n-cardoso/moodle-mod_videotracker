@@ -125,10 +125,6 @@ class update_progress extends external_api {
             'userid' => $userid,
         ], '*', IGNORE_MISSING);
 
-        if (!\mod_videotracker\local\license_enforcer::premium_features_enabled()) {
-            return self::license_denied_response($progress);
-        }
-
         $oldpercent = 0;
         $oldwatched = 0.0;
         $oldlastpos = 0;

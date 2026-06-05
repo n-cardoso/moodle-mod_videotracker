@@ -616,6 +616,16 @@ $string['requiredpercentage'] = 'Required percentage';
 
 $string['requiredpercentage_help'] = 'Minimum percentage of the video to be watched. If “Grade to pass” is empty, it will default to this value.';
 
+$string['resetlearnerinvalid'] = 'Please select a valid learner.';
+
+$string['resetlearnerprogress'] = 'Reset learner progress';
+
+$string['resetlearnerselect'] = 'Learner';
+
+$string['resetmyprogress'] = 'Reset my progress';
+
+$string['resetmyprogressconfirm'] = 'Are you sure you want to reset your own progress for this activity?';
+
 $string['resetprogress'] = 'Reset progress';
 
 $string['resetprogressack'] = 'I understand this will reset progress and clear grades.';

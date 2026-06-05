@@ -643,46 +643,7 @@ if (!empty($action) && $canreset) {
             );
         }
 
-        $now = time();
-        $progress = $DB->get_record('videotracker_progress', ['cmid' => $cm->id, 'userid' => $userid], 'id', IGNORE_MISSING);
-        if ($progress) {
-            $progress->percent = 0;
-            $progress->watched = 0;
-            $progress->viewmap = null;
-            $progress->completed = 0;
-            $progress->lastpos = 0;
-            $progress->obj1 = 0;
-            $progress->obj2 = 0;
-            $progress->obj3 = 0;
-            $progress->lastct = 0;
-            $progress->lastseq = 0;
-            $progress->lastserverts = 0;
-            $progress->timemodified = $now;
-            $DB->update_record('videotracker_progress', $progress);
-        }
-
-        $grade = new stdClass();
-        $grade->userid = $userid;
-        $grade->rawgrade = null;
-        $grade->rawgrademin = 0;
-        $grade->rawgrademax = 100;
-        $grade->timemodified = $now;
-
-        grade_update(
-            'mod/videotracker',
-            (int) $course->id,
-            'mod',
-            'videotracker',
-            (int) $cm->instance,
-            0,
-            [$userid => $grade],
-            [
-                'itemname' => clean_param($videotracker->name, PARAM_TEXT),
-                'gradetype' => GRADE_TYPE_VALUE,
-                'grademin' => 0,
-                'grademax' => 100,
-            ]
-        );
+        videotracker_reset_user_progress($course, $cm, $videotracker, $userid);
 
         redirect(
             $pageurl,

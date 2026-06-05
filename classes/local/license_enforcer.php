@@ -110,8 +110,8 @@ class license_enforcer {
             'badgeclass' => 'secondary',
             'badgelabel' => get_string('licensemodedemo', 'videotracker'),
             'headline' => get_string('licensepaneldemoheadline', 'videotracker'),
-            'availablefeatures' => [$videoaccess],
-            'lockedfeatures' => [$tracking, $completion, $reports, $subtitles, $objectives, $playback],
+            'availablefeatures' => [$videoaccess, $tracking, $completion],
+            'lockedfeatures' => [$reports, $subtitles, $objectives, $playback],
         ];
 
         if ($mode === 'premium') {

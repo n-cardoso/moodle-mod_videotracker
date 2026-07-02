@@ -144,12 +144,6 @@ $string['licenseadmincheckintervalhours'] = 'Admin refresh interval (hours)';
 
 $string['licenseadmincheckintervalhours_desc'] = 'Minimum wait time between automatic license checks from this page.';
 
-$string['licenseautorefreshnow'] = 'Refresh license status now';
-
-$string['licenseautorefreshpendingbody'] = 'This page needs to refresh the saved license status before showing the latest diagnostics and actions.';
-
-$string['licenseautorefreshpendingtitle'] = 'Refreshing saved license status';
-
 $string['licenseadvancedsettingshelp'] = 'Only use these settings if support asks you to.';
 
 $string['licenseadvancedsettingsitem1'] = 'Use the server URL only if your Moodle licensing site is different from the default value.';
@@ -159,6 +153,12 @@ $string['licenseadvancedsettingsitem2'] = 'Use the shared secret only if signed 
 $string['licenseadvancedsettingsitem3'] = 'Use the site URL override or instance ID only when support asks you to troubleshoot a specific setup.';
 
 $string['licenseadvancedsettingsitem4'] = 'The offline grace period is defined by the WordPress license server and is no longer edited in Moodle.';
+
+$string['licenseautorefreshnow'] = 'Refresh license status now';
+
+$string['licenseautorefreshpendingbody'] = 'This page needs to refresh the saved license status before showing the latest diagnostics and actions.';
+
+$string['licenseautorefreshpendingtitle'] = 'Refreshing saved license status';
 
 $string['licenseadvancedtogglehide'] = 'Hide advanced settings';
 
@@ -698,9 +698,9 @@ $string['subtitleerrornosourcefile'] = 'The source subtitle file is missing. Gen
 
 $string['subtitleerrornosourceupload'] = 'Upload a WebVTT (.vtt) subtitle file first.';
 
-$string['subtitleerrorsourceuploadtoolarge'] = 'The WebVTT subtitle file is too large. Maximum allowed size: {$a}.';
-
 $string['subtitleerrornovideofile'] = 'No uploaded HTML5 video was found for this activity.';
+
+$string['subtitleerrorsourceuploadtoolarge'] = 'The WebVTT subtitle file is too large. Maximum allowed size: {$a}.';
 
 $string['subtitleerrortranslationmismatch'] = 'The translated subtitle batch did not match the source cue structure.';
 

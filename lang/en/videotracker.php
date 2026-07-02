@@ -144,6 +144,12 @@ $string['licenseadmincheckintervalhours'] = 'Admin refresh interval (hours)';
 
 $string['licenseadmincheckintervalhours_desc'] = 'Minimum wait time between automatic license checks from this page.';
 
+$string['licenseautorefreshnow'] = 'Refresh license status now';
+
+$string['licenseautorefreshpendingbody'] = 'This page needs to refresh the saved license status before showing the latest diagnostics and actions.';
+
+$string['licenseautorefreshpendingtitle'] = 'Refreshing saved license status';
+
 $string['licenseadvancedsettingshelp'] = 'Only use these settings if support asks you to.';
 
 $string['licenseadvancedsettingsitem1'] = 'Use the server URL only if your Moodle licensing site is different from the default value.';
@@ -691,6 +697,8 @@ $string['subtitleerrornosource'] = 'Generate source subtitles first before queue
 $string['subtitleerrornosourcefile'] = 'The source subtitle file is missing. Generate source subtitles again.';
 
 $string['subtitleerrornosourceupload'] = 'Upload a WebVTT (.vtt) subtitle file first.';
+
+$string['subtitleerrorsourceuploadtoolarge'] = 'The WebVTT subtitle file is too large. Maximum allowed size: {$a}.';
 
 $string['subtitleerrornovideofile'] = 'No uploaded HTML5 video was found for this activity.';
 

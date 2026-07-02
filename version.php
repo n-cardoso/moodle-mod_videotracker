@@ -26,8 +26,8 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_videotracker';
 
-// Maintenance build with tracking, reset, and final PHPCS fixes.
-$plugin->version   = 2026060511;
+// Submission build with security hardening and maintenance fixes.
+$plugin->version   = 2026070201;
 
 // Moodle 4.5 (keep existing requirement baseline).
 $plugin->requires  = 2024042200;

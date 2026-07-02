@@ -58,14 +58,7 @@ if ($hassiteconfig) {
         $isgetrequest = strtoupper((string) $requestmethod) === 'GET';
         $needsautorefresh = $canautorefresh
             && \mod_videotracker\local\license_manager::should_refresh_on_admin_access();
-
-        if ($needsautorefresh && $isgetrequest && empty($autorefreshrequested)) {
-            redirect(new moodle_url('/admin/settings.php', [
-                'section' => 'modsettingvideotrackerlicense',
-                'vtlicenseautorefresh' => 1,
-                'sesskey' => sesskey(),
-            ]));
-        }
+        $showautorefreshform = $needsautorefresh && $isgetrequest && empty($autorefreshrequested);
 
         if ($canautorefresh) {
             \mod_videotracker\local\license_manager::maybe_refresh_on_admin_access();
@@ -1313,6 +1306,51 @@ CSS;
         }
 
         $inlineadmincss = videotracker_license_admin_inline_css();
+        $autorefreshhtml = '';
+        if ($showautorefreshform) {
+            $autorefreshaction = new moodle_url('/admin/settings.php');
+            $autorefreshinputs = html_writer::empty_tag('input', [
+                'type' => 'hidden',
+                'name' => 'section',
+                'value' => 'modsettingvideotrackerlicense',
+            ]);
+            $autorefreshinputs .= html_writer::empty_tag('input', [
+                'type' => 'hidden',
+                'name' => 'vtlicenseautorefresh',
+                'value' => 1,
+            ]);
+            $autorefreshinputs .= html_writer::empty_tag('input', [
+                'type' => 'hidden',
+                'name' => 'sesskey',
+                'value' => sesskey(),
+            ]);
+            $autorefreshinputs .= html_writer::tag(
+                'p',
+                get_string('licenseautorefreshpendingbody', 'videotracker'),
+                ['class' => 'mb-3']
+            );
+            $autorefreshinputs .= html_writer::tag(
+                'button',
+                get_string('licenseautorefreshnow', 'videotracker'),
+                ['type' => 'submit', 'class' => 'btn btn-primary']
+            );
+            $autorefreshform = html_writer::tag('form', $autorefreshinputs, [
+                'method' => 'post',
+                'action' => $autorefreshaction->out(false),
+                'id' => 'vt-license-autorefresh-form',
+            ]);
+            $autorefreshhtml = html_writer::div(
+                html_writer::tag(
+                    'h5',
+                    get_string('licenseautorefreshpendingtitle', 'videotracker'),
+                    ['class' => 'h5 mb-2']
+                ) . $autorefreshform,
+                'alert alert-info'
+            );
+            $autorefreshhtml .= html_writer::script(
+                "document.getElementById('vt-license-autorefresh-form')?.submit();"
+            );
+        }
 
         $overviewhtml = videotracker_license_overview_html($snapshot);
         $actionshtml = videotracker_license_actions_html($snapshot);
@@ -1321,7 +1359,7 @@ CSS;
             $settings->add(new admin_setting_heading(
                 'mod_videotracker/licenseoverview',
                 get_string('licenseoverview', 'videotracker'),
-                $inlineadmincss . $overviewhtml
+                $inlineadmincss . $autorefreshhtml . $overviewhtml
             ));
             $settings->add(new admin_setting_heading(
                 'mod_videotracker/licenseactions',
@@ -1332,7 +1370,7 @@ CSS;
             $settings->add(new admin_setting_heading(
                 'mod_videotracker/licenseactions',
                 get_string('licenseactions', 'videotracker'),
-                $inlineadmincss . $actionshtml
+                $inlineadmincss . $autorefreshhtml . $actionshtml
             ));
             $settings->add(new admin_setting_heading(
                 'mod_videotracker/licenseoverview',

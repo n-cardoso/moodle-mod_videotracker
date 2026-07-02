@@ -25,6 +25,8 @@
 require('../../config.php');
 require_once($CFG->dirroot . '/mod/videotracker/locallib.php');
 
+define('VIDEOTRACKER_SOURCE_VTT_MAX_BYTES', 2 * 1024 * 1024);
+
 /**
  * Build a small POST form button for subtitle actions.
  *
@@ -235,6 +237,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== '') {
                 $tmpname = (string) ($upload['tmp_name'] ?? '');
                 if ($tmpname === '' || !is_uploaded_file($tmpname)) {
                     throw new moodle_exception('subtitleerrorinvalidsourceupload', 'videotracker');
+                }
+
+                $filesize = isset($upload['size']) ? (int) $upload['size'] : 0;
+                if ($filesize <= 0) {
+                    $filesize = @filesize($tmpname);
+                    $filesize = ($filesize === false) ? 0 : (int) $filesize;
+                }
+                if ($filesize > VIDEOTRACKER_SOURCE_VTT_MAX_BYTES) {
+                    throw new moodle_exception(
+                        'subtitleerrorsourceuploadtoolarge',
+                        'videotracker',
+                        '',
+                        display_size(VIDEOTRACKER_SOURCE_VTT_MAX_BYTES)
+                    );
                 }
 
                 $content = file_get_contents($tmpname);

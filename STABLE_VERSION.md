@@ -4,10 +4,10 @@ Current most stable build for testing and rollback reference:
 
 - Plugin: `mod_videotracker`
 - Release: `1.0.3`
-- Build version: `2026070203`
+- Build version: `2026070302`
 - Release version: `1.0.3`
-- Package: `mod_videotracker-1.0.3+2026070203.zip`
-- Stable alias: `mod_videotracker-STABLE-1.0.3+2026070203.zip`
+- Package: `mod_videotracker-1.0.3+2026070302.zip`
+- Stable alias: `mod_videotracker-STABLE-1.0.3+2026070302.zip`
 - Date marked stable: `2026-04-26`
 
 Notes:

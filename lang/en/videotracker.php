@@ -154,12 +154,6 @@ $string['licenseadvancedsettingsitem3'] = 'Use the site URL override or instance
 
 $string['licenseadvancedsettingsitem4'] = 'The offline grace period is defined by the WordPress license server and is no longer edited in Moodle.';
 
-$string['licenseautorefreshnow'] = 'Refresh license status now';
-
-$string['licenseautorefreshpendingbody'] = 'This page needs to refresh the saved license status before showing the latest diagnostics and actions.';
-
-$string['licenseautorefreshpendingtitle'] = 'Refreshing saved license status';
-
 $string['licenseadvancedtogglehide'] = 'Hide advanced settings';
 
 $string['licenseadvancedtoggleshow'] = 'Show advanced settings';
@@ -167,6 +161,12 @@ $string['licenseadvancedtoggleshow'] = 'Show advanced settings';
 $string['licenseapisecret'] = 'WordPress API key / shared secret';
 
 $string['licenseapisecret_desc'] = 'Only needed when signed requests are enabled in WordPress. Paste the WordPress API key here. Do not use the customer license key in this field.';
+
+$string['licenseautorefreshnow'] = 'Refresh license status now';
+
+$string['licenseautorefreshpendingbody'] = 'This page needs to refresh the saved license status before showing the latest diagnostics and actions.';
+
+$string['licenseautorefreshpendingtitle'] = 'Refreshing saved license status';
 
 $string['licensebacktoactivity'] = 'Back to activity';
 

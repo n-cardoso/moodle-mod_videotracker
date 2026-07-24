@@ -81,7 +81,9 @@ foreach ($instances as $instance) {
         $row[] = $sectioninfo ? get_section_name($course, $sectioninfo) : '';
     }
 
-    $required = !empty($instance->completionminpercent) ? ((int) $instance->completionminpercent . '%') : '—';
+    $required = !empty($instance->completionminpercent)
+        ? get_string('percentvalue', 'videotracker', (int) $instance->completionminpercent)
+        : get_string('notavailable', 'videotracker');
 
     $row[] = $link;
     $row[] = $required;

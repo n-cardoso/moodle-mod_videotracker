@@ -122,7 +122,7 @@ class mobile {
             if ($vimeoid !== '') {
                 $provider = 'vimeo';
                 $externalid = $vimeoid;
-                $embedurl = 'https://player.vimeo.com/video/' . $vimeoid;
+                $embedurl = videotracker_build_vimeo_embed_url($externalurl, $vimeoid);
             }
         }
 
@@ -131,8 +131,8 @@ class mobile {
         $useactivitywebview = true;
 
         $ishtml5 = ($videosource === 'upload' || $videosource === 'external');
-        $isembed = (!$useactivitywebview) && ($videosource === 'youtube' || $videosource === 'vimeo');
-        $hasvideo = ($ishtml5 && $videourl !== '') || ($isembed && $embedurl !== '');
+        $isembed = (!$useactivitywebview) && in_array($videosource, ['youtube', 'vimeo'], true);
+        $hasvideo = ($ishtml5 && $videourl !== '') || (!$ishtml5 && $embedurl !== '');
         $cantrack = $hasvideo;
 
         $progress = $DB->get_record('videotracker_progress', [

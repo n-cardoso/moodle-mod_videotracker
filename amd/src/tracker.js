@@ -72,218 +72,81 @@ const loadVimeoApi = () => {
         return window.__videotrackerVimeoPromise;
     }
 
-    window.__videotrackerVimeoPromise = new Promise((resolve, reject) => {
-        const tag = document.createElement('script');
-        tag.src = 'https://player.vimeo.com/api/player.js';
-        tag.async = true;
-        tag.onload = () => {
-            if (window.Vimeo && window.Vimeo.Player) {
-                resolve(window.Vimeo);
-            } else {
-                reject(new Error('Vimeo API not available'));
-            }
-        };
-        tag.onerror = () => reject(new Error('Vimeo API failed to load'));
-        document.head.appendChild(tag);
+    window.__videotrackerVimeoPromise = fetch('https://player.vimeo.com/api/player.js', {
+        credentials: 'omit',
+        mode: 'cors'
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error('Vimeo API failed to load');
+        }
+        return response.text();
+    }).then((source) => {
+        // Execute Vimeo's UMD bundle without exposing Moodle's AMD loader.
+        const runner = new Function(
+            'window',
+            'document',
+            'self',
+            'globalThis',
+            'define',
+            'module',
+            'exports',
+            `${source}\nreturn window.Vimeo;`
+        );
+        return runner(window, document, window, window, undefined, undefined, undefined);
+    }).then((Vimeo) => {
+        if (Vimeo && Vimeo.Player) {
+            return Vimeo;
+        }
+        if (window.Vimeo && window.Vimeo.Player) {
+            return window.Vimeo;
+        }
+        throw new Error('Vimeo API not available');
+    }).catch((error) => {
+        window.__videotrackerVimeoPromise = null;
+        throw error;
     });
 
     return window.__videotrackerVimeoPromise;
 };
 
-const initVimeoIframeController = (iframe, callbacks) => {
-    return new Promise((resolve) => {
-        let currentTime = 0;
-        let duration = 0;
-        let playbackRate = 1;
-        let readyNotified = false;
-        let subscribed = false;
-        let pollTimer = 0;
+const callProgressService = (args) => {
+    const moodlecfg = (window.M && M.cfg) ? M.cfg : null;
 
-        const targetOrigin = 'https://player.vimeo.com';
-
-        const post = (method, value) => {
-            try {
-                if (!iframe || !iframe.contentWindow) {
-                    return;
-                }
-                const payload = {method};
-                if (typeof value !== 'undefined') {
-                    payload.value = value;
-                }
-                iframe.contentWindow.postMessage(JSON.stringify(payload), targetOrigin);
-            } catch (error) {
-                return;
-            }
-        };
-
-        const notifyReady = () => {
-            if (readyNotified) {
-                return;
-            }
-            readyNotified = true;
-            if (callbacks.onReady) {
-                callbacks.onReady();
-            }
-        };
-
-        const requestState = () => {
-            post('getCurrentTime');
-            post('getDuration');
-            post('getPlaybackRate');
-        };
-
-        const subscribeEvents = () => {
-            if (subscribed) {
-                return;
-            }
-            subscribed = true;
-            ['play', 'pause', 'ended', 'timeupdate', 'seeking', 'seeked', 'playbackratechange', 'loaded'].forEach((eventName) => {
-                post('addEventListener', eventName);
-            });
-            requestState();
-        };
-
-        const startPoll = () => {
-            if (pollTimer) {
-                return;
-            }
-            requestState();
-            pollTimer = setInterval(requestState, 1000);
-        };
-
-        const onMessage = (event) => {
-            if (!event.origin || event.origin.indexOf('player.vimeo.com') === -1) {
-                return;
-            }
-
-            let payload = event.data;
-            if (typeof payload === 'string') {
-                try {
-                    payload = JSON.parse(payload);
-                } catch (error) {
-                    return;
-                }
-            }
-            if (!payload || typeof payload !== 'object') {
-                return;
-            }
-
-            const messagetype = String(payload.event || payload.method || '');
-            const payloadvalue = (typeof payload.value !== 'undefined')
-                ? payload.value
-                : payload.data;
-
-            if (messagetype === 'ready' || messagetype === 'loaded') {
-                subscribeEvents();
-                notifyReady();
-                return;
-            }
-
-            if (messagetype === 'play') {
-                startPoll();
-                if (callbacks.onPlay) {
-                    callbacks.onPlay();
-                }
-                return;
-            }
-
-            if (messagetype === 'pause') {
-                if (callbacks.onPause) {
-                    callbacks.onPause();
-                }
-                return;
-            }
-
-            if (messagetype === 'ended') {
-                if (callbacks.onEnded) {
-                    callbacks.onEnded();
-                }
-                return;
-            }
-
-            if (messagetype === 'seeking') {
-                if (callbacks.onSeeking) {
-                    callbacks.onSeeking();
-                }
-                return;
-            }
-
-            if (messagetype === 'seeked') {
-                if (callbacks.onSeeked) {
-                    callbacks.onSeeked();
-                }
-                return;
-            }
-
-            if (messagetype === 'playbackratechange') {
-                const data = (payloadvalue && typeof payloadvalue === 'object') ? payloadvalue : {};
-                if (typeof data.playbackRate !== 'undefined') {
-                    playbackRate = toNumber(data.playbackRate, playbackRate);
-                }
-                if (callbacks.onRateChange) {
-                    callbacks.onRateChange();
-                }
-                return;
-            }
-
-            if (messagetype === 'timeupdate') {
-                const data = (payloadvalue && typeof payloadvalue === 'object') ? payloadvalue : {};
-                if (typeof data.seconds !== 'undefined') {
-                    currentTime = toNumber(data.seconds, currentTime);
-                }
-                if (typeof data.duration !== 'undefined') {
-                    duration = toNumber(data.duration, duration);
-                }
-                if (typeof data.playbackRate !== 'undefined') {
-                    playbackRate = toNumber(data.playbackRate, playbackRate);
-                }
-                notifyReady();
-                if (callbacks.onTimeUpdate) {
-                    callbacks.onTimeUpdate();
-                }
-                return;
-            }
-
-            if (messagetype === 'getCurrentTime') {
-                currentTime = toNumber(payloadvalue, currentTime);
-                return;
-            }
-            if (messagetype === 'getDuration') {
-                duration = toNumber(payloadvalue, duration);
-                notifyReady();
-                return;
-            }
-            if (messagetype === 'getPlaybackRate') {
-                playbackRate = toNumber(payloadvalue, playbackRate);
-            }
-        };
-
-        window.addEventListener('message', onMessage);
-
-        const bootstrap = () => {
-            subscribeEvents();
-            requestState();
-            post('ping');
-        };
-
-        if (iframe && iframe.addEventListener) {
-            iframe.addEventListener('load', bootstrap);
-        }
-        setTimeout(bootstrap, 150);
-        setTimeout(notifyReady, 1200);
-
-        resolve({
-            getCurrentTime: () => currentTime,
-            getDuration: () => duration,
-            getPlaybackRate: () => playbackRate,
-            setCurrentTime: (t) => {
-                post('setCurrentTime', toNumber(t, 0));
+    if (window.fetch && moodlecfg && moodlecfg.wwwroot && moodlecfg.sesskey) {
+        const serviceUrl = `${moodlecfg.wwwroot}/lib/ajax/service.php?sesskey=${encodeURIComponent(moodlecfg.sesskey)}` +
+            '&info=mod_videotracker_update_progress';
+        return fetch(serviceUrl, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             },
-            setPlaybackRate: (r) => {
-                post('setPlaybackRate', toNumber(r, 1));
+            body: JSON.stringify([{
+                index: 0,
+                methodname: 'mod_videotracker_update_progress',
+                args
+            }])
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error(`Progress service HTTP ${response.status}`);
             }
+            return response.json();
+        }).then((payload) => {
+            if (!Array.isArray(payload) || !payload[0]) {
+                throw new Error('Invalid progress service response');
+            }
+            if (payload[0].error) {
+                throw payload[0];
+            }
+            return payload[0].data;
         });
-    });
+    }
+
+    return Ajax.call([{
+        methodname: 'mod_videotracker_update_progress',
+        args
+    }])[0];
 };
 
 const initYouTubeController = (container, videoId, callbacks) => {
@@ -428,143 +291,219 @@ const initYouTubeController = (container, videoId, callbacks) => {
 };
 
 const initVimeoController = (container, videoId, videoUrl, callbacks) => {
-    const tagName = (container && container.tagName) ? container.tagName.toLowerCase() : '';
-    if (tagName === 'iframe') {
-        return initVimeoIframeController(container, callbacks);
-    }
-
     return loadVimeoApi().then((Vimeo) => {
-        const options = {
-            responsive: true
-        };
-        if (typeof videoUrl === 'string' && /^https?:\/\//i.test(videoUrl.trim())) {
-            options.url = videoUrl.trim();
-        } else {
-            options.id = videoId;
-        }
-        const player = new Vimeo.Player(container, options);
+        const tagName = (container && container.tagName) ? container.tagName.toLowerCase() : '';
+        let player = null;
 
-        let currentTime = 0;
-        let duration = 0;
-        let playbackRate = 1;
-        let pollTimer = 0;
-
-        const pollIntervalMs = 750;
-
-        const pollState = () => {
-            return Promise.all([
-                player.getCurrentTime().catch(() => currentTime),
-                player.getDuration().catch(() => duration),
-                player.getPlaybackRate().catch(() => playbackRate)
-            ]).then(([t, d, r]) => {
-                currentTime = toNumber(t, currentTime);
-                duration = toNumber(d, duration);
-                playbackRate = toNumber(r, playbackRate);
-                if (callbacks.onTimeUpdate) {
-                    callbacks.onTimeUpdate();
+        return new Promise((resolve) => {
+            const start = () => {
+                if (player) {
+                    return;
                 }
-            }).catch(() => null);
-        };
 
-        const startPoll = () => {
-            if (pollTimer) {
-                return;
-            }
-            pollState();
-            pollTimer = setInterval(pollState, pollIntervalMs);
-        };
-
-        player.ready().then(() => {
-            player.getDuration().then((d) => {
-                duration = toNumber(d, duration);
-                if (callbacks.onReady) {
-                    callbacks.onReady();
+                if (tagName === 'iframe') {
+                    player = new Vimeo.Player(container);
+                } else {
+                    const options = {
+                        responsive: true
+                    };
+                    if (typeof videoUrl === 'string' && /^https?:\/\//i.test(videoUrl.trim())) {
+                        options.url = videoUrl.trim();
+                    } else {
+                        options.id = videoId;
+                    }
+                    player = new Vimeo.Player(container, options);
                 }
-                return null;
-            }).catch(() => {
-                if (callbacks.onReady) {
-                    callbacks.onReady();
+
+                let currentTime = 0;
+                let duration = 0;
+                let playbackRate = 1;
+                let pollTimer = 0;
+                let playbackStarted = false;
+                let playingFromPoll = false;
+                let stalePollCount = 0;
+                let playingState = false;
+                let readySent = false;
+
+                const pollIntervalMs = 300;
+                const sendReady = () => {
+                    if (readySent) {
+                        return;
+                    }
+                    readySent = true;
+                    if (callbacks.onReady) {
+                        callbacks.onReady();
+                    }
+                };
+
+                const setPlayingState = (playing) => {
+                    if (playing === playingState) {
+                        return;
+                    }
+
+                    playingState = playing;
+                    if (playing) {
+                        if (callbacks.onPlay) {
+                            callbacks.onPlay();
+                        }
+                    } else if (callbacks.onPause) {
+                        callbacks.onPause();
+                    }
+                };
+
+                const pollState = () => {
+                    const durationpromise = duration > 1
+                        ? Promise.resolve(duration)
+                        : player.getDuration().catch(() => duration);
+
+                    return Promise.all([
+                        player.getCurrentTime().catch(() => currentTime),
+                        durationpromise,
+                        player.getPlaybackRate().catch(() => playbackRate)
+                    ]).then(([t, d, r]) => {
+                        const nexttime = toNumber(t, currentTime);
+                        const timedelta = nexttime - currentTime;
+                        currentTime = nexttime;
+                        duration = toNumber(d, duration);
+                        playbackRate = toNumber(r, playbackRate);
+
+                        if (timedelta > 0.15) {
+                            stalePollCount = 0;
+                            if (!playingFromPoll) {
+                                playingFromPoll = true;
+                                setPlayingState(true);
+                            }
+                            playbackStarted = true;
+                        } else if (playingFromPoll && playbackStarted) {
+                            stalePollCount++;
+                            if (stalePollCount >= 4) {
+                                playingFromPoll = false;
+                                stalePollCount = 0;
+                                setPlayingState(false);
+                            }
+                        }
+
+                        if (callbacks.onTimeUpdate) {
+                            callbacks.onTimeUpdate();
+                        }
+                    }).catch(() => null);
+                };
+
+                const startPoll = () => {
+                    if (pollTimer) {
+                        return;
+                    }
+                    pollState();
+                    pollTimer = setInterval(pollState, pollIntervalMs);
+                };
+
+                player.ready().then(() => {
+                    player.getDuration().then((d) => {
+                        duration = toNumber(d, duration);
+                        sendReady();
+                        return null;
+                    }).catch(() => {
+                        sendReady();
+                        return null;
+                    });
+                    startPoll();
+                    return null;
+                }).catch(() => {
+                    sendReady();
+                    return null;
+                });
+
+                player.on('play', () => {
+                    playingFromPoll = true;
+                    stalePollCount = 0;
+                    playbackStarted = true;
+                    startPoll();
+                    pollState();
+                    setPlayingState(true);
+                });
+
+                player.on('pause', () => {
+                    playingFromPoll = false;
+                    stalePollCount = 0;
+                    setPlayingState(false);
+                });
+
+                player.on('ended', () => {
+                    playingFromPoll = false;
+                    stalePollCount = 0;
+                    setPlayingState(false);
+                    if (callbacks.onEnded) {
+                        callbacks.onEnded();
+                    }
+                });
+
+                player.on('timeupdate', (data) => {
+                    if (data && typeof data.seconds !== 'undefined') {
+                        currentTime = toNumber(data.seconds, currentTime);
+                    }
+                    if (data && typeof data.duration !== 'undefined') {
+                        duration = toNumber(data.duration, duration);
+                    }
+                    if (data && typeof data.playbackRate !== 'undefined') {
+                        playbackRate = toNumber(data.playbackRate, playbackRate);
+                    }
+                    if (callbacks.onTimeUpdate) {
+                        callbacks.onTimeUpdate();
+                    }
+                });
+
+                player.on('seeked', () => {
+                    if (callbacks.onSeeked) {
+                        callbacks.onSeeked();
+                    }
+                });
+
+                player.on('seeking', () => {
+                    if (callbacks.onSeeking) {
+                        callbacks.onSeeking();
+                    }
+                });
+
+                player.on('playbackratechange', (data) => {
+                    if (data && typeof data.playbackRate !== 'undefined') {
+                        playbackRate = toNumber(data.playbackRate, playbackRate);
+                    }
+                    if (callbacks.onRateChange) {
+                        callbacks.onRateChange();
+                    }
+                });
+
+                resolve({
+                    getCurrentTime: () => currentTime,
+                    getDuration: () => duration,
+                    getPlaybackRate: () => playbackRate,
+                    setCurrentTime: (t) => {
+                        player.setCurrentTime(t).catch(() => null);
+                    },
+                    setPlaybackRate: (r) => {
+                        player.setPlaybackRate(r).catch(() => null);
+                    }
+                });
+            };
+
+            if (tagName === 'iframe') {
+                let started = false;
+                const safeStart = () => {
+                    if (started) {
+                        return;
+                    }
+                    started = true;
+                    start();
+                };
+
+                if (container && container.addEventListener) {
+                    container.addEventListener('load', safeStart, {once: true});
                 }
-                return null;
-            });
-            startPoll();
-            return null;
-        }).catch(() => {
-            if (callbacks.onReady) {
-                callbacks.onReady();
-            }
-            return null;
-        });
-
-        player.on('play', () => {
-            startPoll();
-            pollState();
-            if (callbacks.onPlay) {
-                callbacks.onPlay();
+                setTimeout(safeStart, 300);
+            } else {
+                start();
             }
         });
-
-        player.on('pause', () => {
-            if (callbacks.onPause) {
-                callbacks.onPause();
-            }
-        });
-
-        player.on('ended', () => {
-            if (callbacks.onEnded) {
-                callbacks.onEnded();
-            }
-        });
-
-        player.on('timeupdate', (data) => {
-            if (data && typeof data.seconds !== 'undefined') {
-                currentTime = toNumber(data.seconds, currentTime);
-            }
-            if (data && typeof data.duration !== 'undefined') {
-                duration = toNumber(data.duration, duration);
-            }
-            if (data && typeof data.playbackRate !== 'undefined') {
-                playbackRate = toNumber(data.playbackRate, playbackRate);
-            }
-            if (callbacks.onTimeUpdate) {
-                callbacks.onTimeUpdate();
-            }
-        });
-
-        player.on('seeked', () => {
-            if (callbacks.onSeeked) {
-                callbacks.onSeeked();
-            }
-        });
-
-        player.on('seeking', () => {
-            if (callbacks.onSeeking) {
-                callbacks.onSeeking();
-            }
-        });
-
-        player.on('playbackratechange', (data) => {
-            if (data && typeof data.playbackRate !== 'undefined') {
-                playbackRate = toNumber(data.playbackRate, playbackRate);
-            }
-            if (callbacks.onRateChange) {
-                callbacks.onRateChange();
-            }
-        });
-
-        const controller = {
-            getCurrentTime: () => currentTime,
-            getDuration: () => duration,
-            getPlaybackRate: () => playbackRate,
-            setCurrentTime: (t) => {
-                player.setCurrentTime(t).catch(() => null);
-            },
-            setPlaybackRate: (r) => {
-                player.setPlaybackRate(r).catch(() => null);
-            }
-        };
-
-        return controller;
     });
 };
 
@@ -648,9 +587,6 @@ export const init = (params) => {
     const elStatusBadge = document.getElementById('videotracker-status-badge');
     const elFastForwardHint = document.getElementById('videotracker-ff-hint');
 
-    const objectivesWrap = document.querySelector('.vt-objectives');
-    const objectiveInputs = Array.from(document.querySelectorAll('.vt-objective-checkbox'));
-
     const LS_KEY = `videotracker_progress_cmid_${cmid}_vt_${instanceid}`;
 
     let goalAlreadyReached = false;
@@ -716,25 +652,10 @@ export const init = (params) => {
         }
     };
 
-    const setObjectivesEnabled = (percent) => {
-        if (!objectiveInputs.length) {
-            return;
-        }
-        const enable = (minpct <= 0) || percent >= minpct;
-        objectiveInputs.forEach((input) => {
-            input.disabled = !enable;
-        });
-        if (objectivesWrap) {
-            objectivesWrap.setAttribute('data-objectives-disabled', enable ? '0' : '1');
-        }
-    };
-
     const paint = (pct, completed, state) => {
         const percent = clamp(Number(pct) || 0, 0, 100);
 
         setGoalReached(percent);
-        setObjectivesEnabled(percent);
-
         if (elPercent) {
             elPercent.textContent = `${percent}%`;
             elPercent.style.visibility = 'visible';
@@ -1101,19 +1022,16 @@ export const init = (params) => {
             }
         }
 
-        Ajax.call([{
-            methodname: 'mod_videotracker_update_progress',
-            args: {
-                cmid,
-                videotrackerid: instanceid,
-                duration: toNumber(getDuration(), 0),
-                currenttime: currentTimePayload,
-                rate: toNumber(getPlaybackRate(), 1),
-                state,
-                seq,
-                clientts: Math.floor(Date.now() / 1000)
-            }
-        }])[0].then(r => {
+        callProgressService({
+            cmid,
+            videotrackerid: instanceid,
+            duration: toNumber(getDuration(), 0),
+            currenttime: currentTimePayload,
+            rate: toNumber(getPlaybackRate(), 1),
+            state,
+            seq,
+            clientts: Math.floor(Date.now() / 1000)
+        }).then(r => {
             const responsePercent = clamp(Number(r.percent) || 0, 0, 100);
             const responseLastPos = toNumber(r.lastpos, 0);
             const serverResetNow = responsePercent <= 0 && responseLastPos <= 0 && !r.completed && !r.moodlecompleted;
@@ -1234,34 +1152,6 @@ export const init = (params) => {
 
         resumeApplied = true;
     };
-
-    if (objectiveInputs.length) {
-        objectiveInputs.forEach((input) => {
-            input.addEventListener('change', () => {
-                const idx = Number(input.dataset.objIndex || 0);
-                if (!idx) {
-                    return;
-                }
-
-                Ajax.call([{
-                    methodname: 'mod_videotracker_set_objective',
-                    args: {
-                        cmid,
-                        videotrackerid: instanceid,
-                        objective: idx,
-                        checked: input.checked ? 1 : 0
-                    }
-                }])[0].then((r) => {
-                    if (r && typeof r.completed !== 'undefined') {
-                        const pct = (typeof r.percent !== 'undefined') ? r.percent : percentInit;
-                        const completed = !!r.completed || !!r.moodlecompleted;
-                        paintStable(pct, completed, 'paused');
-                    }
-                    return null;
-                }).catch(() => null);
-            });
-        });
-    }
 
     const handleReady = () => {
         nearEndSyncSent = false;

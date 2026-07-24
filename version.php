@@ -26,11 +26,12 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_videotracker';
 
-// Submission build with security hardening and final language-ordering cleanup.
-$plugin->version   = 2026070302;
+// Keep this below the corresponding Pro build so Pro can upgrade this edition in place.
+$plugin->version   = 2026072400;
 
-// Moodle 4.5 (keep existing requirement baseline).
-$plugin->requires  = 2024042200;
+// Moodle 4.5 or later.
+$plugin->requires  = 2024100700;
+$plugin->supported = [405, 502];
 
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0.3';
+$plugin->release   = '1.2';

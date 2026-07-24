@@ -44,8 +44,8 @@ $ack = optional_param('ack', 0, PARAM_BOOL);
 $userid = optional_param('userid', 0, PARAM_INT);
 
 $videotracker = $DB->get_record('videotracker', ['id' => $cm->instance], '*', MUST_EXIST);
-$reportsenabled = \mod_videotracker\local\license_enforcer::reports_enabled();
-$showfreeresettools = $canresetprogress && !$reportsenabled;
+$reportsenabled = true;
+$showfreeresettools = false;
 
 $PAGE->set_url('/mod/videotracker/view.php', ['id' => $cm->id]);
 $PAGE->set_title(format_string($videotracker->name));
@@ -220,22 +220,7 @@ if ($progress) {
     $obj3checked = (int) $progress->obj3;
 }
 
-$licensestate = \mod_videotracker\local\license_enforcer::get_runtime_state();
-$licenseuicontext = \mod_videotracker\local\license_enforcer::admin_ui_context();
-$reportsenabled = \mod_videotracker\local\license_enforcer::reports_enabled();
-$subtitlesenabled = \mod_videotracker\local\license_enforcer::subtitles_enabled();
-$objectivesenabled = \mod_videotracker\local\license_enforcer::objectives_enabled();
-$playbackcontrolsenabled = \mod_videotracker\local\license_enforcer::advanced_playback_controls_enabled();
-$systemcontext = \context_system::instance();
-$roleswitched = function_exists('is_role_switched') ? is_role_switched($course->id) : false;
-$canmanagelicense = has_capability('moodle/site:config', $systemcontext);
-$canmanageactivity = has_capability('moodle/course:manageactivities', $context);
 $canviewreports = has_capability('mod/videotracker:viewreports', $context);
-$canmanagesubtitles = has_capability('mod/videotracker:managesubtitles', $context);
-$showlicensepanel = !$roleswitched && ($canmanagelicense || $canmanageactivity || $canviewreports || $canmanagesubtitles);
-$licensesettingsurl = $canmanagelicense
-    ? new moodle_url('/admin/settings.php', ['section' => 'modsettingvideotrackerlicense'])
-    : null;
 $reporturl = ($reportsenabled && $canviewreports)
     ? new moodle_url('/mod/videotracker/report.php', ['id' => $cm->id])
     : null;
@@ -297,115 +282,27 @@ if ($videosource === 'upload') {
 $usehtml5 = ($videosource === 'upload' || $videosource === 'external');
 $hasexternalsource = !empty($externalid) || ($externalprovider === 'vimeo' && $externalurl !== '');
 $posterurl = videotracker_get_poster_file_url($context);
-$subtitletracks = [];
-$subtitlesmanageurl = null;
-
-if ($videosource === 'upload' && $subtitlesenabled) {
-    $subtitletracks = \mod_videotracker\local\subtitle_manager::get_ready_tracks_for_activity((int) $videotracker->id);
-    if ($canmanagesubtitles) {
-        $subtitlesmanageurl = \mod_videotracker\local\subtitle_manager::get_manage_url($cm);
-    }
-}
-
 // Completion and playback settings.
 $minpercent = (int) ($videotracker->completionminpercent ?? 0);
 $minpercent = ($minpercent > 0) ? max(1, min(100, $minpercent)) : 0;
-$allowfastforward = isset($videotracker->allowfastforward) ? (int) $videotracker->allowfastforward : 1;
-$controlslistnodownload = !empty($videotracker->controlslistnodownload) ? 1 : 0;
-$disablepip = !empty($videotracker->disablepip) ? 1 : 0;
-$maxplaybackrate = isset($videotracker->maxplaybackrate) ? (float) $videotracker->maxplaybackrate : 0.0;
-$disablecontextmenu = !empty($videotracker->disablecontextmenu) ? 1 : 0;
-
-if (!$playbackcontrolsenabled) {
-    $allowfastforward = 1;
-    $controlslistnodownload = 0;
-    $disablepip = 0;
-    $maxplaybackrate = 0.0;
-    $disablecontextmenu = 0;
-}
+$allowfastforward = 1;
+$maxplaybackrate = 0.0;
+$disablecontextmenu = 0;
 $trackingenabled = true;
-$initialstatustext = $trackingenabled
-    ? get_string('status_init', 'videotracker')
-    : ($showlicensepanel ? get_string('licensepremiumdisabled', 'videotracker') : '');
+$initialstatustext = get_string('status_init', 'videotracker');
 
 $goaltext = $minpercent > 0
     ? get_string('reachtocomplete', 'videotracker', $minpercent)
     : '';
 
-$objectives = [
-    1 => trim((string) ($videotracker->objective1 ?? '')),
-    2 => trim((string) ($videotracker->objective2 ?? '')),
-    3 => trim((string) ($videotracker->objective3 ?? '')),
-];
-$objectives = array_filter($objectives, function ($text) {
-    return $text !== '';
-});
-$objectivechecks = [
-    1 => (int) $obj1checked,
-    2 => (int) $obj2checked,
-    3 => (int) $obj3checked,
-];
-$objectivesdisabled = ($minpercent > 0 && $percentinit < $minpercent);
-if (!$objectivesenabled) {
-    $objectives = [];
-}
-
 echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($videotracker->name));
 
-if ($showlicensepanel) {
-    $badgeclass = 'bg-secondary text-white';
-    $alertclass = 'alert-secondary';
-    if (($licenseuicontext['badgeclass'] ?? '') === 'success') {
-        $badgeclass = 'bg-success text-white';
-        $alertclass = 'alert-success';
-    } else if (($licenseuicontext['badgeclass'] ?? '') === 'warning') {
-        $badgeclass = 'bg-warning text-dark';
-        $alertclass = 'alert-warning';
-    }
-
-    $actions = '';
-    if ($reporturl instanceof moodle_url) {
-        $actions .= html_writer::link($reporturl, get_string('reporttitle', 'videotracker'), [
-            'class' => 'btn btn-secondary',
-        ]);
-    }
-    if ($subtitlesmanageurl instanceof moodle_url) {
-        $actions .= ($actions === '' ? '' : ' ') . html_writer::link(
-            $subtitlesmanageurl,
-            get_string('subtitlesmanage', 'videotracker'),
-            ['class' => 'btn btn-outline-secondary']
-        );
-    }
-    if ($licensesettingsurl instanceof moodle_url) {
-        $actions .= ($actions === '' ? '' : ' ') . html_writer::link(
-            $licensesettingsurl,
-            get_string('licenseopenlicensesettings', 'videotracker'),
-            ['class' => 'btn btn-primary vt-license-primary-action']
-        );
-    }
-
-    if ($actions !== '') {
-        $statushtml = '';
-        $mode = (string) ($licenseuicontext['mode'] ?? '');
-        if ($mode === 'premium' || $mode === 'grace') {
-            $defaultlabel = $mode === 'premium'
-                ? get_string('licensemodepremium', 'videotracker')
-                : get_string('licensemodegrace', 'videotracker');
-            $statushtml = html_writer::div(
-                html_writer::span(
-                    s((string) ($licenseuicontext['badgelabel'] ?? $defaultlabel)),
-                    'badge ' . $badgeclass . ' vt-license-badge'
-                ),
-                'vt-license-status'
-            );
-        }
-
-        echo html_writer::div(
-            html_writer::div($actions, 'vt-license-actions') . $statushtml,
-            'vt-license-panel alert ' . $alertclass . ' d-flex flex-wrap justify-content-between align-items-center gap-2'
-        );
-    }
+if ($reporturl instanceof moodle_url) {
+    echo html_writer::div(
+        html_writer::link($reporturl, get_string('reporttitle', 'videotracker'), ['class' => 'btn btn-secondary']),
+        'mb-3'
+    );
 }
 
 if ($showfreeresettools) {
@@ -489,12 +386,6 @@ if (($usehtml5 && empty($videourl)) || (!$usehtml5 && !$hasexternalsource)) {
         'playsinline' => 'playsinline',
         'style' => 'width:100%; max-width:980px;',
     ];
-    if ($controlslistnodownload) {
-        $videoattributes['controlslist'] = 'nodownload';
-    }
-    if ($disablepip) {
-        $videoattributes['disablepictureinpicture'] = 'disablepictureinpicture';
-    }
     if ($posterurl) {
         $videoattributes['poster'] = $posterurl->out(false);
     }
@@ -503,31 +394,9 @@ if (($usehtml5 && empty($videourl)) || (!$usehtml5 && !$hasexternalsource)) {
     if (!empty($mime)) {
         $sourceattributes['type'] = $mime;
     }
-    $trackhtml = '';
-    if ($videosource === 'upload' && !empty($subtitletracks)) {
-        foreach ($subtitletracks as $track) {
-            $trackurl = \mod_videotracker\local\subtitle_manager::get_track_file_url($track);
-            if (!$trackurl) {
-                continue;
-            }
-
-            $trackattributes = [
-                'kind' => 'subtitles',
-                'src' => $trackurl->out(false),
-                'srclang' => (string) ($track->langcode ?: 'en'),
-                'label' => \mod_videotracker\local\subtitle_manager::get_track_display_label($track),
-            ];
-            if ((string) $track->tracktype === \mod_videotracker\local\subtitle_manager::TRACKTYPE_SOURCE) {
-                $trackattributes['default'] = 'default';
-            }
-
-            $trackhtml .= html_writer::empty_tag('track', $trackattributes);
-        }
-    }
-
     $mediahtml = html_writer::tag(
         'video',
-        html_writer::empty_tag('source', $sourceattributes) . $trackhtml . get_string('html5videonotsupported', 'videotracker'),
+        html_writer::empty_tag('source', $sourceattributes) . get_string('html5videonotsupported', 'videotracker'),
         $videoattributes
     );
 } else {
@@ -548,9 +417,11 @@ if (($usehtml5 && empty($videourl)) || (!$usehtml5 && !$hasexternalsource)) {
             'id' => 'videotracker-video',
             'class' => 'vt-embed-inner',
             'src' => $vimeoembedurl,
-            'allow' => 'autoplay; fullscreen; picture-in-picture; encrypted-media',
+            'allow' => 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',
             'allowfullscreen' => 'allowfullscreen',
-            'referrerpolicy' => 'strict-origin-when-cross-origin',
+            'webkitallowfullscreen' => 'webkitallowfullscreen',
+            'mozallowfullscreen' => 'mozallowfullscreen',
+            'title' => format_string($videotracker->name),
             'data-provider' => $externalprovider,
             'data-videoid' => $externalid,
         ]);
@@ -585,7 +456,11 @@ $progresspanel = html_writer::div(
     html_writer::div(
         html_writer::div(get_string('videoprogress', 'videotracker'), 'vt-panel-title') .
         html_writer::div(
-            html_writer::span('0%', 'vt-percent', ['id' => 'videotracker-percent']) .
+            html_writer::span(
+                get_string('percentvalue', 'videotracker', 0),
+                'vt-percent',
+                ['id' => 'videotracker-percent']
+            ) .
             html_writer::span(
                 $initialstatustext,
                 'vt-status-text',
@@ -624,49 +499,13 @@ $progresspanel = html_writer::div(
     ['style' => 'margin-top:12px;']
 );
 
-$objectiveshtml = '';
-if (!empty($objectives)) {
-    $objectivelist = '';
-    foreach ($objectives as $idx => $text) {
-        $checkboxattributes = [
-            'type' => 'checkbox',
-            'class' => 'vt-objective-checkbox',
-            'data-obj-index' => (int) $idx,
-        ];
-        if (!empty($objectivechecks[$idx])) {
-            $checkboxattributes['checked'] = 'checked';
-        }
-        if ($objectivesdisabled) {
-            $checkboxattributes['disabled'] = 'disabled';
-        }
-
-        $objectivelist .= html_writer::tag(
-            'label',
-            html_writer::empty_tag('input', $checkboxattributes) .
-            html_writer::span(s($text), 'vt-objective-text'),
-            ['class' => 'vt-objective']
-        );
-    }
-
-    $objectiveshtml = html_writer::div(
-        html_writer::div(get_string('objectivesheader', 'videotracker'), 'vt-objectives-title') .
-        html_writer::div(get_string('objectiveshint', 'videotracker'), 'vt-objectives-hint') .
-        html_writer::div($objectivelist, 'vt-objectives-list'),
-        'vt-objectives',
-        ['data-objectives-disabled' => $objectivesdisabled ? '1' : '0']
-    );
-}
-
 echo html_writer::start_tag('div', $rootattributes);
 echo $mediahtml;
 echo $progresspanel;
-echo $objectiveshtml;
 echo html_writer::end_tag('div');
 
 if ($trackingenabled) {
-    // Progress tracking and watch-based completion remain available in the
-    // free runtime. Premium gating applies only to advanced capabilities such
-    // as reports, AI subtitles, objectives, and playback restrictions.
+    // Progress tracking and watch-based completion are core Free features.
     $PAGE->requires->js_call_amd('mod_videotracker/tracker', 'init', [
         'cmid' => (int) $cm->id,
         'instanceid' => (int) $videotracker->id,

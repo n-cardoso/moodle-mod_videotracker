@@ -97,11 +97,7 @@ function videotracker_build_record(stdClass $data): stdClass {
     $r->introformat = isset($data->introformat) ? (int) $data->introformat : 0;
 
     $source = isset($data->videosource) ? clean_param((string) $data->videosource, PARAM_ALPHANUMEXT) : 'upload';
-    if ($source === 'vimeo') {
-        // Vimeo source is temporarily hidden; persist as generic external source.
-        $source = 'external';
-    }
-    $allowedsources = ['upload', 'youtube', 'external'];
+    $allowedsources = ['upload', 'youtube', 'vimeo', 'external'];
     if (!in_array($source, $allowedsources, true)) {
         $source = 'upload';
     }
@@ -121,36 +117,16 @@ function videotracker_build_record(stdClass $data): stdClass {
     $min = isset($data->completionminpercent) ? (int) $data->completionminpercent : 0;
     $r->completionminpercent = max(0, min(100, $min));
 
-    if (isset($data->allowfastforward)) {
-        $r->allowfastforward = !empty($data->allowfastforward) ? 1 : 0;
-    } else {
-        $r->allowfastforward = 1;
-    }
-
-    $r->controlslistnodownload = !empty($data->controlslistnodownload) ? 1 : 0;
-    $r->disablepip = !empty($data->disablepip) ? 1 : 0;
-    $r->disablecontextmenu = !empty($data->disablecontextmenu) ? 1 : 0;
-    $rate = $data->maxplaybackrate ?? 0;
-    if (is_string($rate)) {
-        $map = [
-            'rate_0' => 0.0,
-            'rate_1' => 1.0,
-            'rate_1_25' => 1.25,
-            'rate_1_5' => 1.5,
-            'rate_2' => 2.0,
-        ];
-        if (isset($map[$rate])) {
-            $rate = $map[$rate];
-        }
-    }
-    if (!is_numeric($rate)) {
-        $rate = 0.0;
-    }
-    $r->maxplaybackrate = max(0.0, min(4.0, (float) $rate));
-
-    $r->objective1 = isset($data->objective1) ? trim((string) $data->objective1) : '';
-    $r->objective2 = isset($data->objective2) ? trim((string) $data->objective2) : '';
-    $r->objective3 = isset($data->objective3) ? trim((string) $data->objective3) : '';
+    // Free does not restrict normal player controls. These compatibility
+    // columns are retained so a later Pro upgrade can happen in place.
+    $r->allowfastforward = 1;
+    $r->controlslistnodownload = 0;
+    $r->disablepip = 0;
+    $r->disablecontextmenu = 0;
+    $r->maxplaybackrate = 0.0;
+    $r->objective1 = '';
+    $r->objective2 = '';
+    $r->objective3 = '';
 
     $r->timemodified = time();
     return $r;
@@ -384,13 +360,7 @@ function videotracker_add_instance(stdClass $data, ?mod_videotracker_mod_form $m
 function videotracker_update_instance(stdClass $data, ?mod_videotracker_mod_form $mform = null): bool {
     global $DB;
 
-    $oldrecord = $DB->get_record('videotracker', ['id' => $data->instance], 'id, videosource', MUST_EXIST);
-    $beforehash = '';
-    if (!empty($data->coursemodule)) {
-        $context = context_module::instance((int) $data->coursemodule);
-        $beforefile = videotracker_get_video_file($context);
-        $beforehash = $beforefile ? (string) $beforefile->get_contenthash() : '';
-    }
+    $DB->get_record('videotracker', ['id' => $data->instance], 'id', MUST_EXIST);
 
     videotracker_apply_default_gradepass_from_minpercent($data);
 
@@ -402,21 +372,6 @@ function videotracker_update_instance(stdClass $data, ?mod_videotracker_mod_form
     if (!empty($data->coursemodule)) {
         videotracker_save_video_file($data, (int) $data->coursemodule);
         videotracker_save_poster_file($data, (int) $data->coursemodule);
-    }
-
-    $sourcechanged = ((string) ($oldrecord->videosource ?? 'upload') !== (string) $record->videosource);
-    if (!empty($data->coursemodule)) {
-        $context = context_module::instance((int) $data->coursemodule);
-        $afterfile = videotracker_get_video_file($context);
-        $afterhash = $afterfile ? (string) $afterfile->get_contenthash() : '';
-        $sourcechanged = $sourcechanged || ($beforehash !== $afterhash);
-    }
-
-    if ($sourcechanged || (string) $record->videosource !== 'upload') {
-        \mod_videotracker\local\subtitle_manager::delete_all_for_activity(
-            (int) $record->id,
-            !empty($data->coursemodule) ? (int) $data->coursemodule : 0
-        );
     }
 
     // Update grade item with gradepass.
@@ -451,10 +406,6 @@ function videotracker_delete_instance(int $id): bool {
         $DB->delete_records('videotracker_progress', ['videotrackerid' => $id]);
     }
 
-    if ($DB->get_manager()->table_exists('videotracker_subtitles')) {
-        \mod_videotracker\local\subtitle_manager::delete_all_for_activity($id, $cm ? (int) $cm->id : 0);
-    }
-
     if ($inst) {
         $DB->delete_records('videotracker', ['id' => $id]);
     }
@@ -482,7 +433,7 @@ function videotracker_pluginfile($course, $cm, $context, $filearea, $args, $forc
     require_login($course, false, $cm);
     require_capability('mod/videotracker:view', $context);
 
-    if (!in_array($filearea, ['content', 'poster', 'subtitles'], true)) {
+    if (!in_array($filearea, ['content', 'poster'], true)) {
         return false;
     }
 
@@ -501,7 +452,7 @@ function videotracker_pluginfile($course, $cm, $context, $filearea, $args, $forc
         return false;
     }
 
-    if ($filearea === 'poster' || $filearea === 'subtitles') {
+    if ($filearea === 'poster') {
         $forcedownload = false;
     }
 

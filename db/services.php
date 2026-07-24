@@ -34,13 +34,4 @@ $functions = [
         'services'    => [MOODLE_OFFICIAL_MOBILE_SERVICE],
         'capabilities' => 'mod/videotracker:view',
     ],
-    'mod_videotracker_set_objective' => [
-        'classname'   => 'mod_videotracker\external\set_objective',
-        'methodname'  => 'execute',
-        'description' => 'Set a learning objective completion checkbox',
-        'type'        => 'write',
-        'ajax'        => true,
-        'services'    => [MOODLE_OFFICIAL_MOBILE_SERVICE],
-        'capabilities' => 'mod/videotracker:view',
-    ],
 ];

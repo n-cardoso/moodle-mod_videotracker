@@ -58,13 +58,8 @@ class custom_completion extends activity_custom_completion {
             return [];
         }
 
-        $objectives = $this->get_objectives();
-        $key = empty($objectives)
-            ? 'completiondetail:completionminpercent'
-            : 'completiondetail:completionminpercent_with_objectives';
-
         return [
-            'completionminpercent' => get_string($key, 'videotracker', $min),
+            'completionminpercent' => get_string('completiondetail:completionminpercent', 'videotracker', $min),
         ];
     }
 
@@ -94,71 +89,10 @@ class custom_completion extends activity_custom_completion {
         $completed = !empty($p->completed);
 
         if ($completed || $percent >= $min) {
-            if ($this->objectives_met($p)) {
-                return COMPLETION_COMPLETE;
-            }
+            return COMPLETION_COMPLETE;
         }
 
         return COMPLETION_INCOMPLETE;
-    }
-
-    /**
-     * Check if all configured objectives are marked.
-     *
-     * @param \stdClass $progress Learner progress row.
-     * @return bool
-     */
-    private function objectives_met(\stdClass $progress): bool {
-        $objectives = $this->get_objectives();
-        if (empty($objectives)) {
-            return true;
-        }
-
-        $checks = [
-            1 => !empty($progress->obj1),
-            2 => !empty($progress->obj2),
-            3 => !empty($progress->obj3),
-        ];
-
-        foreach ($objectives as $idx => $text) {
-            if (empty($checks[$idx])) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Get configured objectives for this activity (non-empty).
-     */
-    private function get_objectives(): array {
-        global $DB;
-
-        if (empty($this->cm) || empty($this->cm->instance)) {
-            return [];
-        }
-
-        $rec = $DB->get_record(
-            'videotracker',
-            ['id' => $this->cm->instance],
-            'objective1, objective2, objective3',
-            IGNORE_MISSING
-        );
-
-        if (!$rec) {
-            return [];
-        }
-
-        $objectives = [
-            1 => trim((string) ($rec->objective1 ?? '')),
-            2 => trim((string) ($rec->objective2 ?? '')),
-            3 => trim((string) ($rec->objective3 ?? '')),
-        ];
-
-        return array_filter($objectives, function ($text) {
-            return $text !== '';
-        });
     }
 
     /**

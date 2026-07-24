@@ -171,7 +171,8 @@ class update_progress extends external_api {
         }
         $rate = isset($params['rate']) ? (float) $params['rate'] : 1.0;
         $rate = max(0.25, min(4.0, $rate));
-        $maxrate = isset($vt->maxplaybackrate) ? (float) $vt->maxplaybackrate : 0.0;
+        // The Free edition does not enforce playback-rate restrictions.
+        $maxrate = 0.0;
         if ($maxrate > 0) {
             $rate = min($rate, $maxrate);
         }
@@ -199,9 +200,18 @@ class update_progress extends external_api {
             ];
         }
 
-        // Enforce fast-forward restriction (server-side sanity).
-        // Limit accepted forward jumps to realistic playtime progress.
-        $allowfastforward = !empty($vt->allowfastforward);
+        // Embedded players can report their final position just before the
+        // exact duration. Treat a genuine ended event near the end as 100%.
+        if (
+            $state === 'ended' &&
+            $duration > 0 &&
+            $currenttime >= max(0.0, $duration - 3.0)
+        ) {
+            $currenttime = $duration;
+        }
+
+        // Seeking is available in the Free edition.
+        $allowfastforward = true;
         if (!$allowfastforward) {
             $elapsed = $oldlastserverts > 0 ? max(0, $now - $oldlastserverts) : 0;
 
@@ -300,33 +310,8 @@ class update_progress extends external_api {
         // Completion rule: use configured min percent.
         $minpercent = isset($vt->completionminpercent) ? (int) $vt->completionminpercent : 0;
         $minpercent = max(0, min(100, $minpercent));
-        $objectives = [
-            1 => trim((string) ($vt->objective1 ?? '')),
-            2 => trim((string) ($vt->objective2 ?? '')),
-            3 => trim((string) ($vt->objective3 ?? '')),
-        ];
-        $objectives = array_filter($objectives, function ($text) {
-            return $text !== '';
-        });
-
-        $objectivechecks = [
-            1 => (int) $oldobj1,
-            2 => (int) $oldobj2,
-            3 => (int) $oldobj3,
-        ];
-
-        $objectivesmet = true;
-        if (!empty($objectives)) {
-            foreach ($objectives as $idx => $text) {
-                if (empty($objectivechecks[$idx])) {
-                    $objectivesmet = false;
-                    break;
-                }
-            }
-        }
-
         $completed = 0;
-        if ($minpercent > 0 && $percent >= $minpercent && $objectivesmet) {
+        if ($minpercent > 0 && $percent >= $minpercent) {
             $completed = 1;
         }
 
@@ -611,19 +596,4 @@ class update_progress extends external_api {
         return false;
     }
 
-    /**
-     * Return cached learner progress without persisting new premium tracking data.
-     *
-     * @param \stdClass|false $progress
-     * @return array
-     */
-    private static function license_denied_response($progress): array {
-        return [
-            'percent' => $progress ? (int) $progress->percent : 0,
-            'completed' => $progress ? (int) $progress->completed : 0,
-            'moodlecompleted' => $progress ? (int) $progress->completed : 0,
-            'lastpos' => $progress ? (int) $progress->lastpos : 0,
-            'watched' => $progress ? (float) $progress->watched : 0.0,
-        ];
-    }
 }

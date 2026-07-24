@@ -225,32 +225,45 @@ function videotracker_reset_user_progress(stdClass $course, stdClass $cm, stdCla
         $DB->update_record('videotracker_progress', $progress);
     }
 
-    $grade = new stdClass();
-    $grade->userid = $userid;
-    $grade->rawgrade = null;
-    $grade->rawgrademin = 0;
-    $grade->rawgrademax = 100;
-    $grade->timemodified = $now;
-
-    grade_update(
-        'mod/videotracker',
-        (int) $course->id,
-        'mod',
-        'videotracker',
-        (int) $cm->instance,
-        0,
-        [$userid => $grade],
-        [
-            'itemname' => clean_param($videotracker->name, PARAM_TEXT),
-            'gradetype' => GRADE_TYPE_VALUE,
-            'grademin' => 0,
-            'grademax' => 100,
-        ]
-    );
+    videotracker_clear_user_grade((int) $course->id, (int) $cm->instance, $userid);
 
     $completion = new completion_info($course);
     $cminfo = cm_info::create($cm);
     $completion->update_state($cminfo, COMPLETION_UNKNOWN, $userid);
+}
+
+/**
+ * Clear one learner's Video Tracker grade through Moodle's module grade API.
+ *
+ * @param int $courseid Course id.
+ * @param int $instanceid Video Tracker instance id.
+ * @param int $userid User id.
+ * @param bool $regrade Whether to regrade immediately.
+ * @return void
+ */
+function videotracker_clear_user_grade(
+    int $courseid,
+    int $instanceid,
+    int $userid,
+    bool $regrade = true
+): void {
+    $grade = new stdClass();
+    $grade->userid = $userid;
+    $grade->rawgrade = null;
+
+    grade_update(
+        'mod/videotracker',
+        $courseid,
+        'mod',
+        'videotracker',
+        $instanceid,
+        0,
+        [$userid => $grade]
+    );
+
+    if ($regrade) {
+        grade_regrade_final_grades($courseid);
+    }
 }
 
 /**
@@ -397,12 +410,15 @@ function videotracker_build_vimeo_embed_url(string $url, string $fallbackid = ''
 
     $embed = 'https://player.vimeo.com/video/' . rawurlencode($videoid);
     $params = [
-        'dnt=1',
-        'api=1',
-        'player_id=videotracker-video',
+        'pip=1',
+        'title=0',
+        'byline=0',
+        'playsinline=1',
+        'controls=1',
+        'autoplay=0',
     ];
     if ($hash !== '' && preg_match('~^[A-Za-z0-9]+$~', $hash)) {
-        $params[] = 'h=' . rawurlencode($hash);
+        array_unshift($params, 'h=' . rawurlencode($hash));
     }
 
     return $embed . '?' . implode('&', $params);

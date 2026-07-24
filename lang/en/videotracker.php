@@ -24,15 +24,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['allowfastforward'] = 'Allow fast-forward';
 
-$string['allowfastforward_help'] = 'If disabled, students cannot skip ahead beyond what they have already watched.';
 
 $string['completed'] = 'Completed';
 
 $string['completiondetail:completionminpercent'] = 'To view at least {$a}% of the video';
 
-$string['completiondetail:completionminpercent_with_objectives'] = 'To view at least {$a}% of the video and mark all objectives';
 
 $string['completionminpercent'] = 'Required percentage';
 
@@ -40,19 +37,12 @@ $string['completionminpercent_help'] = 'Minimum percentage of the video that mus
 
 $string['completionrequired'] = 'Completion % required';
 
-$string['controlslistnodownload'] = 'Disable download button';
 
-$string['controlslistnodownload_help'] = 'Adds the "nodownload" hint to the browser controls (may be ignored by some browsers and does not fully prevent downloads).';
 
-$string['disablecontextmenu'] = 'Disable right-click menu';
 
-$string['disablecontextmenu_help'] = 'Blocks the context menu on the video element, which may deter casual downloads but does not fully prevent them.';
 
-$string['disablepip'] = 'Disable picture-in-picture';
 
-$string['disablepip_help'] = 'Prevents picture-in-picture mode (if supported by the browser).';
 
-$string['downloadcsv'] = 'Download CSV';
 
 $string['embedratio'] = 'Player aspect ratio';
 
@@ -78,7 +68,7 @@ $string['error:novideo'] = 'No video has been configured for this activity.';
 
 $string['eventcoursemoduleviewed'] = 'Video Tracker activity viewed';
 
-$string['externallimits'] = 'Important: External players (YouTube/Vimeo) have limited control features. Fast-forward restrictions and playback-rate caps are best-effort only, and download/PiP controls cannot be enforced.';
+$string['externallimits'] = 'External providers control some player behaviour and may apply their own privacy terms.';
 
 $string['externalurl'] = 'External video URL';
 
@@ -93,6 +83,10 @@ $string['filterreset'] = 'Reset';
 $string['filtersearch'] = 'Search';
 
 $string['filterstatus'] = 'Status';
+
+$string['freeedition'] = 'Free edition';
+
+$string['freeedition_desc'] = 'Video Tracker Free works without a licence, external account, or API key. Activity settings are configured by teachers in each course.';
 
 $string['gradeheader'] = 'Grade';
 
@@ -112,361 +106,183 @@ $string['lastposition'] = 'Last position (sec)';
 
 $string['lastviewed'] = 'Last viewed';
 
-$string['licenseactionautosave'] = 'The buttons below also save the values entered in this section.';
 
-$string['licenseactionnote'] = 'Start a 14-day trial with your email, or enter a purchased license key and activate it.';
 
-$string['licenseactionnoteactive'] = 'This site already has an active license. Update these details only if you are replacing the current license.';
 
-$string['licenseactions'] = 'Activation';
 
-$string['licenseactionsaveconnectionfirst'] = 'If you changed the server URL or shared secret below, save the page before using Activate or Validate.';
 
-$string['licenseactivate'] = 'Activate License';
 
-$string['licenseactivationhelp'] = 'For a trial, only the email and consent checkbox are needed. For a paid license, enter the license key and license email.';
 
-$string['licenseactivationmanagetitle'] = 'Activation details';
 
-$string['licenseactivationrequiredstatus'] = 'Activation required';
 
-$string['licenseactivations'] = 'Activations used / limit';
 
-$string['licenseactivationtitle'] = 'Activate Video Tracker';
 
-$string['licenseactivitylog'] = 'Recent license activity';
 
-$string['licenseactivitylogempty'] = 'No license activity logged yet.';
 
-$string['licenseactivitylogintro'] = 'Latest license requests are listed here, including successful validations.';
 
-$string['licenseadmincheckintervalhours'] = 'Admin refresh interval (hours)';
 
-$string['licenseadmincheckintervalhours_desc'] = 'Minimum wait time between automatic license checks from this page.';
 
-$string['licenseadvancedsettingshelp'] = 'Only use these settings if support asks you to.';
 
-$string['licenseadvancedsettingsitem1'] = 'Use the server URL only if your Moodle licensing site is different from the default value.';
 
-$string['licenseadvancedsettingsitem2'] = 'Use the shared secret only if signed requests are enabled by the provider server.';
 
-$string['licenseadvancedsettingsitem3'] = 'Use the site URL override or instance ID only when support asks you to troubleshoot a specific setup.';
 
-$string['licenseadvancedsettingsitem4'] = 'The offline grace period is defined by the WordPress license server and is no longer edited in Moodle.';
 
-$string['licenseadvancedtogglehide'] = 'Hide advanced settings';
 
-$string['licenseadvancedtoggleshow'] = 'Show advanced settings';
 
-$string['licenseapisecret'] = 'WordPress API key / shared secret';
 
-$string['licenseapisecret_desc'] = 'Only needed when signed requests are enabled in WordPress. Paste the WordPress API key here. Do not use the customer license key in this field.';
 
-$string['licenseautorefreshnow'] = 'Refresh license status now';
 
-$string['licenseautorefreshpendingbody'] = 'This page needs to refresh the saved license status before showing the latest diagnostics and actions.';
 
-$string['licenseautorefreshpendingtitle'] = 'Refreshing saved license status';
 
-$string['licensebacktoactivity'] = 'Back to activity';
 
-$string['licenseclientemail'] = 'License email';
 
-$string['licenseclientemail_desc'] = 'Email used for trial activation. It is sent to the license server only when an admin starts a trial.';
 
-$string['licenseconnectionsettings'] = 'Advanced troubleshooting';
 
-$string['licensecontactsiteadmin'] = 'Contact your site administrator to activate a paid or trial license.';
 
-$string['licensecurrentstatus'] = 'Current status';
 
-$string['licensedeactivate'] = 'Deactivate License';
 
-$string['licensedemoreportbody'] = 'Reports, CSV export, and reset actions are premium features. Activate a paid or trial license to unlock the full report for this activity.';
 
-$string['licensedemoreporttitle'] = 'Premium report locked';
 
-$string['licensedemosubtitlesbody'] = 'Subtitle generation, translation, and management are premium features. Activate a paid or trial license to unlock subtitles for this activity.';
 
-$string['licensedemosubtitlestitle'] = 'Premium subtitles locked';
 
-$string['licensedemoviewnotice'] = 'Restricted demo mode is active. Video playback remains available, but premium tracking, reports, objectives, and playback enforcement require an active paid or trial license.';
 
-$string['licensediagnostics'] = 'Diagnostics';
 
-$string['licensediagnosticsintro'] = 'Use this section only for troubleshooting or when support asks for more technical detail.';
 
-$string['licensediagnosticsserverurl'] = 'Server URL';
 
-$string['licensediagnosticssummary'] = 'Open technical diagnostics';
 
-$string['licensediagnosticstechnical'] = 'Technical details';
 
-$string['licensediagnosticsupdates'] = 'Update state';
 
-$string['licensediagnosticsupdatesummary'] = 'Installed {$a->installed}; latest {$a->latest}; update available: {$a->available}.';
 
-$string['licensedomain'] = 'Domain';
 
-$string['licenseenforcementactive'] = 'Premium features are enabled.';
 
-$string['licenseenforcementblocked'] = 'Premium features are currently restricted because the license is not valid.';
 
-$string['licenseerroractivationrequired'] = 'This license is valid, but it is not activated for this Moodle site. Click Activate License to register this site or use a different license.';
 
-$string['licenseerroremptyresponse'] = 'The license server returned an empty response.';
 
-$string['licenseerrorlog'] = 'Recent license errors';
 
-$string['licenseerrorlogaction'] = 'Action';
 
-$string['licenseerrorlogempty'] = 'No license errors logged yet.';
 
-$string['licenseerrorloghttp'] = 'HTTP';
 
-$string['licenseerrorlogintro'] = 'This table only shows failed requests.';
 
-$string['licenseerrorlogmessage'] = 'Message';
 
-$string['licenseerrorlogstatus'] = 'Status';
 
-$string['licenseerrorlogtime'] = 'Time';
 
-$string['licenseerrormalformedresponse'] = 'The license server returned an invalid response.';
 
-$string['licenseerrormissingfields'] = 'Missing fields: {$a}.';
 
-$string['licenseerrornetwork'] = 'Could not reach the license server.';
 
-$string['licenseerrornotconfigured'] = 'License settings are incomplete. Configure the license before contacting the server.';
 
-$string['licenseerrorremote'] = 'The license server rejected the request.';
 
-$string['licenseexpirednotice'] = 'License expired. Premium features are now restricted until the license is renewed and validated again.';
 
-$string['licenseexpiredstatus'] = 'Expired';
 
-$string['licenseexpiresat'] = 'Expires at';
 
-$string['licensefeaturecompletion'] = 'Completion and grade progression';
 
-$string['licensefeatureobjectives'] = 'Learning objectives';
 
-$string['licensefeatureplayback'] = 'Playback restrictions and anti-skip controls';
 
-$string['licensefeaturereports'] = 'Reports, export, and reset tools';
 
-$string['licensefeaturesubtitles'] = 'Subtitle generation, translation, and track management';
 
-$string['licensefeaturetracking'] = 'Saved learner tracking and resume state';
 
-$string['licensefeaturevideoaccess'] = 'Video playback and activity access';
 
-$string['licensefirstinstallbody'] = 'Start your full-feature 14-day free trial now and test Video Tracker on this Moodle site in real conditions.';
 
-$string['licensefirstinstalldetail'] = '';
 
-$string['licensefirstinstallfeature1'] = 'Real watched progress tracking';
 
-$string['licensefirstinstallfeature2'] = 'Playback controls and anti-skip restrictions';
 
-$string['licensefirstinstallfeature3'] = 'Completion rules linked to video viewing';
 
-$string['licensefirstinstallfeature4'] = 'Reporting and engagement insights';
 
-$string['licensefirstinstallfeature5'] = 'Subtitle features';
 
-$string['licensefirstinstallfeaturestitle'] = 'See how it works for teachers and learners with:';
 
-$string['licensefirstinstallhavekey'] = 'If you already have a License key';
 
-$string['licensefirstinstallstep1'] = 'Enter email address';
 
-$string['licensefirstinstallstep2'] = 'Accept the consent checkbox';
 
-$string['licensefirstinstallstep3'] = 'Click Start free 14-day trial';
 
-$string['licensefirstinstallstepsintro'] = 'To activate your trial:';
 
-$string['licensefirstinstalltitle'] = 'Your Video Tracker plugin is installed!';
 
-$string['licenseformcompletionlocked'] = 'Trusted progress-based completion is premium. Activate a paid or trial license to configure completion thresholds and pass rules tied to video tracking.';
 
-$string['licenseformgeneralrestricted'] = 'Restricted demo mode is active. Teachers can still create the activity and learners can still watch the video, but premium tracking, reports, objectives, and playback enforcement remain locked until a paid or trial license is activated.';
 
-$string['licenseformobjectiveslocked'] = 'Learning objectives are premium. Activate a paid or trial license to configure and save objective tracking for this activity.';
 
-$string['licenseformplaybacklocked'] = 'Playback enforcement options are premium. Activate a paid or trial license to edit anti-skip, playback rate, download, PiP, and context menu controls.';
 
-$string['licensegetstartedbutton'] = 'Open LearnPlug website';
 
-$string['licensegetstartedhelp'] = 'For the fastest setup, enter your email below, accept the consent checkbox, and start the trial from Moodle.';
 
-$string['licensegetstartedintro'] = 'No license is active for this Moodle site. You can start a full-feature 14-day trial directly on this page or buy a license from LearnPlug.';
 
-$string['licensegetstartedtitle'] = 'Need a license?';
 
-$string['licensegetstartedwebsite'] = 'Website: {$a}';
 
-$string['licensegraceactive'] = 'Remote validation is currently offline. Premium features continue to work until {$a}.';
 
-$string['licensegracedays'] = 'Offline grace period (days)';
 
-$string['licensegracedays_desc'] = 'This value is controlled by the WordPress license server. If the server becomes temporarily unavailable after a successful validation, premium features may continue to work for this period. It does not keep expired, suspended, or invalid licenses active.';
 
-$string['licensegraceexpired'] = 'The remote validation grace period expired at {$a}. Premium features are now restricted until validation succeeds again.';
 
-$string['licensegracepolicydisplay'] = '{$a} days, managed by the license server.';
 
-$string['licensegraceuntil'] = 'Grace valid until';
 
-$string['licenseinstalledversion'] = 'Installed version';
 
-$string['licenseinstanceid'] = 'Instance ID';
 
-$string['licenseinstanceid_desc'] = 'Technical identifier for this Moodle site. Leave the generated value unless support asked you to change it.';
 
-$string['licensekeysetting'] = 'License key';
 
-$string['licensekeysetting_desc'] = 'Commercial license key for this Moodle site.';
 
-$string['licenselastcheckedat'] = 'Last checked';
 
-$string['licenselastcheckstatus'] = 'Last check status';
 
-$string['licenselastmessage'] = 'Last message';
 
-$string['licenselastsuccessat'] = 'Last successful validation';
 
-$string['licenselatestversion'] = 'Latest available version';
 
-$string['licensemodedemo'] = 'Restricted demo';
 
-$string['licensemodegrace'] = 'Offline grace';
 
-$string['licensemodepremium'] = 'Premium active';
 
-$string['licensenotavailable'] = 'Not available';
 
-$string['licenseopenlicensesettings'] = 'Open license settings';
 
-$string['licenseoverview'] = 'License summary';
 
-$string['licenseoverviewdetails'] = 'Key details';
 
-$string['licensepanelavailabletitle'] = 'Available now';
 
-$string['licensepaneldemoheadline'] = 'This activity is running in restricted demo mode.';
 
-$string['licensepanelgraceheadline'] = 'Premium access is temporarily protected by the offline grace period.';
 
-$string['licensepanellockedtitle'] = 'Locked until activation';
 
-$string['licensepanelpremiumheadline'] = 'Premium features are enabled for this Moodle site.';
 
-$string['licensepremiumdisabled'] = 'Premium learner tracking is temporarily disabled because the site license is not valid.';
 
-$string['licensepremiumsettingslocked'] = 'Premium settings are locked in restricted demo mode. Activate a paid or trial license to edit playback controls, objectives, reports, and completion tracking options.';
 
-$string['licenseproductslug'] = 'Product slug (optional)';
 
-$string['licenseproductslug_desc'] = 'Optional product code from the seller. Leave this empty unless your purchase email or support told you to use it.';
 
-$string['licenseproductslugtoggle'] = 'I have a product code from my purchase email';
 
-$string['licensequickstartstep1'] = 'Paste the license key from your purchase email.';
 
-$string['licensequickstartstep2'] = 'Paste the same billing email used for the purchase.';
 
-$string['licensequickstartstep3'] = 'If the seller gave you a product slug, paste it. Otherwise you can usually leave it empty.';
 
-$string['licensequickstartstep4'] = 'Click Activate License to enable premium features for this Moodle site.';
 
-$string['licensequickstarttitle'] = 'Before you start';
 
-$string['licenseruntimestate'] = 'Runtime state';
 
-$string['licenseserverurl'] = 'License server URL';
 
-$string['licenseserverurl_desc'] = 'Address of the WordPress licensing website. Most sites can keep the default value. If you paste a full /wp-json/license-server/v1 URL, the plugin will normalize it automatically.';
 
-$string['licensesettings'] = 'Video Tracker License';
 
-$string['licensesiteurl'] = 'Site URL override';
 
-$string['licensesiteurl_desc'] = 'Only change this if the site address sent to the license server must be different from this Moodle site URL.';
 
-$string['licensestarttrial'] = 'Start free 14-day trial';
 
-$string['licensestarttrialconsent'] = 'I agree to send this site URL and license email to the LearnPlug license server to create and activate the trial.';
 
-$string['licensestarttrialconsentinstall'] = 'I agree to share this email address with VideoTracker to activate my 14-day free trial.';
 
-$string['licensestarttrialinstallintro'] = 'The full-feature 14-day free trial will automatically be created on this site.';
 
-$string['licensestarttrialintro'] = 'A trial license will be created and activated automatically for this Moodle site.';
 
-$string['licensestarttrialmissingconsent'] = 'Confirm the trial consent checkbox before starting the trial.';
 
-$string['licensestarttrialmissingemail'] = 'Enter a valid email address before starting the trial.';
 
-$string['licensestarttrialmissingserver'] = 'The license server URL is not configured.';
 
-$string['licensestarttrialprivacy'] = 'This sends the license email, Moodle site URL, instance ID, Moodle version, and plugin version to the LearnPlug license server.';
 
-$string['licensestarttrialunexpectedresponse'] = 'The license server created the trial but did not return a license key.';
 
-$string['licensesuccessgeneric'] = 'License request completed successfully.';
 
-$string['licensesummaryhelp'] = 'This section shows the current activation state for this Moodle site.';
 
-$string['licensesummarytitle'] = 'License status';
 
-$string['licensetrialemailbody'] = 'Your LearnPlug Video Tracker 14-day trial is now active for {$a->sitefullname}.\n\nLicense details:\nLicense key: {$a->licensekey}\nLicense email: {$a->licenseemail}\nLicense type: {$a->licensetype}\nStatus: {$a->status}\nExpires at: {$a->expiresat}\nProduct slug: {$a->productslug}\nSite URL: {$a->siteurl}\n\nManage this license in Moodle:\n{$a->licensesettingsurl}';
 
-$string['licensetrialemailsubject'] = 'LearnPlug Video Tracker trial activated for {$a->sitefullname}';
 
-$string['licensetrialexpirednotice'] = 'Trial period ended. Premium features are now restricted. Upgrade to a paid license to continue.';
 
-$string['licensetype'] = 'License type';
 
-$string['licensetypepaid'] = 'Paid';
 
-$string['licensetypetrial'] = 'Trial';
 
-$string['licensetypetrialexpired'] = 'Trial expired';
 
-$string['licensetypetrialexpiredhelp'] = 'Trial period ended. Upgrade to a paid license to re-enable premium features.';
 
-$string['licenseupdateavailable'] = 'Update available';
 
-$string['licenseupdateavailableno'] = 'No';
 
-$string['licenseupdateavailableyes'] = 'Yes';
 
-$string['licenseupdatecheckedat'] = 'Update check timestamp';
 
-$string['licenseupdatedownloadurl'] = 'Update download URL';
 
-$string['licensevalidate'] = 'Validate Now';
 
-$string['licensevalidateonadminaccess'] = 'Validate on admin access';
 
-$string['licensevalidateonadminaccess_desc'] = 'When enabled, opening this page can refresh the saved license status automatically when needed.';
 
-$string['maxplaybackrate'] = 'Maximum playback rate';
 
-$string['maxplaybackrate_1_25x'] = '1.25×';
 
-$string['maxplaybackrate_1_5x'] = '1.5×';
 
-$string['maxplaybackrate_1x'] = '1.0×';
 
-$string['maxplaybackrate_2x'] = '2.0×';
 
-$string['maxplaybackrate_help'] = 'Limit the highest playback speed students can select. Use "No limit" to allow all speeds.';
 
-$string['maxplaybackrate_none'] = 'No limit';
 
 $string['mobileerrornovideo'] = 'No playable video was found for this activity.';
 
@@ -478,39 +294,26 @@ $string['modulename'] = 'Video Tracker';
 
 $string['modulenameplural'] = 'Video Trackers';
 
+$string['notavailable'] = '—';
 $string['notstarted'] = 'Not started';
 
-$string['objective1'] = 'Objective 1';
 
-$string['objective1_help'] = 'Short, specific objective the learner should achieve by watching the video.';
 
-$string['objective2'] = 'Objective 2';
 
-$string['objective2_help'] = 'Optional second objective.';
 
-$string['objective3'] = 'Objective 3';
 
-$string['objective3_help'] = 'Optional third objective.';
 
-$string['objectivesheader'] = 'Learning objectives';
 
-$string['objectiveshint'] = 'After reaching the required percentage, mark all objectives to complete the activity.';
 
-$string['openaiapikey'] = 'OpenAI API key';
 
-$string['openaiapikey_desc'] = 'Server-side OpenAI API key used for subtitle transcription and translation. Never expose this key in the browser.';
 
-$string['openaitranscriptionmodel'] = 'OpenAI transcription model';
 
-$string['openaitranscriptionmodel_desc'] = 'Speech-to-text model used for subtitle generation. Use a model that supports timestamped transcription output.';
 
-$string['openaitranslationmodel'] = 'OpenAI translation model';
 
-$string['openaitranslationmodel_desc'] = 'Text model used to translate generated subtitle cues into target languages.';
 
+$string['percentvalue'] = '{$a}%';
 $string['percentwatched'] = 'Watched (%)';
 
-$string['playbackheader'] = 'Playback';
 
 $string['pluginadministration'] = 'Video Tracker administration';
 
@@ -522,29 +325,17 @@ $string['posterimage'] = 'Preview image';
 
 $string['posterimage_help'] = 'Optional image shown before the video starts (poster).';
 
-$string['privacy:metadata:learnpluglicenseserver'] = 'In order to start trials, activate, validate, deactivate, and check commercial licenses, some data is sent to the external LearnPlug license server.';
 
-$string['privacy:metadata:learnpluglicenseserver:customeremail'] = 'The billing email used to identify the license owner.';
 
-$string['privacy:metadata:learnpluglicenseserver:installedversion'] = 'The installed plugin version reported during license checks.';
 
-$string['privacy:metadata:learnpluglicenseserver:instanceid'] = 'The technical instance identifier for this Moodle site.';
 
-$string['privacy:metadata:learnpluglicenseserver:licensekey'] = 'The commercial license key used for license validation.';
 
-$string['privacy:metadata:learnpluglicenseserver:productslug'] = 'The optional product slug sent with the license request.';
 
-$string['privacy:metadata:learnpluglicenseserver:siteurl'] = 'The Moodle site URL/domain reported to the external license server.';
 
-$string['privacy:metadata:learnpluglicenseserver:trialconsent'] = 'Whether the admin explicitly consented to sending trial activation data.';
 
-$string['privacy:metadata:openai'] = 'When subtitle generation or translation is used, audio and subtitle text are sent to OpenAI for processing.';
 
-$string['privacy:metadata:openai:audio'] = 'Audio extracted from uploaded HTML5 videos is sent to OpenAI speech-to-text during subtitle generation.';
 
-$string['privacy:metadata:openai:subtitletext'] = 'Generated source subtitle text is sent to OpenAI when translation tracks are requested.';
 
-$string['privacy:metadata:openai:targetlanguages'] = 'Requested target subtitle languages are sent to OpenAI during subtitle translation.';
 
 $string['privacy:metadata:videotracker_progress'] = 'Video progress and completion data for each user.';
 
@@ -562,11 +353,11 @@ $string['privacy:metadata:videotracker_progress:lastseq'] = 'Last client sequenc
 
 $string['privacy:metadata:videotracker_progress:lastserverts'] = 'Last server timestamp.';
 
-$string['privacy:metadata:videotracker_progress:obj1'] = 'Objective 1 completed flag (0/1).';
+$string['privacy:metadata:videotracker_progress:obj1'] = 'Reserved compatibility flag 1.';
 
-$string['privacy:metadata:videotracker_progress:obj2'] = 'Objective 2 completed flag (0/1).';
+$string['privacy:metadata:videotracker_progress:obj2'] = 'Reserved compatibility flag 2.';
 
-$string['privacy:metadata:videotracker_progress:obj3'] = 'Objective 3 completed flag (0/1).';
+$string['privacy:metadata:videotracker_progress:obj3'] = 'Reserved compatibility flag 3.';
 
 $string['privacy:metadata:videotracker_progress:percent'] = 'Percent of the video watched.';
 
@@ -582,35 +373,20 @@ $string['privacy:metadata:videotracker_progress:viewmap'] = 'A compact timeline 
 
 $string['privacy:metadata:videotracker_progress:watched'] = 'Total watched time in seconds (cumulative).';
 
-$string['privacy:metadata:videotracker_subtitles'] = 'Stores generated subtitle-track metadata for each Video Tracker activity.';
 
-$string['privacy:metadata:videotracker_subtitles:attemptcount'] = 'How many processing attempts have been made for this subtitle track.';
 
-$string['privacy:metadata:videotracker_subtitles:basesourcehash'] = 'Hash of the source subtitle content this track was generated from.';
 
-$string['privacy:metadata:videotracker_subtitles:cmid'] = 'The course module id owning this subtitle track.';
 
-$string['privacy:metadata:videotracker_subtitles:currenthash'] = 'Hash of the current VTT file content.';
 
-$string['privacy:metadata:videotracker_subtitles:identifier'] = 'Stable internal identifier for the subtitle track.';
 
-$string['privacy:metadata:videotracker_subtitles:langcode'] = 'Language code used for the subtitle track.';
 
-$string['privacy:metadata:videotracker_subtitles:langlabel'] = 'Human-readable language label for the subtitle track.';
 
-$string['privacy:metadata:videotracker_subtitles:lasterror'] = 'Last processing error stored for the subtitle track.';
 
-$string['privacy:metadata:videotracker_subtitles:openaimodel'] = 'OpenAI model used to generate or translate the subtitle track.';
 
-$string['privacy:metadata:videotracker_subtitles:status'] = 'Current processing status for the subtitle track.';
 
-$string['privacy:metadata:videotracker_subtitles:timecreated'] = 'When the subtitle track record was created.';
 
-$string['privacy:metadata:videotracker_subtitles:timemodified'] = 'When the subtitle track record was last updated.';
 
-$string['privacy:metadata:videotracker_subtitles:tracktype'] = 'Whether the track is the generated source subtitles or a translation.';
 
-$string['privacy:metadata:videotracker_subtitles:videotrackerid'] = 'The Video Tracker activity that owns this subtitle track.';
 
 $string['privacy:path:progress'] = 'Video progress';
 
@@ -660,153 +436,79 @@ $string['status_playing'] = 'Watching...';
 
 $string['status_ready'] = 'Ready to start.';
 
-$string['subtitleactions'] = 'Actions';
 
-$string['subtitlebacktoactivity'] = 'Back to activity';
 
-$string['subtitlecronnotice'] = 'Subtitle generation and translation run in Moodle background tasks. Make sure cron is running so queued subtitle jobs can complete.';
 
-$string['subtitledeletetrackok'] = 'Subtitle track deleted.';
 
-$string['subtitleerror'] = 'Last error';
 
-$string['subtitleerrorapikeymissing'] = 'OpenAI is not configured yet. Add a server-side API key in the Video Tracker plugin settings.';
 
-$string['subtitleerrorchunktoolarge'] = 'The extracted audio chunk is too large for the OpenAI speech-to-text upload limit. Configure ffprobe so the plugin can split long videos safely, or use a shorter uploaded video.';
 
-$string['subtitleerroremptytranscript'] = 'OpenAI returned no subtitle text for this video.';
 
-$string['subtitleerrorexecdisabled'] = 'The PHP exec() function is disabled on this server, so Video Tracker cannot extract audio with ffmpeg.';
 
-$string['subtitleerrorextractionfailed'] = 'Audio extraction failed. Verify the configured ffmpeg path and make sure the uploaded file is a valid HTML5 video.';
 
-$string['subtitleerrorffmpegmissing'] = 'ffmpeg is not available. Configure the ffmpeg path in the Video Tracker plugin settings.';
 
-$string['subtitleerrorgeneric'] = 'Subtitle processing failed.';
 
-$string['subtitleerrorinvalidsourcelanguage'] = 'Select a valid source language for the uploaded subtitle file.';
 
-$string['subtitleerrorinvalidsourceupload'] = 'Upload a valid WebVTT (.vtt) subtitle file.';
 
-$string['subtitleerrorinvalidsourcevtt'] = 'The generated source subtitle file is invalid and cannot be translated.';
 
-$string['subtitleerrornolanguages'] = 'Select at least one target language.';
 
-$string['subtitleerrornosource'] = 'Generate source subtitles first before queueing translations.';
 
-$string['subtitleerrornosourcefile'] = 'The source subtitle file is missing. Generate source subtitles again.';
 
-$string['subtitleerrornosourceupload'] = 'Upload a WebVTT (.vtt) subtitle file first.';
 
-$string['subtitleerrornovideofile'] = 'No uploaded HTML5 video was found for this activity.';
 
-$string['subtitleerrorsourceuploadtoolarge'] = 'The WebVTT subtitle file is too large. Maximum allowed size: {$a}.';
 
-$string['subtitleerrortranslationmismatch'] = 'The translated subtitle batch did not match the source cue structure.';
 
-$string['subtitleerrorunsupportedsource'] = 'Phase 1 subtitles are only available for uploaded HTML5 videos in Video Tracker. YouTube, Vimeo, and direct external URLs are not supported here.';
 
-$string['subtitleexistingtracks'] = 'Existing subtitle tracks';
 
-$string['subtitleffmpegpath'] = 'ffmpeg binary path';
 
-$string['subtitleffmpegpath_desc'] = 'Path or command name for ffmpeg. Video Tracker uses ffmpeg server-side to extract audio before sending it to OpenAI.';
 
-$string['subtitleffprobepath'] = 'ffprobe binary path';
 
-$string['subtitleffprobepath_desc'] = 'Path or command name for ffprobe. When available, Video Tracker uses it to split long videos into audio chunks that stay below OpenAI upload limits.';
 
-$string['subtitlelanguage'] = 'Language';
 
-$string['subtitlelanguageunknown'] = 'Unknown language';
 
-$string['subtitlemodel'] = 'Model';
 
-$string['subtitleprivacynotice'] = 'Privacy note: subtitle generation sends extracted audio to OpenAI speech-to-text, and subtitle translation sends source subtitle text to OpenAI. Only use this for course media you are allowed to process with an external provider.';
 
-$string['subtitlequeuesourceok'] = 'Source subtitle generation has been queued.';
 
-$string['subtitlequeuetrackok'] = 'Subtitle track regeneration has been queued.';
 
-$string['subtitlequeuetranslationsok'] = '{$a} translation track(s) have been queued.';
 
-$string['subtitlequeuetranslationsskipped'] = '{$a} language selection(s) were skipped because they were invalid or matched the source language.';
 
-$string['subtitlerefresh'] = 'Refresh';
 
-$string['subtitlesdelete'] = 'Delete';
 
-$string['subtitlesdownload'] = 'Download';
 
-$string['subtitlesettings'] = 'OpenAI subtitles';
 
-$string['subtitlesettings_desc'] = 'Configure server-side OpenAI subtitle generation for uploaded HTML5 videos. Audio and subtitle text are sent to OpenAI during processing, so review your privacy notice and vendor terms before enabling this feature.';
 
-$string['subtitlesmanage'] = 'Manage subtitles';
 
-$string['subtitlesnotgenerated'] = 'Not generated yet';
 
-$string['subtitlesnotracks'] = 'No subtitle tracks exist for this activity yet.';
 
-$string['subtitlesourcegenerate'] = 'Generate source subtitles';
 
-$string['subtitlesourceheading'] = 'Source subtitles';
 
-$string['subtitlesourcehelp'] = 'Generate a timed WebVTT subtitle file from the uploaded HTML5 video. The plugin extracts audio server-side, sends it to OpenAI speech-to-text, and stores the generated track inside Moodle.';
 
-$string['subtitlesourcelanguage'] = 'Source language';
 
-$string['subtitlesourceregenerate'] = 'Regenerate source subtitles';
 
-$string['subtitlesourcestatus'] = 'Source track status';
 
-$string['subtitlesourceuploadbutton'] = 'Upload source subtitles';
 
-$string['subtitlesourceuploadfallbackhelp'] = 'Automatic source generation is unavailable on this server. Upload a WebVTT file to continue with translation.';
 
-$string['subtitlesourceuploadfile'] = 'Source WebVTT file';
 
-$string['subtitlesourceuploadok'] = 'Source subtitle file uploaded.';
 
-$string['subtitlesourceuploadreplace'] = 'Replace source subtitles';
 
-$string['subtitlesregenerate'] = 'Regenerate';
 
-$string['subtitlestatus'] = 'Status';
 
-$string['subtitlestatusfailed'] = 'Failed';
 
-$string['subtitlestatusprocessing'] = 'Processing';
 
-$string['subtitlestatusqueued'] = 'Queued';
 
-$string['subtitlestatusready'] = 'Ready';
 
-$string['subtitlestatusstale'] = 'Out of date';
 
-$string['subtitletrack'] = 'Track';
 
-$string['subtitletrackrestorependingtask'] = 'This subtitle track was queued or processing when the activity was backed up. Regenerate it after restore.';
 
-$string['subtitletracksource'] = 'Original subtitles';
 
-$string['subtitletracksourcewithlanguage'] = 'Original subtitles ({$a})';
 
-$string['subtitletranslationheading'] = 'Translations';
 
-$string['subtitletranslationhelp'] = 'Choose one or more target languages. Video Tracker translates the generated source VTT server-side and stores one WebVTT file per selected language.';
 
-$string['subtitletranslationlanguages'] = 'Target languages';
 
-$string['subtitletranslationqueue'] = 'Queue translations';
 
-$string['subtitletranslationwaitforsource'] = 'Generate source subtitles first, then return here to queue translations.';
 
-$string['subtitleupdated'] = 'Updated';
 
-$string['tasklicensecheck'] = 'Video Tracker license validation';
 
-$string['taskprocesssubtitletrack'] = 'Video Tracker subtitle processing';
 
 $string['timespent'] = 'Time watched';
 
@@ -840,13 +542,23 @@ $string['videosource_youtube'] = 'YouTube';
 
 $string['videotracker:addinstance'] = 'Add a new Video Tracker activity';
 
-$string['videotracker:managesubtitles'] = 'Manage Video Tracker subtitles';
 
 $string['videotracker:resetprogress'] = 'Reset learner video progress';
 
 $string['videotracker:view'] = 'View Video Tracker activity';
 
 $string['videotracker:viewreports'] = 'View Video Tracker reports';
+
+$string['graderepairfailed'] = 'Video Tracker could not repair the gradebook: {$a}';
+$string['repairgradebook'] = 'Gradebook repair';
+$string['repairgradebook_action'] = 'Run gradebook repair now';
+$string['repairgradebook_brokenformulas'] = 'Broken grade calculations';
+$string['repairgradebook_brokenformulas_desc'] = 'Edit each listed calculation and remove references to grade items that no longer exist.';
+$string['repairgradebook_confirm'] = 'Republish all Video Tracker grades and recalculate the affected course gradebooks now?';
+$string['repairgradebook_desc'] = 'Use this repair if Moodle reports that grades need regrading.';
+$string['repairgradebook_editcalculation'] = 'Edit calculation';
+$string['repairgradebook_success'] = 'Video Tracker grades were republished and the affected gradebooks were recalculated.';
+$string['taskrepairgradebook'] = 'Repair Video Tracker gradebook data';
 
 $string['viewmap'] = 'View map';
 

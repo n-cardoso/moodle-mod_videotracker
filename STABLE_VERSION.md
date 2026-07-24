@@ -1,20 +1,15 @@
-# Stable Reference
+# Stable version
 
-Current most stable build for testing and rollback reference:
+- Component: `mod_videotracker`
+- Edition: Free
+- Release: `1.2`
+- Build: `2026072400`
+- Maturity: Stable
+- Supported Moodle versions: 4.5 through 5.2
+- Release date: 24 July 2026
 
-- Plugin: `mod_videotracker`
-- Release: `1.0.3`
-- Build version: `2026070302`
-- Release version: `1.0.3`
-- Package: `mod_videotracker-1.0.3+2026070302.zip`
-- Stable alias: `mod_videotracker-STABLE-1.0.3+2026070302.zip`
-- Date marked stable: `2026-04-26`
+This is the stable Free baseline for the Moodle Plugins directory.
 
-Notes:
-
-- Includes subtitle generation and translation support.
-- Includes progress tracking performance and completion bar fixes.
-- Includes admin install/upgrade redirect fixes.
-- Includes compact admin license panel behavior.
-- Includes balanced subtitle management UI.
-- PHPCS warning for `db/install.php` was resolved.
+Future Free releases must use a build number greater than `2026072400`.
+The corresponding Pro edition must retain a higher build number so it can
+upgrade the Free edition in place.

@@ -38,17 +38,12 @@ require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 require_capability('mod/videotracker:viewreports', $context);
 
-$download = optional_param('download', 0, PARAM_INT);
 $action = optional_param('action', '', PARAM_ALPHA);
 $userid = optional_param('userid', 0, PARAM_INT);
 $confirm = optional_param('confirm', 0, PARAM_INT);
 $ack = optional_param('ack', 0, PARAM_INT);
 $status = optional_param('status', 'all', PARAM_ALPHA);
 $search = trim((string) optional_param('search', '', PARAM_TEXT));
-
-if (!empty($download)) {
-    require_once($CFG->libdir . '/csvlib.class.php');
-}
 
 $videotracker = $DB->get_record(
     'videotracker',
@@ -57,8 +52,7 @@ $videotracker = $DB->get_record(
     MUST_EXIST
 );
 
-$videoitemhtml = '—';
-$videoitemcsv = '';
+$videoitemhtml = get_string('notavailable', 'videotracker');
 $videosource = isset($videotracker->videosource) ? (string) $videotracker->videosource : 'upload';
 if ($videosource === 'upload') {
     $videofile = videotracker_get_video_file($context);
@@ -66,7 +60,6 @@ if ($videosource === 'upload') {
         $filename = (string) $videofile->get_filename();
         if ($filename !== '') {
             $videoitemhtml = s($filename);
-            $videoitemcsv = $filename;
         }
     }
 } else {
@@ -79,10 +72,8 @@ if ($videosource === 'upload') {
                 'rel' => 'noopener noreferrer',
                 'class' => 'text-break',
             ]);
-            $videoitemcsv = $safeurl;
         } else {
             $videoitemhtml = s($rawurl);
-            $videoitemcsv = $rawurl;
         }
     }
 }
@@ -106,6 +97,9 @@ if ($search !== '') {
 if (!empty($groupid)) {
     $baseurlparams['group'] = $groupid;
 }
+if ($userid > 0 && $action === '') {
+    $baseurlparams['userid'] = $userid;
+}
 
 $pageurl = new moodle_url('/mod/videotracker/report.php', $baseurlparams);
 $PAGE->set_url($pageurl);
@@ -113,77 +107,6 @@ $PAGE->set_title(get_string('reporttitle', 'videotracker'));
 $PAGE->set_heading($course->fullname);
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('report');
-
-$licensestate = \mod_videotracker\local\license_enforcer::get_runtime_state();
-$licenseuicontext = \mod_videotracker\local\license_enforcer::admin_ui_context();
-if (!\mod_videotracker\local\license_enforcer::reports_enabled()) {
-    $backurl = new moodle_url('/mod/videotracker/view.php', ['id' => $cm->id]);
-    $settingsurl = null;
-    if (has_capability('moodle/site:config', \context_system::instance())) {
-        $settingsurl = new moodle_url('/admin/settings.php', ['section' => 'modsettingvideotrackerlicense']);
-    }
-
-    $availableitems = '';
-    foreach (($licenseuicontext['availablefeatures'] ?? []) as $feature) {
-        $availableitems .= html_writer::tag('li', s((string) $feature));
-    }
-
-    $lockeditems = '';
-    foreach (($licenseuicontext['lockedfeatures'] ?? []) as $feature) {
-        $lockeditems .= html_writer::tag('li', s((string) $feature));
-    }
-
-    echo $OUTPUT->header();
-    echo $OUTPUT->heading(get_string('licensedemoreporttitle', 'videotracker'));
-    echo html_writer::div(
-        html_writer::span(
-            get_string('licensemodedemo', 'videotracker'),
-            'badge bg-secondary text-white vt-license-badge'
-        ) .
-        html_writer::tag(
-            'h4',
-            get_string('licensepaneldemoheadline', 'videotracker'),
-            ['class' => 'alert-heading vt-license-heading']
-        ) .
-        html_writer::tag(
-            'p',
-            (string) ($licensestate['message'] ?? get_string('licenseenforcementblocked', 'videotracker')),
-            ['class' => 'vt-license-message']
-        ) .
-        html_writer::tag('p', get_string('licensedemoreportbody', 'videotracker'), ['class' => 'mb-3']) .
-        html_writer::div(
-            html_writer::div(
-                html_writer::tag('strong', get_string('licensepanelavailabletitle', 'videotracker')) .
-                html_writer::tag('ul', $availableitems, ['class' => 'vt-license-list']),
-                'vt-license-column'
-            ) .
-            html_writer::div(
-                html_writer::tag('strong', get_string('licensepanellockedtitle', 'videotracker')) .
-                html_writer::tag('ul', $lockeditems, ['class' => 'vt-license-list']),
-                'vt-license-column'
-            ),
-            'vt-license-columns'
-        ) .
-        html_writer::div(
-            html_writer::link(
-                $backurl,
-                get_string('licensebacktoactivity', 'videotracker'),
-                ['class' => 'btn btn-secondary']
-            ) .
-            ($settingsurl
-                ? ' ' . html_writer::link(
-                    $settingsurl,
-                    get_string('licenseopenlicensesettings', 'videotracker'),
-                    ['class' => 'btn btn-primary vt-license-primary-action']
-                )
-                : ''),
-            'vt-license-actions'
-        ),
-        'vt-license-panel alert alert-secondary'
-    );
-    echo $OUTPUT->footer();
-    exit;
-}
 
 // Build enrolled users SQL (with group filter if applicable).
 [$enrolledsql, $enrolledparams] = get_enrolled_sql($coursecontext, '', $groupid, true);
@@ -201,10 +124,12 @@ $params = ['cmid' => $cm->id] + $enrolledparams;
 $completionrequired = isset($videotracker->completionminpercent)
     ? (int) $videotracker->completionminpercent
     : 0;
-$hasobjectivegates = trim((string) ($videotracker->objective1 ?? '')) !== ''
-    || trim((string) ($videotracker->objective2 ?? '')) !== ''
-    || trim((string) ($videotracker->objective3 ?? '')) !== '';
-$statususespercentfallback = ($completionrequired > 0 && !$hasobjectivegates);
+$statususespercentfallback = ($completionrequired > 0);
+
+if ($userid > 0 && $action === '') {
+    $where .= " AND u.id = :reportuserid";
+    $params['reportuserid'] = $userid;
+}
 
 if ($search !== '') {
     $searchparam = '%' . $search . '%';
@@ -289,8 +214,6 @@ class videotracker_report_table extends table_sql {
     private bool $canreset;
     /** @var string HTML display value for the tracked video item. */
     private string $videoitemhtml;
-    /** @var string CSV export value for the tracked video item. */
-    private string $videoitemcsv;
 
     /**
      * Constructor.
@@ -302,7 +225,6 @@ class videotracker_report_table extends table_sql {
      * @param string $actionbaseurl Base action URL.
      * @param bool $canreset Whether the current user can reset progress.
      * @param string $videoitemhtml HTML display value for the video source.
-     * @param string $videoitemcsv CSV export value for the video source.
      */
     public function __construct(
         string $uniqueid,
@@ -311,8 +233,7 @@ class videotracker_report_table extends table_sql {
         bool $statususespercentfallback,
         string $actionbaseurl,
         bool $canreset,
-        string $videoitemhtml,
-        string $videoitemcsv
+        string $videoitemhtml
     ) {
         parent::__construct($uniqueid);
         $this->videoduration = $videoduration;
@@ -321,7 +242,6 @@ class videotracker_report_table extends table_sql {
         $this->actionbaseurl = $actionbaseurl;
         $this->canreset = $canreset;
         $this->videoitemhtml = $videoitemhtml;
-        $this->videoitemcsv = $videoitemcsv;
     }
 
     /**
@@ -342,9 +262,9 @@ class videotracker_report_table extends table_sql {
      */
     public function col_percent($row) {
         if ($row->percent === null) {
-            return '—';
+            return get_string('notavailable', 'videotracker');
         }
-        return ((int) $row->percent) . '%';
+        return get_string('percentvalue', 'videotracker', (int) $row->percent);
     }
 
     /**
@@ -354,10 +274,9 @@ class videotracker_report_table extends table_sql {
      * @return string
      */
     public function col_videoitem($row) {
-        if ($this->is_downloading()) {
-            return $this->videoitemcsv;
-        }
-        return $this->videoitemhtml !== '' ? $this->videoitemhtml : '—';
+        return $this->videoitemhtml !== ''
+            ? $this->videoitemhtml
+            : get_string('notavailable', 'videotracker');
     }
 
     /**
@@ -399,7 +318,7 @@ class videotracker_report_table extends table_sql {
      */
     public function col_lastviewed($row) {
         if (empty($row->timemodified)) {
-            return '—';
+            return get_string('notavailable', 'videotracker');
         }
         return userdate((int) $row->timemodified);
     }
@@ -413,7 +332,7 @@ class videotracker_report_table extends table_sql {
     public function col_videotime($row) {
         $seconds = $this->videoduration > 0 ? $this->videoduration : (int) ($row->duration ?? 0);
         if ($seconds <= 0) {
-            return '—';
+            return get_string('notavailable', 'videotracker');
         }
         return format_time($seconds);
     }
@@ -427,7 +346,7 @@ class videotracker_report_table extends table_sql {
     public function col_timespent($row) {
         $seconds = (int) round((float) ($row->watched ?? 0));
         if ($seconds <= 0) {
-            return '—';
+            return get_string('notavailable', 'videotracker');
         }
         return format_time($seconds);
     }
@@ -459,7 +378,7 @@ class videotracker_report_table extends table_sql {
      */
     public function col_lastposition($row) {
         if (empty($row->lastpos)) {
-            return '—';
+            return get_string('notavailable', 'videotracker');
         }
         return (string) (int) $row->lastpos;
     }
@@ -472,9 +391,9 @@ class videotracker_report_table extends table_sql {
      */
     public function col_completionrequired($row) {
         if ($this->completionrequired <= 0) {
-            return '—';
+            return get_string('notavailable', 'videotracker');
         }
-        return $this->completionrequired . '%';
+        return get_string('percentvalue', 'videotracker', $this->completionrequired);
     }
 
     /**
@@ -489,7 +408,7 @@ class videotracker_report_table extends table_sql {
         }
 
         if ($row->percent === null && $row->timemodified === null) {
-            return '—';
+            return get_string('notavailable', 'videotracker');
         }
 
         $url = new moodle_url($this->actionbaseurl, [
@@ -504,81 +423,6 @@ class videotracker_report_table extends table_sql {
             ['class' => 'btn btn-sm btn-outline-danger']
         );
     }
-}
-
-if (!empty($download)) {
-    $filename = clean_filename(
-        ($course->shortname ?? 'course') . '_' . ($videotracker->name ?? 'videotracker') . '_report'
-    );
-    $csv = new csv_export_writer();
-    $csv->set_filename($filename);
-
-    $csv->add_data([
-        get_string('user'),
-        get_string('email'),
-        get_string('videofileorlink', 'videotracker'),
-        get_string('percentwatched', 'videotracker'),
-        get_string('status'),
-        get_string('lastviewed', 'videotracker'),
-        get_string('videoduration', 'videotracker'),
-        get_string('timespent', 'videotracker'),
-        get_string('lastposition', 'videotracker'),
-        get_string('completionrequired', 'videotracker'),
-    ]);
-
-    $orderby = "u.lastname ASC, u.firstname ASC";
-    $recordset = $DB->get_recordset_sql(
-        "SELECT {$fields} FROM {$from} WHERE {$where} ORDER BY {$orderby}",
-        $params
-    );
-
-    foreach ($recordset as $row) {
-        $percent = ($row->percent === null) ? '' : (int) $row->percent;
-        $iscompleted = !empty($row->completed)
-            || ($statususespercentfallback
-                && $row->percent !== null
-                && (int) $row->percent >= $completionrequired);
-        if ($iscompleted) {
-            $statuslabel = get_string('completed', 'videotracker');
-        } else if (!empty($row->percent)) {
-            $statuslabel = get_string('inprogress', 'videotracker');
-        } else {
-            $statuslabel = get_string('notstarted', 'videotracker');
-        }
-
-        $last = !empty($row->timemodified) ? userdate((int) $row->timemodified) : '';
-        $videotime = $videoduration > 0 ? format_time($videoduration) : '';
-        if ($videotime === '' && !empty($row->duration)) {
-            $videotime = format_time((int) $row->duration);
-        }
-
-        $timespent = '';
-        if (!empty($row->watched)) {
-            $timespent = format_time((int) round((float) $row->watched));
-        }
-
-        $lastpos = ($row->lastpos === null) ? '' : (int) $row->lastpos;
-        $required = isset($videotracker->completionminpercent)
-            ? (int) $videotracker->completionminpercent
-            : 0;
-
-        $csv->add_data([
-            fullname($row),
-            $row->email,
-            $videoitemcsv,
-            $percent,
-            $statuslabel,
-            $last,
-            $videotime,
-            $timespent,
-            $lastpos,
-            $required,
-        ]);
-    }
-    $recordset->close();
-
-    $csv->download_file();
-    die();
 }
 
 // Handle reset actions (per-learner and bulk) before output.
@@ -741,34 +585,14 @@ if (!empty($action) && $canreset) {
             );
         }
 
-        $grades = [];
+        $completion = new completion_info($course);
+        $cminfo = cm_info::create($cm);
         foreach ($userids as $uid) {
-            $g = new stdClass();
-            $g->userid = (int) $uid;
-            $g->rawgrade = null;
-            $g->rawgrademin = 0;
-            $g->rawgrademax = 100;
-            $g->timemodified = $now;
-            $grades[(int) $uid] = $g;
+            $uid = (int) $uid;
+            videotracker_clear_user_grade((int) $course->id, (int) $cm->instance, $uid, false);
+            $completion->update_state($cminfo, COMPLETION_UNKNOWN, $uid);
         }
-
-        if (!empty($grades)) {
-            grade_update(
-                'mod/videotracker',
-                (int) $course->id,
-                'mod',
-                'videotracker',
-                (int) $cm->instance,
-                0,
-                $grades,
-                [
-                    'itemname' => clean_param($videotracker->name, PARAM_TEXT),
-                    'gradetype' => GRADE_TYPE_VALUE,
-                    'grademin' => 0,
-                    'grademax' => 100,
-                ]
-            );
-        }
+        grade_regrade_final_grades((int) $course->id);
 
         redirect(
             $pageurl,
@@ -781,19 +605,6 @@ if (!empty($action) && $canreset) {
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('reporttitle', 'videotracker'));
-
-if (!empty($licensestate['graceactive'])) {
-    echo html_writer::div(
-        html_writer::span(get_string('licensemodegrace', 'videotracker'), 'badge bg-warning text-dark vt-license-badge') .
-        html_writer::tag(
-            'h4',
-            get_string('licensepanelgraceheadline', 'videotracker'),
-            ['class' => 'alert-heading vt-license-heading']
-        ) .
-        html_writer::tag('p', (string) ($licensestate['message'] ?? ''), ['class' => 'vt-license-message']),
-        'vt-license-panel alert alert-warning'
-    );
-}
 
 // Group selector (if group mode is enabled).
 $groupmenu = groups_print_activity_menu($cm, $pageurl, true);
@@ -860,14 +671,6 @@ echo html_writer::end_div();
 echo html_writer::end_div();
 echo html_writer::end_tag('form');
 
-// CSV download button.
-$downloadurl = new moodle_url('/mod/videotracker/report.php', $baseurlparams + ['download' => 1]);
-echo html_writer::link(
-    $downloadurl,
-    get_string('downloadcsv', 'videotracker'),
-    ['class' => 'btn btn-secondary mb-3']
-);
-
 echo html_writer::div(
     html_writer::tag('div', get_string('viewmapaggregate', 'videotracker'), ['class' => 'fw-bold mb-1']) .
     html_writer::tag(
@@ -911,8 +714,7 @@ $table = new videotracker_report_table(
     $statususespercentfallback,
     $pageurl->out(false),
     $canreset,
-    $videoitemhtml,
-    $videoitemcsv
+    $videoitemhtml
 );
 $table->define_baseurl($pageurl);
 

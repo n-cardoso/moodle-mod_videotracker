@@ -15,15 +15,29 @@
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Scheduled task definitions for Video Tracker.
- *
- * The Free edition does not require scheduled tasks.
+ * Handles Grade analysis links from Moodle grade reports.
  *
  * @package     mod_videotracker
  * @copyright   2026 LearnPlug
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../../config.php');
 
-$tasks = [];
+$cmid = required_param('id', PARAM_INT);
+$userid = optional_param('userid', 0, PARAM_INT);
+
+[$course, $cm] = get_course_and_cm_from_cmid($cmid, 'videotracker');
+require_login($course, false, $cm);
+
+if ($userid === 0 || $userid === (int) $USER->id) {
+    redirect(new moodle_url('/mod/videotracker/view.php', ['id' => $cm->id]));
+}
+
+$context = context_module::instance($cm->id);
+require_capability('mod/videotracker:viewreports', $context);
+
+redirect(new moodle_url('/mod/videotracker/report.php', [
+    'id' => $cm->id,
+    'userid' => $userid,
+]));

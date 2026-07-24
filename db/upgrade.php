@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * Database upgrade steps for Video Tracker Free.
@@ -21,8 +21,6 @@
  * @copyright   2026 LearnPlug
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Upgrade Video Tracker Free.
@@ -128,6 +126,11 @@ function xmldb_videotracker_upgrade(int $oldversion): bool {
         \core\task\manager::queue_adhoc_task($task, true);
 
         upgrade_mod_savepoint(true, 2026071708, 'videotracker');
+    }
+
+    if ($oldversion < 2026072402) {
+        // No schema change. This build finalises the stable Marketplace release.
+        upgrade_mod_savepoint(true, 2026072402, 'videotracker');
     }
 
     return true;

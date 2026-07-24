@@ -98,6 +98,8 @@ $string['gradepass_help'] = 'Set the minimum percentage required to complete thi
 
 $string['gradepasslabel'] = 'Grade to pass';
 
+$string['graderepairfailed'] = 'Video Tracker could not repair the gradebook: {$a}';
+
 $string['html5videonotsupported'] = 'Your browser does not support the video tag.';
 
 $string['inprogress'] = 'In progress';
@@ -392,6 +394,22 @@ $string['privacy:path:progress'] = 'Video progress';
 
 $string['reachtocomplete'] = 'Reach {$a}% to complete';
 
+$string['repairgradebook'] = 'Gradebook repair';
+
+$string['repairgradebook_action'] = 'Run gradebook repair now';
+
+$string['repairgradebook_brokenformulas'] = 'Broken grade calculations';
+
+$string['repairgradebook_brokenformulas_desc'] = 'Edit each listed calculation and remove references to grade items that no longer exist.';
+
+$string['repairgradebook_confirm'] = 'Republish all Video Tracker grades and recalculate the affected course gradebooks now?';
+
+$string['repairgradebook_desc'] = 'Use this repair if Moodle reports that grades need regrading.';
+
+$string['repairgradebook_editcalculation'] = 'Edit calculation';
+
+$string['repairgradebook_success'] = 'Video Tracker grades were republished and the affected gradebooks were recalculated.';
+
 $string['reporttitle'] = 'Video engagement report';
 
 $string['requiredpercentage'] = 'Required percentage';
@@ -435,6 +453,8 @@ $string['status_paused'] = 'Paused.';
 $string['status_playing'] = 'Watching...';
 
 $string['status_ready'] = 'Ready to start.';
+
+$string['taskrepairgradebook'] = 'Repair Video Tracker gradebook data';
 
 
 
@@ -548,17 +568,6 @@ $string['videotracker:resetprogress'] = 'Reset learner video progress';
 $string['videotracker:view'] = 'View Video Tracker activity';
 
 $string['videotracker:viewreports'] = 'View Video Tracker reports';
-
-$string['graderepairfailed'] = 'Video Tracker could not repair the gradebook: {$a}';
-$string['repairgradebook'] = 'Gradebook repair';
-$string['repairgradebook_action'] = 'Run gradebook repair now';
-$string['repairgradebook_brokenformulas'] = 'Broken grade calculations';
-$string['repairgradebook_brokenformulas_desc'] = 'Edit each listed calculation and remove references to grade items that no longer exist.';
-$string['repairgradebook_confirm'] = 'Republish all Video Tracker grades and recalculate the affected course gradebooks now?';
-$string['repairgradebook_desc'] = 'Use this repair if Moodle reports that grades need regrading.';
-$string['repairgradebook_editcalculation'] = 'Edit calculation';
-$string['repairgradebook_success'] = 'Video Tracker grades were republished and the affected gradebooks were recalculated.';
-$string['taskrepairgradebook'] = 'Repair Video Tracker gradebook data';
 
 $string['viewmap'] = 'View map';
 

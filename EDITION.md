@@ -36,8 +36,8 @@ edition does not maintain an independent feature roadmap.
 Every matching Pro build must have a higher Moodle version number than its Free
 build. The first pair is:
 
-- Free: `2026072400`
-- Pro: `2026072401`
+- Free: `2026072402`
+- Pro: `2026072403`
 
 This ordering allows Moodle to upgrade Free to Pro in place. The Free install
 schema intentionally retains compatible instance columns used by Pro, even

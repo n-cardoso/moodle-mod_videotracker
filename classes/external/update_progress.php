@@ -595,5 +595,4 @@ class update_progress extends external_api {
 
         return false;
     }
-
 }

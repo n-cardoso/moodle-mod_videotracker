@@ -1,4 +1,24 @@
-# Video Tracker Free changes
+# Video Tracker Starter changes
+
+## 1.2.1 Starter — 2026-09-19
+
+- Renames the paid Moodle Marketplace product from Free to Starter throughout
+  package documentation and release metadata.
+- Sets the Starter build to `2026091800`, below Pro build `2026091900`, to
+  preserve safe in-place upgrades.
+- Replaces the completion-goal tooltip JavaScript with a localized, accessible
+  hover and keyboard-focus implementation.
+- Retains the gradebook diagnostic query and specialized DML improvements from
+  the final 1.2 maintenance builds.
+
+## 1.2 — 2026-07-25
+
+- Improves gradebook repair diagnostics by loading affected courses in one
+  database query instead of performing one query per invalid grade item.
+- Uses Moodle's specialized DML methods when resetting filtered progress,
+  avoiding a database-specific raw update statement.
+- Removes the obsolete edition heading from administration settings, avoiding
+  stale language-cache warnings after upgrading an existing installation.
 
 ## 1.2 — 2026-07-24
 
@@ -66,13 +86,14 @@
 ## 1.0.1 — 2026-07-24
 
 - Incremented the Moodle plugin build so updated language strings are loaded
-  when upgrading an existing Free test installation.
+  when upgrading an existing Starter test installation.
 - Added the complete GNU GPL v3 text as the root-level `LICENSE` file required
   for Marketplace licensing review.
 
 ## 1.0.0 — 2026-07-24
 
-- First permanent Free edition for Moodle Marketplace.
+- First permanent Starter code line for Moodle Marketplace (originally named
+  Free edition).
 - Removed commercial licence, trial, activation and remote-update flows.
 - Removed AI subtitle processing, learning objectives and advanced playback
   restrictions.

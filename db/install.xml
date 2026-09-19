@@ -30,7 +30,7 @@
         <FIELD NAME="maxplaybackrate" TYPE="number" LENGTH="10" DECIMALS="2" NOTNULL="true" DEFAULT="0"/>
         <FIELD NAME="disablecontextmenu" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
 
-        <!-- Reserved edition-compatibility columns; unused by Free. -->
+        <!-- Reserved edition-compatibility columns; unused by Starter. -->
         <FIELD NAME="objective1" TYPE="char" LENGTH="255" NOTNULL="true"/>
         <FIELD NAME="objective2" TYPE="char" LENGTH="255" NOTNULL="true"/>
         <FIELD NAME="objective3" TYPE="char" LENGTH="255" NOTNULL="true"/>

@@ -1,15 +1,16 @@
 # Stable version
 
 - Component: `mod_videotracker`
-- Edition: Free
-- Release: `1.2`
-- Build: `2026072402`
+- Edition: Starter
+- Marketplace price: US$19
+- Release: `1.2.1 Starter`
+- Build: `2026091800`
 - Maturity: Stable
 - Supported Moodle versions: 4.5 through 5.2
-- Release date: 24 July 2026
+- Release date: 19 September 2026
 
-This is the stable Free baseline for the Moodle Plugins directory.
+This is the stable Starter baseline for Moodle Marketplace.
 
-Future Free releases must use a build number greater than `2026072402`.
-The corresponding Pro edition must retain a higher build number so it can
-upgrade the Free edition in place.
+Future Starter releases must use a build number greater than `2026091800`.
+Before publishing one, the corresponding Pro edition must be assigned and
+released with a higher build number so it can upgrade Starter in place.

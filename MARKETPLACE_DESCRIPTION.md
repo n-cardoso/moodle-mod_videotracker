@@ -1,4 +1,4 @@
-# Video Tracker
+# Video Tracker Starter
 
 Video Tracker is a Moodle activity that lets teachers add video-based learning
 to a course while giving learners a reliable way to resume playback and see
@@ -39,8 +39,9 @@ YouTube, Vimeo, or another external URL, the learner's browser connects to that
 provider. Site administrators should include applicable external providers in
 their privacy documentation.
 
-Video Tracker Free does not require a licence key, trial registration, external
-account, or paid LearnPlug service.
+Video Tracker Starter is available through Moodle Marketplace for US$19. It
+does not require a runtime licence key, trial registration, external account,
+or paid LearnPlug service after installation.
 
 ## Support
 

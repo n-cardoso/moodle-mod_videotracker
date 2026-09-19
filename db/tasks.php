@@ -17,7 +17,7 @@
 /**
  * Scheduled task definitions for Video Tracker.
  *
- * The Free edition does not require scheduled tasks.
+ * The Starter edition does not require scheduled tasks.
  *
  * @package     mod_videotracker
  * @copyright   2026 LearnPlug

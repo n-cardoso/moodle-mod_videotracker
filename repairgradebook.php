@@ -61,6 +61,7 @@ if ($repairerror !== null) {
     echo $OUTPUT->notification($repairerror, \core\output\notification::NOTIFY_ERROR);
 
     $brokenitems = [];
+    $invaliditems = [];
     $records = $DB->get_records_select(
         'grade_items',
         'calculation IS NOT NULL AND calculation <> :emptycalculation',
@@ -73,7 +74,20 @@ if ($repairerror !== null) {
             continue;
         }
 
-        $course = $DB->get_record('course', ['id' => (int) $record->courseid], 'id, fullname', IGNORE_MISSING);
+        $invaliditems[] = [$record, $gradeitem];
+    }
+
+    $courses = [];
+    if ($invaliditems) {
+        $courseids = array_unique(array_map(
+            static fn(array $item): int => (int) $item[0]->courseid,
+            $invaliditems
+        ));
+        $courses = $DB->get_records_list('course', 'id', $courseids, '', 'id, fullname');
+    }
+
+    foreach ($invaliditems as [$record, $gradeitem]) {
+        $course = $courses[(int) $record->courseid] ?? null;
         if (!$course) {
             continue;
         }

@@ -17,8 +17,8 @@
 /**
  * Administration settings for Video Tracker.
  *
- * The Free edition is intentionally self-contained and requires no
- * licence, external account, API key, or site-wide configuration.
+ * The Starter edition is self-contained and requires no runtime licence key,
+ * external account, API key, or site-wide configuration.
  *
  * @package     mod_videotracker
  * @copyright   2026 LearnPlug
@@ -29,11 +29,6 @@ defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
     $settings = new admin_settingpage('modsettingvideotracker', get_string('pluginname', 'videotracker'));
-    $settings->add(new admin_setting_heading(
-        'mod_videotracker/freeedition',
-        get_string('freeedition', 'videotracker'),
-        get_string('freeedition_desc', 'videotracker')
-    ));
     $repairurl = new moodle_url('/mod/videotracker/repairgradebook.php');
     $settings->add(new admin_setting_description(
         'mod_videotracker/repairgradebook',

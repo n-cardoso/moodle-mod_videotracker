@@ -445,8 +445,15 @@ $goalmarkup = '';
 if ($minpercent > 0) {
     $goalmarkup = html_writer::div(
         html_writer::div('', 'vt-goal-line') .
-        html_writer::div('', 'vt-goal-dot', ['data-vt-tooltip' => $goaltext]) .
-        html_writer::div('', 'vt-tooltip', ['aria-hidden' => 'true']),
+        html_writer::div('', 'vt-goal-dot', [
+            'tabindex' => '0',
+            'aria-label' => $goaltext,
+            'aria-describedby' => 'videotracker-goal-tooltip',
+        ]) .
+        html_writer::div($goaltext, 'vt-tooltip', [
+            'id' => 'videotracker-goal-tooltip',
+            'role' => 'tooltip',
+        ]),
         'vt-goal-wrap',
         ['style' => 'left: ' . (int) $minpercent . '%;']
     );
@@ -505,7 +512,7 @@ echo $progresspanel;
 echo html_writer::end_tag('div');
 
 if ($trackingenabled) {
-    // Progress tracking and watch-based completion are core Free features.
+    // Progress tracking and watch-based completion are core Starter features.
     $PAGE->requires->js_call_amd('mod_videotracker/tracker', 'init', [
         'cmid' => (int) $cm->id,
         'instanceid' => (int) $videotracker->id,
@@ -514,6 +521,4 @@ if ($trackingenabled) {
         'completedinit' => (int) $completedinit,
     ]);
 }
-$PAGE->requires->js_call_amd('mod_videotracker/tooltip', 'init');
-
 echo $OUTPUT->footer();

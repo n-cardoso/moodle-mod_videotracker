@@ -84,10 +84,6 @@ $string['filtersearch'] = 'Search';
 
 $string['filterstatus'] = 'Status';
 
-$string['freeedition'] = 'Free edition';
-
-$string['freeedition_desc'] = 'Video Tracker Free works without a licence, external account, or API key. Activity settings are configured by teachers in each course.';
-
 $string['gradeheader'] = 'Grade';
 
 $string['grademaxinfo'] = 'Grade out of {$a}';

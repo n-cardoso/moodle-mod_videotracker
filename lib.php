@@ -117,7 +117,7 @@ function videotracker_build_record(stdClass $data): stdClass {
     $min = isset($data->completionminpercent) ? (int) $data->completionminpercent : 0;
     $r->completionminpercent = max(0, min(100, $min));
 
-    // Free does not restrict normal player controls. These compatibility
+    // Starter does not restrict normal player controls. These compatibility
     // columns are retained so a later Pro upgrade can happen in place.
     $r->allowfastforward = 1;
     $r->controlslistnodownload = 0;

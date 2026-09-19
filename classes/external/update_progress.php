@@ -171,7 +171,7 @@ class update_progress extends external_api {
         }
         $rate = isset($params['rate']) ? (float) $params['rate'] : 1.0;
         $rate = max(0.25, min(4.0, $rate));
-        // The Free edition does not enforce playback-rate restrictions.
+        // The Starter edition does not enforce playback-rate restrictions.
         $maxrate = 0.0;
         if ($maxrate > 0) {
             $rate = min($rate, $maxrate);
@@ -210,7 +210,7 @@ class update_progress extends external_api {
             $currenttime = $duration;
         }
 
-        // Seeking is available in the Free edition.
+        // Seeking is available in the Starter edition.
         $allowfastforward = true;
         if (!$allowfastforward) {
             $elapsed = $oldlastserverts > 0 ? max(0, $now - $oldlastserverts) : 0;

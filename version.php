@@ -26,12 +26,12 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_videotracker';
 
-// Keep this below the corresponding Pro build so Pro can upgrade this edition in place.
-$plugin->version   = 2026072402;
+// This must remain lower than the current Pro build (2026091900).
+$plugin->version   = 2026091800;
 
 // Moodle 4.5 or later.
 $plugin->requires  = 2024100700;
 $plugin->supported = [405, 502];
 
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.2';
+$plugin->release   = '1.2.1 Starter';

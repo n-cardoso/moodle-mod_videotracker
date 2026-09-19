@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Database upgrade steps for Video Tracker Free.
+ * Database upgrade steps for Video Tracker Starter.
  *
  * @package     mod_videotracker
  * @copyright   2026 LearnPlug
@@ -23,17 +23,15 @@
  */
 
 /**
- * Upgrade Video Tracker Free.
+ * Upgrade Video Tracker Starter.
  *
  * The first Marketplace release uses the mature core schema already
- * represented by install.xml. Future Free releases add upgrade steps here.
+ * represented by install.xml. Future Starter releases add upgrade steps here.
  *
  * @param int $oldversion
  * @return bool
  */
 function xmldb_videotracker_upgrade(int $oldversion): bool {
-    global $CFG, $DB;
-
     if ($oldversion < 2026071701) {
         // No schema change. The build increment ensures Moodle refreshes
         // language strings and other plugin caches.
@@ -51,62 +49,18 @@ function xmldb_videotracker_upgrade(int $oldversion): bool {
     }
 
     if ($oldversion < 2026071704) {
-        // Repair gradebooks left pending by the previous reset implementation.
-        require_once($CFG->libdir . '/gradelib.php');
-        $courseids = $DB->get_fieldset_sql(
-            "SELECT DISTINCT courseid
-               FROM {grade_items}
-              WHERE itemtype = :itemtype
-                AND itemmodule = :itemmodule",
-            [
-                'itemtype' => 'mod',
-                'itemmodule' => 'videotracker',
-            ]
-        );
-        foreach ($courseids as $courseid) {
-            grade_regrade_final_grades((int) $courseid);
-        }
-
+        // Historical savepoint only. Gradebook repair is queued after upgrade
+        // by build 2026071707 because grade APIs cannot run during upgrade.
         upgrade_mod_savepoint(true, 2026071704, 'videotracker');
     }
 
     if ($oldversion < 2026071705) {
-        // Clear course-level dirty flags left by the failed fast-regrade path.
-        require_once($CFG->libdir . '/gradelib.php');
-        $courseids = $DB->get_fieldset_sql(
-            "SELECT DISTINCT courseid
-               FROM {grade_items}
-              WHERE itemtype = :itemtype
-                AND itemmodule = :itemmodule",
-            [
-                'itemtype' => 'mod',
-                'itemmodule' => 'videotracker',
-            ]
-        );
-        foreach ($courseids as $courseid) {
-            grade_regrade_final_grades((int) $courseid);
-        }
-
+        // Historical savepoint only. See the post-upgrade repair queued below.
         upgrade_mod_savepoint(true, 2026071705, 'videotracker');
     }
 
     if ($oldversion < 2026071706) {
-        // Repair courses affected by the grade-record deletion approach.
-        require_once($CFG->libdir . '/gradelib.php');
-        $courseids = $DB->get_fieldset_sql(
-            "SELECT DISTINCT courseid
-               FROM {grade_items}
-              WHERE itemtype = :itemtype
-                AND itemmodule = :itemmodule",
-            [
-                'itemtype' => 'mod',
-                'itemmodule' => 'videotracker',
-            ]
-        );
-        foreach ($courseids as $courseid) {
-            grade_regrade_final_grades((int) $courseid);
-        }
-
+        // Historical savepoint only. See the post-upgrade repair queued below.
         upgrade_mod_savepoint(true, 2026071706, 'videotracker');
     }
 
@@ -131,6 +85,12 @@ function xmldb_videotracker_upgrade(int $oldversion): bool {
     if ($oldversion < 2026072402) {
         // No schema change. This build finalises the stable Marketplace release.
         upgrade_mod_savepoint(true, 2026072402, 'videotracker');
+    }
+
+    if ($oldversion < 2026091800) {
+        // No schema change. Rename the Marketplace product to Starter and
+        // refresh plugin caches for the accessibility and maintenance update.
+        upgrade_mod_savepoint(true, 2026091800, 'videotracker');
     }
 
     return true;

@@ -562,27 +562,30 @@ if (!empty($action) && $canreset) {
         }
 
         $now = time();
+        $resetfields = [
+            'percent' => 0,
+            'watched' => 0,
+            'viewmap' => null,
+            'completed' => 0,
+            'lastpos' => 0,
+            'obj1' => 0,
+            'obj2' => 0,
+            'obj3' => 0,
+            'lastct' => 0,
+            'lastseq' => 0,
+            'lastserverts' => 0,
+            'timemodified' => $now,
+        ];
         $chunks = array_chunk($userids, 1000);
         foreach ($chunks as $chunk) {
             [$insql, $inparams] = $DB->get_in_or_equal($chunk, SQL_PARAMS_NAMED);
-            $updateparams = ['now' => $now, 'cmid' => $cm->id] + $inparams;
-            $DB->execute(
-                "UPDATE {videotracker_progress}
-                    SET percent = 0,
-                        watched = 0,
-                        viewmap = NULL,
-                        completed = 0,
-                        lastpos = 0,
-                        obj1 = 0,
-                        obj2 = 0,
-                        obj3 = 0,
-                        lastct = 0,
-                        lastseq = 0,
-                        lastserverts = 0,
-                        timemodified = :now
-                  WHERE cmid = :cmid AND userid {$insql}",
-                $updateparams
-            );
+            $select = "cmid = :cmid AND userid {$insql}";
+            $selectparams = ['cmid' => $cm->id] + $inparams;
+            $transaction = $DB->start_delegated_transaction();
+            foreach ($resetfields as $field => $value) {
+                $DB->set_field_select('videotracker_progress', $field, $value, $select, $selectparams);
+            }
+            $transaction->allow_commit();
         }
 
         $completion = new completion_info($course);

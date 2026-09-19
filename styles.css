@@ -279,8 +279,7 @@ Goal marker (completion threshold)
 }
 
 /* ==========================================================================
-Tooltip (simple + readable, not loud)
-Note: your tooltip AMD can control show/hide, this is safe.
+Tooltip (simple, keyboard accessible, and localized by Moodle)
 ========================================================================== */
 
 .mod_videotracker .vt-tooltip {
@@ -299,8 +298,8 @@ Note: your tooltip AMD can control show/hide, this is safe.
     transition: opacity .12s ease-in-out, transform .12s ease-in-out;
 }
 
-/* If your tooltip module sets aria-hidden=false, show it */
-.mod_videotracker .vt-tooltip[aria-hidden="false"] {
+.mod_videotracker .vt-goal-dot:hover + .vt-tooltip,
+.mod_videotracker .vt-goal-dot:focus + .vt-tooltip {
     opacity: 1;
     transform: translateX(-50%) translateY(-2px);
 }

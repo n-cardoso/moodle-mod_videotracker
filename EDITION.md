@@ -1,10 +1,10 @@
-# Video Tracker Free edition policy
+# Video Tracker Starter edition policy
 
-Video Tracker Free and Video Tracker Pro use the same Moodle component,
+Video Tracker Starter and Video Tracker Pro use the same Moodle component,
 `mod_videotracker`. They are editions of one plugin, not two plugins that can be
 installed side by side.
 
-## Free feature set
+## Starter feature set
 
 - Uploaded Moodle video files
 - YouTube videos
@@ -28,22 +28,23 @@ installed side by side.
 
 ## Maintenance rule
 
-Pro is the development source. A Free release is cut deliberately from a tested
-Pro release by applying the Free feature policy. Shared security and
-compatibility fixes are backported when a Free release is prepared; the Free
-edition does not maintain an independent feature roadmap.
+Pro is the development source. A Starter release is cut deliberately from a
+tested Pro release by applying the Starter feature policy. Shared security and
+compatibility fixes are backported when a Starter release is prepared. Starter
+has a deliberately limited roadmap focused on reliability, compatibility,
+accessibility, and core teacher and learner usability.
 
-Every matching Pro build must have a higher Moodle version number than its Free
-build. The first pair is:
+The current Pro build must always have a higher Moodle version number than the
+current Starter build. The 1.2.1 Starter baseline is:
 
-- Free: `2026072402`
-- Pro: `2026072403`
+- Starter: `2026091800`
+- Pro: `2026091900`
 
-This ordering allows Moodle to upgrade Free to Pro in place. The Free install
+This ordering allows Moodle to upgrade Starter to Pro in place. The Starter install
 schema intentionally retains compatible instance columns used by Pro, even
-though Free does not expose or act on those settings. Removing those columns
+though Starter does not expose or act on those settings. Removing those columns
 would make an in-place upgrade fragile.
 
 The Marketplace package contains no license key, trial, remote entitlement, or
 forced promotional flow. The README may identify the separately available Pro
-edition, but Free remains fully functional within its documented feature set.
+edition, but Starter remains fully functional within its documented feature set.
